@@ -76,16 +76,16 @@ importClasses <- function(classFile){
 	for(i in seq(1, length(classTxt), by=3)){
 		node <- classTxt[i]
 		nodes <- c(nodes, node)
-		state <- gsub(" ", "", unlist(strsplit(classTxt[i+1], ", ")))
+		state <- gsub(" ", "", unlist(strsplit(classTxt[i+1], ",")))
 		states[[node]] <- state
-		class <- as.numeric(gsub(" ", "", unlist(strsplit(classTxt[i+2], ", "))))
+		class <- as.numeric(gsub(" ", "", unlist(strsplit(classTxt[i+2], ","))))
 		classBoundaries[[node]] <- class
 	}
 	setClasses(nodes=nodes, states=states, classBoundaries=classBoundaries)
 }
 
 
-linkNodeRaster <- function(layer, network, node, categorical=NULL, boundaries=NULL, verbose=TRUE){
+linkNodeRaster <- function(layer, network, node, intervals, categorical=NULL, verbose=TRUE){
 	# Check correspondence of node and states names between lookup list and network
 	checkName <- node %in% names(network$universe$levels)
 	if(checkName == FALSE){
@@ -93,44 +93,43 @@ linkNodeRaster <- function(layer, network, node, categorical=NULL, boundaries=NU
 		stop('Node name provided does not match any node name from the network')		
 	}
 	states <- network$universe$levels[[node]]
-	# Check correspondence of number of states and class boundaries
-	if(!is.null(boundaries)) {
-		if(!identical(boundaries, unique(boundaries))){
-			stop('Non unique boundaries or classes defined')
-		}
-		delta <- length(boundaries) - length(states)
-		if(! delta %in% c(0, 1)){
+	# Check correspondence of number of states and intervals
+#	if(!is.null(intervals)) {
+	if(!identical(intervals, unique(intervals))){
+		stop('Non unique intervals defined')
+	}
+	delta <- length(intervals) - length(states)
+	if(! delta %in% c(0, 1)){
+		stop('Number of classes does not match number of states.')
+	}
+	if(!is.null(categorical)){
+		if(categorical == TRUE & delta != 0) {
 			stop('Number of classes does not match number of states.')
+		} else if(categorical == FALSE & delta != 1) {
+			stop('Number of intervals does not match number of states. For non categorical data 
+				minimum and maximum boundaries must be set (-Inf and Inf allowed).')
 		}
-		if(!is.null(categorical)){
-			if(categorical == TRUE & delta != 0) {
-				stop('Number of classes does not match number of states.')
-			} else if(categorical == FALSE & delta != 1) {
-				stop('Number of class boundaries does not match number of states. For non categorical data 
-					minimum and maximum boundaries must be set (-Inf and Inf allowed).')
-			}
-		}
-		categorical <- ifelse(delta != 0, FALSE, TRUE)
-		if( identical(boundaries, sort(boundaries)) == FALSE & categorical == FALSE){
-			stop('"boundaries" must be sorted from lowest to highest')
-		}
+	}
+	categorical <- ifelse(delta != 0, FALSE, TRUE)
+	if( identical(intervals, sort(intervals)) == FALSE & categorical == FALSE){
+		stop('"intervals" must be sorted from lowest to highest')
 	}
 	r <- raster::raster(layer)
 	if(categorical == TRUE){
 		v <- as.factor(getValues(r))
-		if(is.null(boundaries)){
-			boundaries <- as.numeric(levels(v))
+		if(is.null(intervals)){
+			intervals <- as.numeric(levels(v))
 			warning('For categorical data check classes integer value and corresponding states.
 				If not matching as look up list should be provided (function "setClasses")
-				or modified from the current list.')
+				or modified from current list.')
 		} else {
-			if(identical(as.numeric(levels(v)), sort(boundaries)) == FALSE){
+			if(identical(as.numeric(levels(v)), sort(intervals)) == FALSE){
 				stop('Integer values in categorical data do not match categories provided')
 			}
 		}
 	} 
 	
-	lst <- list(list(States = states, Categorical = categorical, ClassBoundaries = boundaries, FilePath = layer, Raster = r))
+	lst <- list(list(States = states, Categorical = categorical, ClassBoundaries = intervals, FilePath = layer, Raster = r))
 	names(lst) <- node
 	if(verbose == TRUE){
 		writeLines(c(paste('\n"', node, '"', ' points to:', sep=''), 
@@ -138,7 +137,7 @@ linkNodeRaster <- function(layer, network, node, categorical=NULL, boundaries=NU
 			'With states:', 
 			paste(states, collapse='    '), 
 			ifelse(is.null(categorical), '', ifelse(categorical == TRUE, '\nRepresented by integer values:', '\nDiscretized by intervals:')), 
-			paste(boundaries, collapse= ' <-> '))
+			paste(intervals, collapse= ' <-> '))
 		)
 		writeLines('----------------------------------')
 	}
@@ -151,21 +150,23 @@ linkNodeRasterList <- function(spatialData, network, classification, verbose=TRU
 		stop('Spatial data files do not match the number of nodes provided in the look up list')
 	}
 	# Check correspondence of node and states names between lookup list and network
-	for(nm in names(classification)) {
+	# then iterate through the nodes and append to summary list
+	lst <- list()
+	for(nm in names(classification)){
 		checkStates <- classification[[nm]]$States %in% network$universe$levels[[nm]]
 		if(any(checkStates == FALSE)){
 			print(paste("'", classification[[nm]]$States[!checkStates], "' missing from network node", nm))
 			stop('Node states provided from the look up list do not match \n node states from the network')
 		}
-	}
-	# Iterate through the nodes and append to summary list
-	lst <- list()
-	for(i in 1:length(spatialData)){
-		node <- names(classification)[i]
-		ClassBoundaries <- classification[[node]]$ClassBoundaries
-		Categorical <- classification[[node]]$Categorical
-		lst[node] <- linkNodeRaster(spatialData[i], network=network, node = node, 
-			boundaries=ClassBoundaries, categorical=Categorical, verbose=TRUE)
+		Categorical <- classification[[nm]]$Categorical
+		if(Categorical == TRUE){
+			sortedClasses <- match(network$universe$levels[[nm]],classification[[nm]]$States)
+			ClassBoundaries <- classification[[nm]]$ClassBoundaries[sortedClasses]
+		} else {
+			ClassBoundaries <- classification[[nm]]$ClassBoundaries
+		}
+		lst[nm] <- linkNodeRaster(spatialData[ names(classification) == nm ], network=network, node=nm, 
+			intervals=ClassBoundaries, categorical=Categorical, verbose=verbose)
 	}
 	return(lst)
 }
@@ -338,7 +339,7 @@ bulkSpatialQuery <- function(network, target, evidence, cores=(detectCores()-1) 
 }
 
 
-mapTarget <- function(target, statesProbs, what=c("class", "entropy"), context, midVals=NULL, targetState=NULL, spatial=TRUE, exportRaster=FALSE, path=NULL){
+mapTarget <- function(target, statesProbs, what=c("class", "entropy", "probability"), context, midVals=NULL, targetState=NULL, spatial=TRUE, exportRaster=FALSE, path=NULL){
 	if(exportRaster == TRUE) {
 		if(is.null(path)){
 			path <- paste(getwd(), '/', sep='')
@@ -361,11 +362,13 @@ mapTarget <- function(target, statesProbs, what=c("class", "entropy"), context, 
 			Class <- match(Class, colnames(statesProbs))
 			context[id] <- Class
 			Class <- context
+			keyLegend <- data.frame(colnames(statesProbs), 1:length(colnames(statesProbs)))
+			names(keyLegend) <- c(target, 'ID')
 			if(exportRaster == TRUE){
-				writeRaster(Class, paste(path, target, '_Class.tif', sep=''), overwrite=TRUE)
-				keyLegend <- data.frame(colnames(statesProbs), 1:length(colnames(statesProbs)))
-				names(keyLegend) <- c(target, 'ID')
-				write.table(keyLegend, paste(path, target, '_ClassKey.csv', sep=''), row.names = FALSE)
+				writeRaster(Class, paste(path, target, '_Class.tif', sep=''), overwrite=TRUE, datatype='INT2S')
+				write.csv(keyLegend, paste(path, target, '_ClassKey.csv', sep=''), row.names = FALSE)
+			} else {
+				print(keyLegend)
 			}
 		}
 		whatList$Class <- Class
@@ -419,7 +422,7 @@ mapTarget <- function(target, statesProbs, what=c("class", "entropy"), context, 
 }
 
 
-bnSpatialize <- function(network, target, spatialData, lookUp, msk=NULL, outputs=c("class", "entropy"), midVals=NULL, targetState=NULL, spatial=FALSE, mcores=FALSE, exportRaster=FALSE, path=NULL, ...){
+bnSpatialize <- function(network, target, spatialData, lookUp, msk=NULL, outputs=c("class", "entropy"), midVals=NULL, targetState=NULL, spatial=TRUE, mcores=FALSE, exportRaster=FALSE, path=NULL, ...){
 	installMissingPackages(mcores)
 	network <- loadNetwork(network=network, target=target)
 
@@ -439,7 +442,7 @@ bnSpatialize <- function(network, target, spatialData, lookUp, msk=NULL, outputs
 	if(class(spatialData) != 'character' | length(spatialData) != length(classes)){
 		stop('Check "spatialData": must be a vector of file names of length equal to the number of corresponding nodes')
 	}
-	spatialDataList <- linkNodeRasterList(spatialData, network, classes)
+	spatialDataList <- linkNodeRasterList(spatialData=spatialData, network=network, classification=classes)
 
 	## Load or create mask
 	msk <- AOI(spatialDataList, msk=msk) 

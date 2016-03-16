@@ -304,6 +304,14 @@ spatialQuery <- function(network, target, evidence, ...){
 		print(inputNodes[!inputNodes %in% network$universe$nodes])	
 		stop('One or more nodes not found in the network, please check names.')
 	}
+	fixed <- colnames(tab)[duplicated(colnames(tab))]
+	if(length(fixed) > 0){
+		for(i in fixed){
+			fix <- max(which(colnames(tab) == i))
+			tab[,which(colnames(tab) == i)] <- tab[,fix]
+			tab <- tab[,-fix]
+		}
+	}
 	# Create single codes to identify all existing combinations of variables state
 	# Codes are preferred as character type to numeric, although performarnce may be slightly affected
 	key <- as.factor(evidence)

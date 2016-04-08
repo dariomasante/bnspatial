@@ -1,10 +1,17 @@
 Package: bnspatial
-Title: What the Package Does (one line, title case)
-Version: 0.0.0.9000
-Authors@R: person("First", "Last", email = "first.last@example.com", role = c("aut", "cre"))
-Description: What the package does (one paragraph).
-Depends:
-    R (>= 3.1.2)
-License: What license is it under?
-LazyData: true
-RoxygenNote: 5.0.1.9000
+Type: Package
+Title: An R package for the spatial implementation of Bayesian Network in R and more
+Version: 1.0
+Date: 2016-04-08
+Author: Dario Masante
+Maintainer: Dario Masante <dmasan@ceh.ac.uk>
+Depends: raster, gRain, foreach
+Suggests: bnspatial, sp, doParallel
+Description: bnspatial is a package designed to facilitate the spatial implementation 
+	of BN with minimal knowledge of the R programming language. It consists mainly of 
+	function wrappers allowing the creation of spatial data from BN easily and 
+	efficiently, but offers some additional features too, including powerful parallel 
+	processing options and data discretization routines. 
+License: GPL (>= 3)
+URL: https://github.com/dariomasante/bnspatial/
+Date/Publication: 2016-04-08

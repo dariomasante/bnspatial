@@ -2,7 +2,7 @@
 Function wrapper for the spatial implementation of Bayesian Networks in R and more.
 
 To install (until the package is not available on CRAN):
-- download the source file [bnspatial_1.0.tar.gz](https://github.com/dariomasante/bnspatial/blob/master/bnspatial_1.0.tar.gz?raw=true) to the R working directory (or any other directory)
+- download the source file [bnspatial_0.9.tar.gz](https://github.com/dariomasante/bnspatial/blob/master/bnspatial_0.9.tar.gz?raw=true) to the R working directory (or any other directory)
 - start an R session
 - run the following commands in the console:
 ``` r

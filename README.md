@@ -13,7 +13,7 @@ install.packages("gRain", repos="http://cran.uk.r-project.org/", dependencies=T,
 install.packages("raster", repos="http://cran.uk.r-project.org/", dependencies=T, clean=T)
 
 ## Install bnspatial (full path to the file, if not in the R working directory)
-install.packages("~/bnspatial_1.0.tar.gz", repos = NULL, type="source")
+install.packages("~/bnspatial_0.9.tar.gz", repos = NULL, type="source")
 
 ## Load packages
 require(raster); require(gRain); require(bnspatial)

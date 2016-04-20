@@ -11,8 +11,6 @@ source("http://bioconductor.org/biocLite.R")
 biocLite("RBGL")
 install.packages("gRain", repos="http://cran.uk.r-project.org/", dependencies=T, clean=T)
 install.packages("raster", repos="http://cran.uk.r-project.org/", dependencies=T, clean=T)
-install.packages("foreach", repos="http://cran.uk.r-project.org/", dependencies=T, clean=T)
-install.packages("doParallel", repos="http://cran.uk.r-project.org/", dependencies=T, clean=T)
 
 ## Install bnspatial (full path to the file, if not in the R working directory)
 install.packages("~/bnspatial_1.0.tar.gz", repos = NULL, type="source")

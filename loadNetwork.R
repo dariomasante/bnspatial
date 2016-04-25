@@ -1,10 +1,12 @@
 loadNetwork <- function(network, target=NULL){
-    if(class(network) == 'character' & length(network) == 1){
-        net <- .loadNet(network) #Load Bayesian network
-    }
-    if (all(class(network) != "grain")){  # Check if a valid network is loaded
-        stop('Input "network" must be a .net file (from any external software such as Hugin, Netica or GeNIe), 
+    if (all(class(network) != "grain")){  # Check if a gRain network is loaded
+        if(class(network) == 'character' & length(network) == 1){
+            network <- .loadNet(network) # If not load Bayesian network from file path
+        } else {
+            stop('Input "network" must be a .net file (from any external software such as Hugin, Netica or GeNIe), 
              or an object of class "grain" from the gRain package')
+        }
+    }
     if(!is.null(target)){
         net <- gRain::compile.grain(net, root=target, propagate=TRUE) #Compile network to speed up queries
     }

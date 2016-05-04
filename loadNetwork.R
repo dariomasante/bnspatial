@@ -3,20 +3,19 @@ loadNetwork <- function(network, target=NULL){
         if(class(network) == 'character' & length(network) == 1){
             network <- .loadNet(network) # If not load Bayesian network from file path
         } else {
-            stop('Input "network" must be a .net file (from any external software such as Hugin, Netica or GeNIe), 
-             or an object of class "grain" from the gRain package')
+            stop('Input "network" must be a .net file (from any external software such as Hugin, Netica or GeNIe), or an object of class "grain" from the gRain package')
+        }
+        if(!is.null(target)){
+            network <- gRbase::compile(network, root=target, propagate=TRUE) #Compile network to speed up queries
         }
     }
-    if(!is.null(target)){
-        net <- gRain::compile.grain(net, root=target, propagate=TRUE) #Compile network to speed up queries
-    }
-    return(net)
-    }
+    return(network)
+}
 
 ## This set of functions were copied in block from the gRain package, as current CRAN policy
-## discourages accessing hidden functions with `:::` , while gRain::loadHuginNetwork does not 
-## load .net files from GeNIE correctly. These functions will be prograssively substituted
-## with bnspatial native ones.
+## discourages accessing hidden functions with `:::` operator. The problem is that gRain::loadHuginNetwork 
+## does not load .net files from the GeNIE software correctly and a simple tweak in the hidden functions 
+## is able to fix that. These functions will be prograssively substituted by bnspatial native ones.
 
 .loadNet = function(file, description = rev(unlist(strsplit(file, "/")))[1], details = 0) {
     xxx <- .readHugin(file, details)
@@ -28,6 +27,15 @@ loadNetwork <- function(network, target=NULL){
     plist <- lapply(yyy$potentialList, .hpot2cptable, universe)
     value <- gRain::grain(gRain::compileCPT(plist))
     return(value)
+}
+
+.fixLines <- function(nodeLines) {
+  s <- which(grepl('states = ', nodeLines))
+  while(grepl( ');', nodeLines[s]) == FALSE){
+    nodeLines[s] <- paste(nodeLines[s], nodeLines[s+1], sep='')
+    nodeLines <- nodeLines[-(s+1)]
+  }
+  return(nodeLines)
 }
 
 .asUniverse <- function (from) 
@@ -48,15 +56,6 @@ loadNetwork <- function(network, target=NULL){
     vpa <- universe$nodes[idx]
     v <- vpa[1]
     gRain::cptable(vpa, values = cpot$potential, levels = universe$levels[[v]])
-}
-
-.fixLines <- function(nodeLines) {
-    s <- which(grepl('states = ', nodeLines))
-    while(grepl( ');', nodeLines[s]) == FALSE){
-        nodeLines[s] <- paste(nodeLines[s], nodeLines[s+1], sep='')
-        nodeLines <- nodeLines[-(s+1)]
-    }
-    return(nodeLines)
 }
 
 .readHugin <- function (file, details = 0) 

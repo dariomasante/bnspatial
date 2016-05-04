@@ -1,8 +1,11 @@
 ### R wrapper to implement Bayesian Networks on raster data 
-### Author: Dario Masante - dmasan@ceh.ac.uk (dario.masante at gmail.com)
-### March 2016
+### Author: Dario Masante 
+### May 2016
 
-setClasses <- function(nodes, states, classBoundaries){
+setClasses <- function(nodes, states, classBoundaries, wr=NULL){
+    if(length(nodes) != length(states) | length(nodes) != length(classBoundaries)){
+        stop('Number of nodes not matching the list of states and/or classBoundaries provided.')
+    }
 	lst <- vector('list', length = length(nodes))
 	names(lst) <- nodes
 	for(i in 1:length(names(lst)) ){
@@ -18,7 +21,7 @@ setClasses <- function(nodes, states, classBoundaries){
 		if((length(classBoundaries[[i]]) - length(states[[i]])) %in% c(0, 1)){
 			categorical <- ifelse(length(classBoundaries[[i]]) == length(states[[i]]), TRUE, FALSE)
 		} else {
-			stop('Number of classes does not match number of states. Also, for non categorical data 
+			stop('Number of classes not matching the number of states. Also, for non categorical data 
 				minimum and maximum boundaries must be set (-Inf and Inf allowed).')
 		}
 		lst[[i]]$ClassBoundaries <- classBoundaries[[i]]
@@ -28,8 +31,12 @@ setClasses <- function(nodes, states, classBoundaries){
 			stop('"classBoundaries" for non categorical data must be sorted from lowest to highest')
 		}
 	}
+	if(!is.null(wr)){
+	    .makeClassFile(wr, lst)
+	}
 	return(lst)
 }
+
 
 importClasses <- function(classFile){
 	if(class(classFile) != 'character' | length(classFile) != 1){
@@ -48,6 +55,14 @@ importClasses <- function(classFile){
 		classBoundaries[[node]] <- class
 	}
 	setClasses(nodes=nodes, states=states, classBoundaries=classBoundaries)
+}
+
+.makeClassFile <- function(f, lst){
+    cat("", file=f)
+    for(i in 1:length(lst)){
+        nm <- names(lst[i])
+        cat(nm, paste(lst[[i]][[1]], collapse=","), paste(lst[[i]][[2]], collapse=","), sep="\n", file=f, append=TRUE)
+    }
 }
 
 linkNodeRaster <- function(layer, network, node, intervals, categorical=NULL, verbose=TRUE){
@@ -79,26 +94,29 @@ linkNodeRaster <- function(layer, network, node, intervals, categorical=NULL, ve
 	if( identical(intervals, sort(intervals)) == FALSE & categorical == FALSE){
 		stop('"intervals" must be sorted from lowest to highest')
 	}
-	r <- raster::raster(layer)
+	if(class(layer) != 'RasterLayer'){
+	    layer <- raster::raster(layer)
+	}
 	if(categorical == TRUE){
-		v <- as.factor(raster::getValues(r))
+		v <- as.factor(raster::getValues(layer))
 		if(is.null(intervals)){
 			intervals <- as.numeric(levels(v))
 			warning('For categorical data check classes integer value and corresponding states.
 				If not matching as look up list should be provided (function "setClasses")
 				or modified from current list.')
 		} else {
+		  ## May set as 
 			if(identical(as.numeric(levels(v)), sort(intervals)) == FALSE){
 				stop('Integer values in categorical data do not match categories provided')
 			}
 		}
-	} 
+	}
 	
-	lst <- list(list(States = states, Categorical = categorical, ClassBoundaries = intervals, FilePath = layer, Raster = r))
+	lst <- list(list(States = states, Categorical = categorical, ClassBoundaries = intervals, Raster = layer)) #FilePath = layer@file@name, 
 	names(lst) <- node
 	if(verbose == TRUE){
 		writeLines(c(paste('\n"', node, '"', ' points to:', sep=''), 
-			paste(' -> ', layer, '\n'), 
+			paste(' -> ', layer@data@names, '\n'), 
 			'With states:', 
 			paste(states, collapse='    '), 
 			ifelse(is.null(categorical), '', ifelse(categorical == TRUE, '\nRepresented by integer values:', '\nDiscretized by intervals:')), 
@@ -133,47 +151,42 @@ linkNodeRasterList <- function(spatialData, network, lookup, verbose=TRUE){
 		} else {
 			ClassBoundaries <- lookup[[nm]]$ClassBoundaries
 		}
-		lst[nm] <- linkNodeRaster(spatialData[ names(lookup) == nm ], network=network, node=nm, 
+		lst[nm] <- linkNodeRaster(spatialData[ names(lookup) == nm ][[1]], network=network, node=nm, 
 			intervals=ClassBoundaries, categorical=Categorical, verbose=verbose)
 	}
 	return(lst)
 }
 
-
-AOI <- function(spDataLst=NULL, msk=NULL, mskSub=NULL){
-	if(is.null(msk)){
-		if(is.null(spDataLst)) {
-			stop('Must provide the area of interest or at least one data layer')
-		}
-		r <- spDataLst[[1]]$Raster
-		ext <- raster::extent(r)
-		cellSizeX <- raster::res(r)[1]
-		cellSizeY <- raster::res(r)[2]
-		for(i in 1:length(spDataLst)){
-			r <- spDataLst[[i]]$Raster
-			ext <- raster::union(ext, raster::extent(r) )
-			cellSizeX <- ifelse(cellSizeX > raster::res(r)[1], raster::res(r)[1], cellSizeX)
-			cellSizeY <- ifelse(cellSizeY > raster::res(r)[2], raster::res(r)[2], cellSizeY)
-		}
-		msk <- raster::raster(xmn=ext[1], xmx=ext[2], ymn=ext[3], ymx=ext[4], ext=ext, resolution=c(cellSizeX, cellSizeY), vals = 1)
-	} else {
-		if(class(msk) != 'RasterLayer'){
-			msk <- raster::raster(msk)
-		}
-		id <- msk
-		id[] <- 1:length(id)
-		mskVals = raster::getValues(msk)
-		if(!is.null(mskSub)){
-			id <- raster::getValues(id)[!is.na(mskVals) & mskVals %in% mskSub]
-		} else {
-			id <- raster::getValues(id)[!is.na(mskVals)]
-		}
-		msk[]<- NA
-		msk[id] <- 1
-	}
-	return(msk)
+AOI <- function(msk, mskSub=NULL){
+    if(is.list(msk)){
+        r <- msk[[1]]$Raster
+        ext <- raster::extent(r)
+        cellSizeX <- raster::res(r)[1]
+        cellSizeY <- raster::res(r)[2]
+        for(i in 1:length(msk)){
+            r <- msk[[i]]$Raster
+            ext <- raster::union(ext, raster::extent(r) )
+            cellSizeX <- ifelse(cellSizeX > raster::res(r)[1], raster::res(r)[1], cellSizeX)
+            cellSizeY <- ifelse(cellSizeY > raster::res(r)[2], raster::res(r)[2], cellSizeY)
+        }
+        msk <- raster::raster(xmn=ext[1], xmx=ext[2], ymn=ext[3], ymx=ext[4], ext=ext, resolution=c(cellSizeX, cellSizeY), vals = 1)
+    } else {
+        if(class(msk) != 'RasterLayer'){
+            msk <- raster::raster(msk, RAT=FALSE)
+        }
+        id <- msk
+        id[] <- 1:length(id)
+        mskVals = raster::getValues(msk)
+        if(!is.null(mskSub)){
+            id <- raster::getValues(id)[!is.na(mskVals) & mskVals %in% mskSub]
+        } else {
+            id <- raster::getValues(id)[!is.na(mskVals)]
+        }
+        msk[]<- NA
+        msk[id] <- 1
+    }
+    return(msk)
 }
-
 
 extractValuesByMask <- function(rast, msk){
 	if(class(rast) != 'RasterLayer'){
@@ -193,56 +206,22 @@ extractValuesByMask <- function(rast, msk){
 	return( raster::getValues(rast)[cells] )
 }
 
-
 dataDiscretize <- function(data, classBoundaries=NULL, classStates=NULL, method="quantile"){
-	if(is.null(classBoundaries)){
-		if(is.null(classStates)){ 
-			stop('Must provide either "classBoundaries", "classStates" or both') 
-		} else {
-			classBoundaries <- length(classStates)
-		}
-	}
-	if(length(classBoundaries) == 1){
-		if(!is.null(classStates) & classBoundaries != length(classStates)){
-			stop('Number of bins must match the number of states')
-		}
-		if(classBoundaries < 2 | abs(classBoundaries - round(classBoundaries)) > 0 ){
-			stop('"classBoundaries" must be an integer greater than 1, \n 
-				or a vector of values to be used as class boundaries')
-		}
-		minimum <- min(data, na.rm=TRUE)
-		maximum <- max(data, na.rm=TRUE)
-		method <- match.arg(method, c("quantile", "equal"))
-		if(method == "quantile"){
-			classBoundaries <- quantile(data, probs=cumsum(rep(1/classBoundaries, classBoundaries-1)), na.rm=TRUE, names = FALSE)
-			classBoundaries <- c(minimum, classBoundaries, maximum)
-			if(any(duplicated(classBoundaries))){stop('Non unique quantile separators (a single value may cover a substantial \n  fraction of the data). Please specify a vector of class boundaries instead.')}
-		} 
-		if(method == "equal"){
-			intervalSize <- (maximum - minimum) / classBoundaries
-			classBoundaries <- minimum + cumsum(rep(intervalSize, classBoundaries-1))
-			classBoundaries <- c(minimum, classBoundaries, maximum)
-		}
-	} else if(!is.null(classStates)){
-		if(!identical(classStates, unique(classStates))){
-			stop('Non unique states defined')
-		}
-		if((length(classBoundaries)-1) != length(classStates)){
-			stop('Number of bins must match the number of states')
-		}
-	}
-	if( identical(classBoundaries, sort(classBoundaries)) == FALSE ){
-		stop('"classBoundaries" must be provided from lowest to highest')
-	}
-	minimum <- classBoundaries[1]
+    match.arg(method, c("quantile", "equal"))
+    mn <- min(data, na.rm=TRUE)
+    mx <- max(data, na.rm=TRUE)
+
+    classBoundaries <- .makeClassBoundaries(data=data, classBoundaries=classBoundaries, classStates=classStates, method=method, mn=mn, mx=mx)
+	
+    minimum <- classBoundaries[1]
 	maximum <- classBoundaries[length(classBoundaries)]
 	discreteData <- findInterval(data, classBoundaries, rightmost.closed=TRUE)
 	#discreteData[which(data == maximum)] <- length(classBoundaries) - 1  #Fix max value exclusion from findInterval
 	discreteData[discreteData == 0 | discreteData == length(classBoundaries)] <- NA  #Remove extra classes, out of boundaries
 
 	breaks <- classBoundaries
-	minimum <- ifelse(minimum == -Inf, min(data, na.rm=TRUE), minimum)
-	maximum <- ifelse(maximum == Inf, max(data, na.rm=TRUE), maximum)
+	minimum <- ifelse(minimum == -Inf, mn, minimum)
+	maximum <- ifelse(maximum == Inf, mx, maximum)
 	breaks[c(1, length(breaks))] <- c(minimum, maximum)
 	midValues <- sapply(1:(length(breaks)-1), function(x) {(breaks[x] + breaks[x+1])/2})
 	if(!is.null(classStates)){
@@ -254,10 +233,65 @@ dataDiscretize <- function(data, classBoundaries=NULL, classStates=NULL, method=
 		midValues=midValues, classStates=classStates))
 }
 
-bulkDiscretize <- function(formattedLst, xy){
-	extractValuesByMask <- extractValuesByMask # Trick to be used  to pass function until package is not ready
-	dataDiscretize <- dataDiscretize # Trick to be used to pass function until package is not ready
-	splittedData <- split(as.data.frame(xy), (seq(nrow(xy))-1) %/% (nrow(xy)/(parallel::detectCores()-1)) )
+.makeClassBoundaries <- function(data, classBoundaries, classStates, method, mn, mx){
+    if(is.null(classBoundaries)){
+        if(is.null(classStates)){ 
+            stop('Must provide either "classBoundaries", "classStates" or both') 
+        } else if(length(classStates) < 2){
+            stop('"classStates" must be a vector of length greater than 1')
+        } else {
+            classBoundaries <- length(classStates)
+        }
+    }
+    if(length(classBoundaries) == 1){
+        if(!is.null(classStates) & classBoundaries != length(classStates)){
+            stop('Number of bins must match the number of states')
+        }
+        if(classBoundaries < 2 | abs(classBoundaries - round(classBoundaries)) > 0 ){
+            stop('"classBoundaries" must be an integer greater than 1, 
+                 or a vector of values to be used as class boundaries')
+        }
+        if(method == "quantile"){
+            classBoundaries <- quantile(data, probs=cumsum(rep(1/classBoundaries, classBoundaries-1)), na.rm=TRUE, names = FALSE)
+            classBoundaries <- c(mn, classBoundaries, mx)
+            if(any(duplicated(classBoundaries))){
+                stop('Non unique quantile separators (a single value may cover a substantial fraction of the data). Please specify a vector of class boundaries instead.')
+            }
+        } 
+        if(method == "equal"){
+            intervalSize <- (mx - mn) / classBoundaries
+            classBoundaries <- mn + cumsum(rep(intervalSize, classBoundaries-1))
+            classBoundaries <- c(mn, classBoundaries, mx)
+        }
+        } else if(!is.null(classStates)){
+            if(!identical(classStates, unique(classStates))){
+                stop('Non unique states defined')
+            }
+            if((length(classBoundaries)-1) != length(classStates)){
+                stop('Number of bins must match the number of states')
+            }
+        }
+    ## perform some more checks  
+    if(!identical(classBoundaries, sort(classBoundaries))){
+        stop('"classBoundaries" must be provided from lowest to highest')
+    }
+    if(!identical(classBoundaries, unique(classBoundaries))){
+        warning('Non unique values provided in "classBoundaries"')
+    }
+    cb <- classBoundaries[-c(1, length(classBoundaries))]
+    if(any(cb < mn | cb > mx)){
+        cb <- cb[which(cb < mn | cb > mx)]
+        warning('One or more classes fall entirely out of data range. Check "classBoundaries".')
+    }
+    if(length(cb) == 0 & any(classBoundaries[2] < mn | classBoundaries[1] > mx)){
+        stop('All classes empty. Check "classBoundaries".')
+    }
+    return(classBoundaries)
+}
+
+bulkDiscretize <- function(formattedLst, xy, inparallel=FALSE){
+    mc <- .inParallel(inparallel)
+	splittedData <- split(as.data.frame(xy), (seq(nrow(xy))-1) %/% (nrow(xy) / mc ) )
 	foreach::foreach(i = 1:length(splittedData), .combine=rbind, .packages='raster') %dopar% {
 		df <- lapply(names(formattedLst), function(x){
 			rst <- formattedLst[[x]]$Raster
@@ -271,6 +305,16 @@ bulkDiscretize <- function(formattedLst, xy){
 		names(df) <- names(formattedLst)
 		as.matrix(as.data.frame(df))
 	}
+}
+
+.inParallel <- function(inparallel){
+    if(is.logical(inparallel)){
+        n <- ifelse(inparallel == TRUE, parallel::detectCores()-1, 1)
+    } else {
+        #n <- min(parallel::detectCores(), inparallel)
+        n <- inparallel
+    }
+    return(n)
 }
 
 netQuery <- function(network, target, evidence, ...){
@@ -313,9 +357,8 @@ netQuery <- function(network, target, evidence, ...){
 }
 
 netParallelQuery <- function(network, target, evidence, mc=(parallel::detectCores()-1), ...){
-    network = loadNetwork(network=network)
+    network <- loadNetwork(network=network)
 	evidence <- cbind(evidence, ...)
-	netQuery <- netQuery # Trick to be used  to pass function until package is not ready
 	splittedData <- split(as.data.frame(evidence), (seq(nrow(evidence))-1) %/% (nrow(evidence)/mc) )
 	splittedData <- lapply(1:length(splittedData), function(x){as.matrix(splittedData[[x]], ncol=ncol(evidence))})	
 	foreach::foreach(i = 1:length(splittedData), .combine=rbind, .packages="gRain") %dopar% {
@@ -327,6 +370,7 @@ mapTarget <- function(target, statesProb, what=c("class", "entropy", "probabilit
     if(exportRaster == TRUE){
         rFormat <- '.tif'
     } else if (is.character(exportRaster)){
+        #match.arg(exportRaster, c('.asc','.sdat','.rst','.nc','.tif','.envi','.bil'))
         rFormat <- exportRaster
     }
 	what <- match.arg(what, c("class", "entropy", "probability", "expected", "variation"), several.ok = TRUE)
@@ -337,7 +381,7 @@ mapTarget <- function(target, statesProb, what=c("class", "entropy", "probabilit
 			id <- raster::getValues(id)[!is.na(raster::getValues(msk))]
 			msk[] <- NA
 		} else { 
-			stop('"msk" must be an object of type "RasterLayer" as from raster::raster() function')
+			stop('"msk" must be an object of class "RasterLayer"')
 		}
 	}
 	whatList <- list()
@@ -370,7 +414,7 @@ mapTarget <- function(target, statesProb, what=c("class", "entropy", "probabilit
 					msk[id] <- Variation
 					Variation <- msk
 					if(exportRaster == TRUE){
-					    raster::writeRaster(Variation, paste(path, '/', target, '_CoeffVariation', rFormat, sep=''), overwrite=TRUE)
+					    raster::writeRaster(Variation, paste(path, '/', target, '_CoeffVariation', rFormat, sep=''), datatype='FLT4S', overwrite=TRUE)
 					}
 				}
 				whatList$CoeffVariation <- Variation			
@@ -380,7 +424,7 @@ mapTarget <- function(target, statesProb, what=c("class", "entropy", "probabilit
 					msk[id] <- Expected
 					Expected <- msk
 					if(exportRaster == TRUE){
-						raster::writeRaster(Expected, paste(path, '/', target, '_ExpectedValue', rFormat, sep=''), overwrite=TRUE)
+						raster::writeRaster(Expected, paste(path, '/', target, '_ExpectedValue', rFormat, sep=''), datatype='FLT4S', overwrite=TRUE)
 					}
 				}
 				whatList$ExpectedValue <- Expected
@@ -393,7 +437,7 @@ mapTarget <- function(target, statesProb, what=c("class", "entropy", "probabilit
 			msk[id] <- Entropy
 			Entropy <- msk
 			if(exportRaster == TRUE){
-			    raster::writeRaster(Entropy, paste(path, '/', target, '_Entropy', rFormat, sep=''), overwrite=TRUE)
+			    raster::writeRaster(Entropy, paste(path, '/', target, '_Entropy', rFormat, sep=''), datatype='FLT4S', overwrite=TRUE)
 			}
 		}
 		whatList$Entropy <- Entropy
@@ -406,7 +450,9 @@ mapTarget <- function(target, statesProb, what=c("class", "entropy", "probabilit
 		names(Probability) <- targetState
 		whatList$Probability <- Probability
 		if(spatial == TRUE & exportRaster == TRUE){
-			lapply(1:length(Probability), function(x) {raster::writeRaster(Probability[[x]], paste(path, '/', target, '_Probability_', targetState[x], rFormat, sep=''), overwrite=TRUE)})
+			lapply(1:length(Probability), function(x) {
+			  raster::writeRaster(Probability[[x]], paste(path, '/', target, '_Probability_', targetState[x], rFormat, sep=''), datatype='FLT4S', overwrite=TRUE)
+			})
 		}
 	}
 	if(spatial == FALSE){
@@ -424,7 +470,7 @@ mapTarget <- function(target, statesProb, what=c("class", "entropy", "probabilit
 bnSpatialize <- function(network, target, spatialData, lookup, msk=NULL, what=c("class", "entropy"), 
                          midvals=NULL, targetState=NULL, spatial=TRUE, inparallel=FALSE, exportRaster=FALSE, path=NULL, ...){
 #	installMissingPackages(inparallel)
-	network <- loadNetwork(network=network, target=target)
+	network <- loadNetwork(network, target)
 
 	## Load table with class boundaries, if available (otherwise make a list with node name and associated vector of class boundaries)
 	if(class(lookup) == 'character' & length(lookup) == 1){
@@ -442,7 +488,11 @@ bnSpatialize <- function(network, target, spatialData, lookup, msk=NULL, what=c(
 	spatialDataList <- linkNodeRasterList(spatialData=spatialData, network=network, lookup=lookup)
 
 	## Load or create mask
-	msk <- AOI(spDataLst=spatialDataList, msk=msk) 
+	if(is.null(msk)){
+	    msk <- AOI(spatialDataList)
+	} else {
+	    msk <- AOI(msk)
+	}
 	
 	## Identify, index and get coordinates of valid cells (= non NA) from area of interest/mask
 	id <- msk
@@ -450,24 +500,12 @@ bnSpatialize <- function(network, target, spatialData, lookup, msk=NULL, what=c(
 	id <- raster::getValues(id)[!is.na(raster::getValues(msk))]
 	xy <- raster::xyFromCell(msk, id)
 
-#	## Remove spatial data that was set as evidence in the ellipsis (...)
-#	if(length(list(...)) > 0){
-#	ls() 
-#		if(ls()... %in% names(spatialDataList)){
-#			spatialDataList = spatialDataList[-which(... %in% names(spatialDataList))]
-#		}
-#	}
-
 	## Extract data from locations, discretize and query Bayesian network
 	if(inparallel != FALSE){
-	    if(inparallel == TRUE){
-	        mc <- parallel::detectCores()-1
-	    } else {
-	        mc <- inparallel
-	    }
+	    mc <- .inParallel(inparallel)
 		cl <- parallel::makePSOCKcluster(mc)
 		doParallel::registerDoParallel(cl)
-		tab <- bulkDiscretize(formattedLst = spatialDataList, xy)
+		tab <- bulkDiscretize(formattedLst = spatialDataList, xy, inparallel=mc)
 		probs <- netParallelQuery(network=network, target=target, evidence=tab, mc=mc, ...)
 		parallel::stopCluster(cl); gc()
 	} else {

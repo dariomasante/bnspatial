@@ -6,6 +6,7 @@ loadNetwork <- function(network, target=NULL){
             stop('Input "network" must be a .net file (from any external software such as Hugin, Netica or GeNIe), or an object of class "grain" from the gRain package')
         }
         if(!is.null(target)){
+            .checkName(network, target)
             network <- gRbase::compile(network, root=target, propagate=TRUE) #Compile network to speed up queries
         }
     }

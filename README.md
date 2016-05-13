@@ -17,4 +17,6 @@ install.packages("~/bnspatial_0.9.tar.gz", repos = NULL, type="source")
 
 ## Load package
 library(bnspatial)
+
+?bnspatial
 ```

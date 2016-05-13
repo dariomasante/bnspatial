@@ -18,7 +18,7 @@ loadNetwork <- function(network, target=NULL){
 ## does not load .net files from the GeNIE software correctly and a simple tweak in the hidden functions 
 ## is able to fix that. These functions will be prograssively substituted by bnspatial native ones.
 
-.loadNet = function(file, description = rev(unlist(strsplit(file, "/")))[1], details = 0) {
+.loadNet <- function(file, description = rev(unlist(strsplit(file, "/")))[1], details = 0) {
     xxx <- .readHugin(file, details)
     
     xxx$nodeList <- lapply(xxx$nodeList, .fixLines) ## This line fixes Genie quirk when saving .net files

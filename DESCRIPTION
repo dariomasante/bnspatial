@@ -6,7 +6,12 @@ Author: Dario Masante [aut, cre]
 Maintainer: Dario Masante <dmasan@ceh.ac.uk>
 URL: http://github.com/dariomasante/bnspatial
 Imports:
-    raster, gRbase, gRain, foreach, doParallel, parallel
+    raster, 
+    gRbase, 
+    gRain,
+    doParallel, 
+    foreach, 
+    parallel
 Suggests:
     knitr,
     rmarkdown
@@ -15,7 +20,7 @@ Description: Package designed to facilitate the spatial
     consists mainly of function wrappers allowing the creation of spatial data from
     imported Bayesian networks, but offers some additional features too, including
     powerful parallel processing options and data discretization routines.
-License: GPL (>= 3)
+License: GPL-3
 LazyLoad: yes
 Packaged: 2016-04-08 10:31:48 UTC
 NeedsCompilation: no

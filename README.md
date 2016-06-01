@@ -1,5 +1,9 @@
 # bnspatial
-Function wrapper for the spatial implementation of Bayesian Networks in R and more.
+Package for the spatial implementation of Bayesian Networks and mapping in geographical space. 
+Outputs are GIS ready maps of expected value (or most likely state) given known and unknown conditions, maps of uncertainty 
+measured as both coefficient of variation or Shannon index (entropy), maps of probability associated to any states 
+of any node of the network. Some additional features are provided as well, such as parallel processing options,
+data discretization routines and function wrappers designed for users with minimal knowledge of the R programming language.
 
 To install (until the package is not available on CRAN):
 - download the source file [bnspatial_0.9.tar.gz](https://github.com/dariomasante/bnspatial/blob/master/bnspatial_0.9.tar.gz?raw=true) to the R working directory (or any other directory)
@@ -214,6 +218,19 @@ To apply parallel processing, simply set `inparallel=TRUE`. By default the numbe
 ```{r, eval=FALSE}
 bn <- bnspatial(network, 'FinalLULC', spatialData, lookup, inparallel=2)
 ```
+### Exporting spatial data
+All the spatial data created with *bnspatial* can be easily exported to a portable format, suitable for use in any GIS. The task of writing data are handled entirely by [*rgdal*](https://cran.r-project.org/web/packages/rgdal/index.html) and [*raster*](https://cran.r-project.org/web/packages/raster/index.html) packages. Available file formats are listed for function [`writeFormats`](http://www.inside-r.org/packages/cran/raster/docs/writeFormats), from *raster* package.  
+In *bnspatial*, data can be exported indirectly, by creating the output data and then exporting via `writeRaster` function available from *raster* package, or directly with `bnspatial` and `mapTarget` functions, which will write the data to the directory and format of choice. For both functions, this is done by setting arguments `exportRaster` and `path`: when `exportRaster=TRUE`, rasters will be exported in .tif format by default, to the working directory. A character can be provided instead of the logical value, specifying another preferred extension (e.g. `".tif"`), in which case the raster will be exported in that format.  
+If argument `path` is not specified, output files will be written to the working directory, as by `getwd()`.
+File names can't be provided, as they are set automatically, depending on the output required by `what` and accordingly to the following naming convention:  
+
+* `"class"` will set the file name to *<target node name>*_Class.*<file format  -default .tif>*
+* `"entropy"` -> *<target node name>*_ShanEntropy.*<file format  -default .tif>*
+* `"probability"` -> *<target node name>*_Probability_.*<targetState>*.*<file format  -default .tif>*
+* `"expected"` -> *<target node name>*_ExpectedValue.*<file format  -default .tif>*
+* `"variation"` -> *<target node name>*_CoefVariation.*<file format  -default .tif>*
+
+An additional comma separated file (.csv) is written to the same directory when `"class"`}, providing a key to relate the raster values to the node states they refer to.
 
 ### Unfolding *bnspatial* functions
 The function `bnspatial` is actually a wrapper for a bunch of other functions. Below the same example as above is used, but using explicitly the functions underneath `bnspatial`. These can all be accessed independently from the user and offer many more options to handle and process the network spatially.

@@ -1,10 +1,10 @@
 Package: bnspatial
-Title: Spatial Implementation Of Bayesian Networks
+Title: Spatial Implementation Of Bayesian Networks And Mapping 
 Version: 0.9
 Date: 2016-04-08
-Author: Dario Masante [aut, cre]
-Maintainer: Dario Masante <dmasan@ceh.ac.uk>
+Authors@R: c(person(given = "Dario", family = "Masante", role = c("aut", "cre"), email = "dmasan@ceh.ac.uk"))
 URL: http://github.com/dariomasante/bnspatial
+BugReports: https://github.com/dariomasante/bnspatial/issues
 Imports:
     raster, 
     gRbase, 
@@ -15,15 +15,13 @@ Imports:
 Suggests:
     knitr,
     rmarkdown
-Description: Package designed to facilitate the spatial
-    implementation of BN with minimal knowledge of the R programming language. It
-    consists mainly of function wrappers allowing the creation of spatial data from
-    imported Bayesian networks, but offers some additional features too, including
-    powerful parallel processing options and data discretization routines.
+Description: Package for the spatial implementation and mapping of Bayesian Networks in geographical space. 
+    It makes maps of expected value (or most likely state) given known and unknown conditions, maps of uncertainty 
+    measured as both coefficient of variation or Shannon index (entropy), maps of probability associated to any states 
+    of any node of the network. Some additional features are provided as well, such as parallel processing options,
+    data discretization routines and function wrappers designed for users with minimal knowledge of the R programming language.
 License: GPL-3
 LazyLoad: yes
-Packaged: 2016-04-08 10:31:48 UTC
 NeedsCompilation: no
-Date/Publication: 2016-04-08
 RoxygenNote: 5.0.1
 VignetteBuilder: knitr

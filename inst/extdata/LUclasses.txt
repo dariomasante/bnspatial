@@ -1,0 +1,9 @@
+CurrentLULC
+forest,other, arable
+2, 1, 3
+Slope
+flat, moderate, steep
+-Inf, 1, 7, Inf
+LegalStatus
+public, private, protected
+4, 3, 1

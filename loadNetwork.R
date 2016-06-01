@@ -1,3 +1,22 @@
+#' @name loadNetwork
+#' @title Load a Bayesian network
+#' @description This function loads the Bayesian network from a native gRain object of class "grain" or an external file with extension .net (as provided from Hugin or GeNIe), then compiles the network if a target node of interest is given. 
+#' %FIX UNDERSCORES REMOVAL (gRain:::.getNodeSpec AND gRain:::.toCamel)
+#' % FIX rewrite all external file reading, remove dependency from gRain
+#' @param network The Bayesian network. An object of class "grain" (package \href{https://cran.r-project.org/web/packages/gRain/index.html}{gRain}), or a character (the path to the ".net" file to be imported)
+#' @param target character. The node of interest to be modelled and mapped. 
+#' @return An object of class "grain". The Bayesian network. If \code{target} argument is provided the network is compiled for a faster querying .
+#' @details Bayesian networks from the package "bnlearn" can be imported via the function 
+#' ".net" file format as provided from Netica currently does not correspond to a valid Hugin .net file. \cr
+#' Argument \code{target} has default set to NULL, but if provided the network will be compiled based on it for faster querying.
+#' @examples
+#' ## Load from external file (.net format)
+#' raw = system.file("extdata", "LandUseChange.net", package = "bnspatial")
+#' loadNetwork(raw)
+#' 
+#' ## Compile using target node
+#' loadNetwork(raw, 'FinalLULC')
+#' @export
 loadNetwork <- function(network, target=NULL){
     if (all(class(network) != "grain")){  # Check if a gRain network is loaded
         if(class(network) == 'character' & length(network) == 1){
@@ -18,7 +37,7 @@ loadNetwork <- function(network, target=NULL){
 ## does not load .net files from the GeNIE software correctly and a simple tweak in the hidden functions 
 ## is able to fix that. These functions will be prograssively substituted by bnspatial native ones.
 
-.loadNet <- function(file, description = rev(unlist(strsplit(file, "/")))[1], details = 0) {
+.loadNet = function(file, description = rev(unlist(strsplit(file, "/")))[1], details = 0) {
     xxx <- .readHugin(file, details)
     
     xxx$nodeList <- lapply(xxx$nodeList, .fixLines) ## This line fixes Genie quirk when saving .net files

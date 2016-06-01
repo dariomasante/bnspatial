@@ -32,7 +32,7 @@ This example shows the use of *bnspatial* in a land use change context and is in
 A Bayesian network was built and its conditional probability table populated, in order to catch some of the relevant drivers of land use change in a sample catchment (Conwy, North Wales, UK). The links in the network reflect the relationships among variables: slope, legal status and current land use are assumed to be independent, as well as two hypotetical scenarios. One of them, intensification, predicts increase in demand and prices of agricultural products, while the other entails a more balanced management of natural resources, including measures for climate change mitigation, such as payments for carbon storage. Legal status of land determines a different level of direct or indirect involvement of stakeholders in land management and explain the link directed from it. Overall, change is defined by a combination of factors: stakeholder preferences, suitability of land for a given use (simplified with a single variable, slope) and the current land use, as a proxy for past suitability and preferences. Under protection, a given land use may or may not change, quite independently from other factors.  
 The simplified land use map under current and modelled conditions contains only three land use classes: arable, forest and other. The "final" land use type to be modelled depends on a set of drivers: some of them vary spatially (slope, legal status and current land use), while some other do not (socio-economic setting and stakeholder preferences). The model links the land use types to carbon stock as well, summarised under three broad categories identified as high, moderate or low.  
 Together with the spatial data and the network, a lookup list must be provided, to link properly the nodes from the network to the spatial data in input.  
-![The Bayesian network used in this example](N:/bnspatial_test/landuseModel.png).  
+![The Bayesian network used in this example](https://github.com/dariomasante/bnspatial/blob/master/inst/extdata/landuseModel.PNG).  
 
 In this example the following questions are asked:  
 
@@ -53,7 +53,7 @@ Below a brief description of the data (also accessed through command `?ConwyData
 [^1]: Celio, E., Koellner, T., & Gret-Regamey, A., 2014. Modelling land use decisions with Bayesian networks: Spatially explicit analysis of driving forces on land use change. Environmental Modelling & Software, 52, 222-233.
 
 
-In the following the main function `bnspatial` will be used to query the network and map the outputs. This function wraps most *bnspatial* functions into one, bringing directly from the network and input spatial data to the output maps. The use of `bnspatial` allows the user to provide external files as inputs (the Bayesian network in .net format, a look up classification file in .txt format, spatial data in various formats; see [details below](#anchor)), and minimizes the user interaction with R and it is therefore recommended to light R users. Several additional options are available in both input and output, as shown by the tutorial below (also, type `?bnspatial` in R console). Below, `FinalLULC` is the name of the node of interest (target), as indicated in the Bayesian network.
+In the following the main function `bnspatial` will be used to query the network and map the outputs. This function wraps most *bnspatial* functions into one, bringing directly from the network and input spatial data to the output maps. The use of `bnspatial` allows the user to provide external files as inputs (the Bayesian network in .net format, a look up classification file in .txt format, spatial data in various formats; see details below), and minimizes the user interaction with R and it is therefore recommended to light R users. Several additional options are available in both input and output, as shown by the tutorial below (also, type `?bnspatial` in R console). Below, `FinalLULC` is the name of the node of interest (target), as indicated in the Bayesian network.
 ```{r, message=FALSE, warning=FALSE, results='hide'}
 ## Loading package and data stored in it
 library(bnspatial)
@@ -82,7 +82,7 @@ bn <- bnspatial(network, 'FinalLULC', spatialData, lookup, verbose=FALSE)
 
 Maps from the previous example can be greatly improved by setting additional arguments, for instance `msk=currentLU`, which masks the output map to the `currentLU` only, instead of the union of all spatial inputs (default). However, the example shows how the Bayesian network is able to produce coherent outputs even under missing values, such as the case of background areas external to the catchment, for which spatial values are missing.
 
-### Loading external data {#anchor}
+### Loading external data
 For ease of use, *bnspatial* allows the use of external files in input, which can be handy if the user resorted to external software to build the Bayesian network. In particular, the network itself and the classification file, used to link node states to the input spatial data, may be compiled more easily outside R. For conciseness, the data used in this document is loaded from the R binary format which comes with the package, i.e. was already transformed in a suitable format for direct use in *bnspatial* (including spatial data). However, the same data are provided in raw format as well (see sub-directory *extdata* under *bnspatial* directory).    
 In fact, a more common case is when spatial data in typical formats are available to the user (e.g. .tif), Bayesian network was built using a stand alone software (e.g. GeNIe, Hugin or Netica) and structure, states and CPT were defined within that. `bnspatial` allows to use such inputs; if the example above resorted to external data, it would be as follows, with identical outputs:
 ```{r, message=FALSE, warning=FALSE, eval=FALSE}
@@ -130,13 +130,10 @@ By default, outputs of `bnspatial` are the expected state of target node (i.e. t
 Other outputs can be obtained, by adding or removing the following to the argument `what`:  
 
 * `class` (default) returns the relatively most likely state of the target node (expected state).  
-* `entropy` (default) calculates the Shannon index and returns the entropy given the state probabilities:
-$$-\sum_{i=1}^n p_i ln(p_i)$$ where $p_i$ is the probability associated to the state $i$ of target node.  
+* `entropy` (default) calculates the Shannon index and returns the entropy given the state probabilities.  
 * `probability` returns an object for each state of the target node, with associated probability.  
-* `expected` returns the expected value for the target node. Only valid for continuous target nodes. `midValues` argument must be provided. The expected value is calculated by summing the mid values of target node states weighted by their probability:
- $$p_1 * mid_1 + p_2 * mid_2 + ... + p_n * mid_n$$ where $mid_n$ is the mid value of the $n^{t_h}$ state of a node.
-* `variation` returns the coefficient of variation, as a measure of uncertainty: 
-$$\frac{\sqrt{\sum_{i=1}^n (mid_i - val)^{2} * p_i}}{val}$$ where $val$ is the expected value as calculated by `what='expected'` (above).  
+* `expected` returns the expected value for the target node. Only valid for continuous target nodes. `midValues` argument must be provided. The expected value is calculated by summing the mid values of target node states weighted by their probability.
+* `variation` returns the coefficient of variation, as a measure of uncertainty.  
 
 So for instance, the following command will produce two maps, one of probability of land use to be *forest* and the other for *arable*:
 ```{r, message=FALSE, warning=FALSE, results='hide'}
@@ -207,7 +204,7 @@ It should be noted that this model does not return a quantitative estimate of ca
 
 ---------------
 In the examples above the function `bnspatial` was used exclusively, but it can be quite inefficient when multiple options have to be tested, or the spatial data involved is big enough to require significant computing time. An option is to resort to parallel processing, by setting argument `inparallel=TRUE` (see next paragraph), or making sure that the query is run on the area of interest only, by setting argument `msk` as already shown.  
-However, these options do not prevent `bnspatial` from repeatedly loading and discretize the same data over and over, which can be a very time consuming process. To avoid that, using directly the [wider set](#anchor2) of functions provided by *bnspatial* is recommended, instead of their wrapper `bnspatial`. 
+However, these options do not prevent `bnspatial` from repeatedly loading and discretize the same data over and over, which can be a very time consuming process. To avoid that, using directly the wider set of functions provided by *bnspatial* is recommended, instead of their wrapper `bnspatial`. 
 
 ### Speeding up: parallel processing
 When the scale of analysis is very wide or spatial data has high resolution, computation time can be significant. To speed up the network querying, parallel processing options are provided in *bnspatial*, integrating the powerful functions from [`foreach`](https://cran.r-project.org/web/packages/foreach/index.html) package and applying them in complete autonomy.
@@ -218,7 +215,7 @@ To apply parallel processing, simply set `inparallel=TRUE`. By default the numbe
 bn <- bnspatial(network, 'FinalLULC', spatialData, lookup, inparallel=2)
 ```
 
-### Unfolding *bnspatial* functions {#anchor2}
+### Unfolding *bnspatial* functions
 The function `bnspatial` is actually a wrapper for a bunch of other functions. Below the same example as above is used, but using explicitly the functions underneath `bnspatial`. These can all be accessed independently from the user and offer many more options to handle and process the network spatially.
 
 ##### `loadNetwork`

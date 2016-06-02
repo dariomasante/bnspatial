@@ -1,7 +1,25 @@
 library(bnspatial)
 
 ##############################################################
+## extractByMask
+# % FIX CHECK FOR MISSING NA
+ 
+##############################################################
+## queryNet
+# % FIX Harmonize with .freezeEvidence the first bit of queryNet, lots of redundancy
+ 
+##############################################################
+## mapTarget
+#' % FIX COORD.REF. OUTPUT RASTERS
+#' % FIX OUTPUT VALUE OF MOST LIKELY CLASS (to correspod if integer are provided)
+#' % ADD UTILITY VALUE
+#' % ADD AN EXAMPLE USING MIDVALUES
+#' % ADD HUGE RASTER MANAGEMENT
+
+##############################################################
 ## loadNetwork
+#% FIX UNDERSCORES REMOVAL (gRain:::.getNodeSpec AND gRain:::.toCamel)
+#% FIX rewrite all external file reading, remove dependency from gRain
 
 ## Good
 raw = system.file("extdata", "LandUseChange.net", package = "bnspatial")
@@ -13,6 +31,16 @@ loadNetwork(LandUseChange,'FinalLULC')
 
 ## Bad
 loadNetwork(LandUseChange,'FinalLULC','FinalLULC')
+
+##############################################################
+## linkNode
+# % NOTE: FIX ORDER OF NODE STATES BETWEEN CLASSIFICATION AND SPATIAL DATA
+
+## Good
+
+## Bad
+
+## Fix
 
 ##############################################################
 ## linkNodeRaster
@@ -29,7 +57,6 @@ linkMultiple(spatialData, network, lookup, verbose = FALSE)
 ## Bad
 
 ## Fix
-
 
 
 ##############################################################
@@ -96,6 +123,8 @@ expect_error(dataDiscretize(s, classBoundaries=3, method = 'quanle') )
 
 
 ##############################################################
+## setClasses
+
 ## Good
 setClass(c('Slope', 'CurrentLULC', 'LegalStatus'), list(c('flat', 'moderate', 'steep'),
 c('forest', 'arable', 'other'), c('public', 'private', 'protected')),
@@ -121,13 +150,5 @@ list(c(0.5, 4, 3, 1), (c(4, 3, 1))), wr='N:/delTest.txt')
 setClass(c('CurrentLULC', 'LegalStatus'), list(c('flat', 'moderate', 'steep'),
 c('forest', 'arable', 'other'), c('public', 'private', 'protected')),
 list(c(-Inf, 0, 5, Inf), c(2, 3, 1), (c(4, 3, 1))), w='N:/delTest.txt')
-
-
-
-
-
-
-
-
 
 

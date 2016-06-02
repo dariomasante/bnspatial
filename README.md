@@ -5,6 +5,8 @@ measured as both coefficient of variation or Shannon index (entropy), maps of pr
 of any node of the network. Some additional features are provided as well, such as parallel processing options,
 data discretization routines and function wrappers designed for users with minimal knowledge of the R programming language.
 
+URL: https://cran.r-project.org/package=bnspatial
+
 To install, open a R session and enter the following commands, which will install some mandatory functions underlying *gRain*:
 ```r
 source("http://bioconductor.org/biocLite.R")

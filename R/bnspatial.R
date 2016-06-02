@@ -11,8 +11,18 @@
 #' Alternatively, an integer can be provided to dictate the number of cores/processors to be used. 
 #' @return A list of "RasterLayer" objects or a data.frame, depending on input arguments: see \code{\link{mapTarget}}. 
 #' Some basic information about discretization and network/data link are printed on screen during execution.
-#' @details The expected value is calculated by summing the mid values of target node states weighted by their probability: \cr
-#' \code{p1 * midVal_1 + p2 * midval_2 + ... + pn * midval_n}
+#' @details The expected value is calculated by summing the mid values of target node states weighted by their probability: 
+#' \code{p1 * midVal_1 + p2 * midval_2 + ... + pn * midval_n}\cr
+#' When a RasterLayer is exported to a file, the file name is set by default, accordingly to the following naming convention:
+#' \itemize{
+#' \item{\code{"class"}} \emph{<target node name>}_Class.\emph{<file format  -default .tif>}
+#' \item{\code{"entropy"}} \emph{<target node name>}_ShanEntropy.\emph{<file format  -default .tif>}
+#' \item{\code{"probability"}} \emph{<target node name>}_Probability_.\emph{<targetState>}.\emph{<file format  -default .tif>}
+#' \item{\code{"expected"}} \emph{<target node name>}_ExpectedValue.\emph{<file format  -default .tif>}
+#' \item{\code{"variation"}} \emph{<target node name>}_CoefVariation.\emph{<file format  -default .tif>}
+#' }
+#' An additional comma separated file (.csv) is written to the same directory when \code{"class"}, 
+#' providing a key to interpret the raster values and the state they refer to.
 #' @seealso \code{\link{setClasses}}; \code{\link{mapTarget}}; \code{\link{linkNode}}; \code{\link{loadNetwork}}
 #' @examples
 #' data(ConwyData)

@@ -15,7 +15,7 @@ Then install *bnspatial*, by selecting it from the packages list, or typing in t
 install.packages("bnspatial")
 ```
 
-Alternatively to install from source:
+Alternatively, to install from source:
 - download the source file [bnspatial_0.9.tar.gz](https://cran.r-project.org/src/contrib/bnspatial_0.9.tar.gz) to the R working directory (or any other directory)
 - start an R session
 - run the following commands in the console:
@@ -28,13 +28,15 @@ install.packages("raster", repos="http://cran.uk.r-project.org/", dependencies=T
 
 ## Install bnspatial (full path to the file, if not in the R working directory)
 install.packages("~/bnspatial_0.9.tar.gz", repos = NULL, type="source")
-
-## Load package
-library(bnspatial)
-
-?bnSpatialize
 ```
 
+Reference manual: [bnspatial.pdf](https://cran.r-project.org/web/packages/bnspatial/bnspatial.pdf)
+Vignettes: [Overview of package 'bnspatial'](https://cran.r-project.org/web/packages/bnspatial/vignettes/bnspatial.html)
+Also from R console:
+```r
+help(package=bnspatial) ## opens package index
+?bnspatial ## help file for the main function
+```
 
 ## Overview
 This document describes the package *bnspatial*. The package is aimed at implementing Bayesian networks in the geographical space. It makes maps of expected value (or most likely state) given known and unknown conditions specified in the network, maps of uncertainty measured as coefficient of variation or Shannon index (entropy), maps of probability associated to any states of any node in the network. *bnspatial* can be used any time a Bayesian network contains variables for which some sort of spatial data is available and maps are needed from the model. However, it can be useful in non-spatial context as well, for instance to discretize data before querying the network, or when many iterations and/or queries over a network are needed. Utility nodes are currently under development.  

@@ -5,8 +5,18 @@ measured as both coefficient of variation or Shannon index (entropy), maps of pr
 of any node of the network. Some additional features are provided as well, such as parallel processing options,
 data discretization routines and function wrappers designed for users with minimal knowledge of the R programming language.
 
-To install (until the package is not available on CRAN):
-- download the source file [bnspatial_0.9.tar.gz](https://github.com/dariomasante/bnspatial/blob/master/bnspatial_0.9.tar.gz?raw=true) to the R working directory (or any other directory)
+To install, open a R session and enter the following commands, which will install some mandatory functions underlying *gRain*:
+```r
+source("http://bioconductor.org/biocLite.R")
+biocLite("RBGL")
+```
+Then install *bnspatial*, by selecting it from the packages list, or typing in the console:
+```r
+install.packages("bnspatial")
+```
+
+Alternatively to install from source:
+- download the source file [bnspatial_0.9.tar.gz](https://cran.r-project.org/src/contrib/bnspatial_0.9.tar.gz) to the R working directory (or any other directory)
 - start an R session
 - run the following commands in the console:
 ``` r

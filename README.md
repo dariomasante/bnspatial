@@ -30,8 +30,8 @@ install.packages("raster", repos="http://cran.uk.r-project.org/", dependencies=T
 install.packages("~/bnspatial_0.9.tar.gz", repos = NULL, type="source")
 ```
 
-Reference manual: [bnspatial.pdf](https://cran.r-project.org/web/packages/bnspatial/bnspatial.pdf)
-Vignettes: [Overview of package 'bnspatial'](https://cran.r-project.org/web/packages/bnspatial/vignettes/bnspatial.html)
+Reference manual: [bnspatial.pdf](https://cran.r-project.org/web/packages/bnspatial/bnspatial.pdf)  
+Vignettes: [Overview of package 'bnspatial'](https://cran.r-project.org/web/packages/bnspatial/vignettes/bnspatial.html)  
 Also from R console:
 ```r
 help(package=bnspatial) ## opens package index

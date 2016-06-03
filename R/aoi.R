@@ -17,21 +17,21 @@
 #' ## Make a mask from a group of input layers:
 #' data(ConwyData)
 #' network <- LandUseChange
-#' spatialData <- c(currentLU, slope, status)
+#' spatialData <- c(ConwyLU, ConwySlope, ConwyStatus)
 #' m <- aoi(spatialData)
 #' m
 #' 
 #' ## Plot mask
 #' library(raster)
-#' m <- aoi(currentLU)
+#' m <- aoi(ConwyLU)
 #' plot(m)
 #' 
 #' ## Make mask from a subset of values and plot
-#' m <- aoi(currentLU, mskSub=c(2,3))
+#' m <- aoi(ConwyLU, mskSub=c(2,3))
 #' plot(m)
 #' 
 #' ## Return coordinates of valid mask locations
-#' coord <- aoi(currentLU, xy=TRUE)
+#' coord <- aoi(ConwyLU, xy=TRUE)
 #' head(coord)
 #' @export
 aoi <- function(msk, mskSub=NULL, xy=FALSE){  ## Check if aoi and extractByMask can be condensed in one or nested.

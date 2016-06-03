@@ -2,8 +2,7 @@
 #' @title Link nodes to spatial data
 #' 
 #' @description \code{linkNode} links a node of the Bayesian network to its corresponding spatial dataset (in raster format), returning a list of objects, including the spatial data and relevant information about the node.\cr
-#' \code{linkMultiple} operates on multiple rasters and nodes.\cr
-#' % NOTE: FIX ORDER OF NODE STATES BETWEEN CLASSIFICATION AND SPATIAL DATA
+#' \code{linkMultiple} operates on multiple rasters and nodes.
 #' @aliases linkMultiple
 #' @param layer	character (path to raster file) or an object of class "RasterLayer". The spatial data corresponding to the network node in argument \code{node}. 
 #' @inheritParams loadNetwork
@@ -20,13 +19,13 @@
 #' @examples
 #' data(ConwyData)
 #' network <- LandUseChange
-#' lst <- linkNode(layer=currentLU, network, node='CurrentLULC', intervals=c(2, 3, 1))
+#' lst <- linkNode(layer=ConwyLU, network, node='CurrentLULC', intervals=c(2, 3, 1))
 #' lst
 #'
 #' ## Link the Bayesian network to multiple spatial data at once, using a lookup list
 #' data(ConwyData)
 #' network <- LandUseChange
-#' spatialData <- c(currentLU, slope, status)
+#' spatialData <- c(ConwyLU, ConwySlope, ConwyStatus)
 #' lookup <- LUclasses
 #' linkMultiple(spatialData, network, lookup, verbose = FALSE)
 #' @export

@@ -15,10 +15,10 @@
 #' @param classBoundaries A list of numeric. The boundary values splitting the nodes into their corresponding states. They must be sorted in ascending order. For nominal categorical variables, \code{classBoundaries} must be the unique raster values associated to node states. 
 #' @param wr The full path to the file to be written. Default is set to NULL, otherwise it writes the formatted list returned by \code{setClasses} to the specified path. Suggested file format is .txt, albeit not mandatory.
 #' @return A formatted list, specifying states break values for continuous nodes and integer values for categorical nodes.
-#' @details As a reference for the text file format required by \code{importClasses}, for each node of the network: \cr
+#' @details As a reference for the text file format required by \code{importClasses}, for each node of the network:\cr
 #' \strong{First line}: the node name.\cr
-#' \strong{Second line}: the node states, comma separated (spaces allowed). \cr
-#' \strong{Third line}: interval values from the spatial data associated to the states (integer values for discrete data; interval boundaries, including endpoints, for continuous data). The same exact order as node states is required. \cr
+#' \strong{Second line}: the node states, comma separated (spaces allowed).\cr
+#' \strong{Third line}: interval values from the spatial data associated to the states (integer values for discrete data; interval boundaries, including endpoints, for continuous data). The same exact order as node states is required.\cr
 #' 
 #' For example:
 #' 
@@ -37,7 +37,7 @@
 #' @examples
 #' ## Load classes from external formatted text file
 #' # Not run: importClasses('LUclasses.txt')
-#' raw = system.file("extdata", "LUclasses.txt", package = "bnspatial")
+#' raw = system.file("extdata/LUclasses.txt", package = "bnspatial")
 #' importClasses(raw)
 #' 
 #' ## Same as:

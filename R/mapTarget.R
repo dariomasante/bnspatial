@@ -27,14 +27,24 @@
 #' Applies only if argument \code{spatial=TRUE}. When \code{exportRaster=TRUE}, rasters will be 
 #' exported in .tif format. A character specifying another extension can be provided, in which case the 
 #' raster will be exported in that format. Only formats listed by \link[raster]{writeFormats} are valid. 
-#' @param path The directory to store the output files, when \code{exportRaster=TRUE}. 
-#' Default is the working directory (\code{getwd()}).
+#' @param path The directory to store the output files, when \code{exportRaster} is not FALSE. 
+#' Default is the working directory (\code{getwd()}). File names are set by a default naming convention, see Details.
 #' @return A list of objects, one for each item required in \code{what} argument. If \code{spatial = TRUE} 
 #' a list of rasters of class "RasterLayer" are returned, if FALSE a list of vectors with values 
 #' associated to each non NA cell in msk raster (i.e. the vectorised raster). If argument \code{exportRaster} 
 #' is specified, outputs are exported to files to the directory specified in \code{path}.
-#' @details The expected value is calculated by summing the mid values of target node states weighted by their probability: \cr
-#' \code{p1 * midVal_1 + p2 * midval_2 + ... + pn * midval_n}
+#' @details The expected value is calculated by summing the mid values of target node states weighted by their probability: 
+#' \code{p1 * midVal_1 + p2 * midval_2 + ... + pn * midval_n}\cr
+#' When a RasterLayer is exported to a file, the file name is set by default, accordingly to the following naming convention:
+#' \itemize{
+#' \item{\code{"class"}} \emph{<target node name>}_Class.\emph{<file format  -default .tif>}
+#' \item{\code{"entropy"}} \emph{<target node name>}_ShanEntropy.\emph{<file format  -default .tif>}
+#' \item{\code{"probability"}} \emph{<target node name>}_Probability_.\emph{<targetState>}.\emph{<file format  -default .tif>}
+#' \item{\code{"expected"}} \emph{<target node name>}_ExpectedValue.\emph{<file format  -default .tif>}
+#' \item{\code{"variation"}} \emph{<target node name>}_CoefVariation.\emph{<file format  -default .tif>}
+#' }
+#' An additional comma separated file (.csv) is written to the same directory when \code{"class"}, 
+#' providing a key to interpret the raster values and the state they refer to.
 #' @seealso \code{\link{bnspatial}}, \code{\link{aoi}}, \code{\link{queryNet}}
 #' @examples
 #' data(ConwyData)
@@ -42,14 +52,14 @@
 #' target <- 'FinalLULC'
 #' statesProb <- queryNet(network, target, evidence)
 #' 
-#' maps <- mapTarget(target, statesProb, msk=currentLU)
+#' maps <- mapTarget(target, statesProb, msk=ConwyLU)
 #' 
 #' library(raster)
 #' plot(maps$Class)
 #' plot(maps$Entropy)
 #' 
 #' ## Create a probability surface for the "forest" state of target node "FinalLULC"
-#' mp <- mapTarget('FinalLULC', statesProb, what='probability', targetState='forest', msk=currentLU)
+#' mp <- mapTarget('FinalLULC', statesProb, what='probability', targetState='forest', msk=ConwyLU)
 #' plot(mp$Probability$forest)
 #' 
 #' @export
@@ -125,7 +135,7 @@ mapTarget <- function(target, statesProb, what=c("class", "entropy"), msk, midva
             msk[id] <- Entropy
             Entropy <- msk
             if(exportRaster == TRUE){
-                raster::writeRaster(Entropy, paste(path, '/', target, '_Entropy', rFormat, sep=''), datatype='FLT4S', overwrite=TRUE)
+                raster::writeRaster(Entropy, paste(path, '/', target, '_ShanEntropy', rFormat, sep=''), datatype='FLT4S', overwrite=TRUE)
             }
         }
         whatList$Entropy <- Entropy

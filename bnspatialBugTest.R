@@ -1,4 +1,9 @@
 library(bnspatial)
+library(testthat)
+##################### GENERAL features #######################
+# Make PDF vignettes
+# Add example in risk analysis
+# Swap current example
 
 ##############################################################
 ## extractByMask
@@ -36,33 +41,37 @@ loadNetwork(LandUseChange,'FinalLULC','FinalLULC')
 ## linkNode
 # % NOTE: FIX ORDER OF NODE STATES BETWEEN CLASSIFICATION AND SPATIAL DATA
 
+## TO FIX
+
 ## Good
 
 ## Bad
 
-## Fix
 
 ##############################################################
 ## linkNodeRaster
 
+## TO FIX
+
 ## Good
 linkNodeRaster(layer='N:/bnspatial_test/bnspatial/inst/extdata/CurrentLULC.tif', network=LandUseChange, node='CurrentLULC', intervals=c(2, 3, 1))
 data(bnspatial)
-linkNodeRaster(layer=currentLU, network=LandUseChange, node='CurrentLULC', intervals=c(2, 3, 1))
-spatialData <- c(currentLU,slope,status)
+linkNodeRaster(layer=ConwyLU, network=LandUseChange, node='CurrentLULC', intervals=c(2, 3, 1))
+spatialData <- c(ConwyLU,ConwySlope,ConwyStatus)
 spatialData <- c('N:/bnspatial_test/bnspatial/inst/extdata/CurrentLULC.tif','N:/bnspatial_test/bnspatial/inst/extdata/degSlope.tif','N:/bnspatial_test/bnspatial/inst/extdata/LegalStatus.tif')
 lookup <- LUclasses
 linkMultiple(spatialData, network, lookup, verbose = FALSE)
 
 ## Bad
 
-## Fix
-
 
 ##############################################################
 ## dataDiscretize
 
 s <- runif(100)
+
+## TO FIX
+
 
 ## Good
 dataDiscretize(s, classBoundaries=c(0.2, 0.5, 0.8))
@@ -107,11 +116,10 @@ dataDiscretize(s, classBoundaries=c(0.2, 0.5, 0.8, 0.8, 1.0))
 dataDiscretize(s, classBoundaries=c(0.5, 0.5))
 
 
-## Fix
 
 ##############################################################
 ### Use testthat
-library(testthat)
+
 expect_error(dataDiscretize(s, classBoundaries=c(0.5, 0.2)) ) 
 expect_error(dataDiscretize(s, classBoundaries=c(0.5, 0.8, 0.2)) )
 expect_error(dataDiscretize(s, classBoundaries=c(0.8, 0.5, 0.2)) )
@@ -125,11 +133,15 @@ expect_error(dataDiscretize(s, classBoundaries=3, method = 'quanle') )
 ##############################################################
 ## setClasses
 
+## TO FIX
+setClass(c('CurrentLULC', 'LegalStatus'), list(c('flat', 'moderate', 'steep'),
+        c('forest', 'arable', 'other'), c('public', 'private', 'protected')),
+         list(c(-Inf, 0, 5, Inf), c(2, 3, 1), (c(4, 3, 1))), w='N:/delTest.txt')
+
 ## Good
 setClass(c('Slope', 'CurrentLULC', 'LegalStatus'), list(c('flat', 'moderate', 'steep'),
 c('forest', 'arable', 'other'), c('public', 'private', 'protected')),
 list(c(-Inf, 0, 5, Inf), c(2, 3, 1), (c(4, 3, 1))), w='N:/delTest.txt')
-
 
 ## Bad
 setClass(c('CurrentLULC', 'LegalStatus'), list(c('flat', 'moderate', 'steep'),
@@ -146,9 +158,6 @@ list(c('forest', 'arable', 'other'), c('public', 'private', 'protected')),
 list(c(0.5, 4, 3, 1), (c(4, 3, 1))), wr='N:/delTest.txt')
 
 
-## Fix
-setClass(c('CurrentLULC', 'LegalStatus'), list(c('flat', 'moderate', 'steep'),
-c('forest', 'arable', 'other'), c('public', 'private', 'protected')),
-list(c(-Inf, 0, 5, Inf), c(2, 3, 1), (c(4, 3, 1))), w='N:/delTest.txt')
+
 
 

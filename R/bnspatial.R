@@ -27,7 +27,7 @@
 #' @examples
 #' data(ConwyData)
 #' network <- LandUseChange
-#' spatialData <- c(currentLU, slope, status)
+#' spatialData <- c(ConwyLU, ConwySlope, ConwyStatus)
 #' lookup <- LUclasses
 #' 
 #' bn <- bnspatial(network, 'FinalLULC', spatialData, lookup)

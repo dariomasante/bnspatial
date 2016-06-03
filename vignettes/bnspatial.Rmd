@@ -34,9 +34,9 @@ In this example the following questions are asked:
 Below a brief description of the data (also accessed through command `?ConwyData` in R console), which are available both as raw data (i.e. file of different formats), in the *extdata* folder under *bnspatial* package directory, and as objects in native R binary format, for a quicker access and code conciseness.    
 
 * LandUseChange (LandUseChange.net): the Bayesian network.
-* currentLU (ConwyLU.tif): a simplified version of the current land use map from the Conwy catchment (Wales, UK). It includes three classes: arable (raster value 3), forest (2), other (1).
-* slope (ConwySlope.tif): a raster of slope derived from a digital elevation model at 50 meters resolution, units are degrees.
-* status (ConwyStatus.tif): the land ownership (dummy data), divided into three possible classes: public (raster value 4), private (3), protected (1).
+* ConwyLU (ConwyLU.tif): a simplified version of the current land use map from the Conwy catchment (Wales, UK). It includes three classes: arable (raster value 3), forest (2), other (1).
+* ConwySlope (ConwySlope.tif): a raster of slope derived from a digital elevation model at 50 meters resolution, units are degrees.
+* ConwyStatus (ConwyStatus.tif): the land ownership (dummy data), divided into three possible classes: public (raster value 4), private (3), protected (1).
 * evidence: a matrix, the collection of previous spatial data as extracted from each location (i.e. raster cell) in the catchment. Each value from the spatial data was discretized through `dataDiscretize` or `bulkDiscretize` functions, then assigned to the corresponding state from the Bayesian network (LandUseChange).
 * LUclasses (LUclasses.txt): the look up list and classification of input spatial data (corresponding states and values). The list is formatted accordingly to *bnspatial* functions requirements and as returned by functions `importClasses` and `setClasses`.
 
@@ -49,7 +49,7 @@ In the following the main function `bnspatial` will be used to query the network
 library(bnspatial)
 data(ConwyData)
 network <- LandUseChange
-spatialData <- c(currentLU, slope, status)
+spatialData <- c(ConwyLU, ConwySlope, ConwyStatus)
 lookup <- LUclasses
 target <- 'FinalLULC'
 
@@ -70,7 +70,7 @@ plot(bn$Entropy, main='Uncertainty (Shannon index)')
 bn <- bnspatial(network, 'FinalLULC', spatialData, lookup, verbose=FALSE)
 ```
 
-Maps from the previous example can be greatly improved by setting additional arguments, for instance `msk=currentLU`, which masks the output map to the `currentLU` only, instead of the union of all spatial inputs (default). However, the example shows how the Bayesian network is able to produce coherent outputs even under missing values, such as the case of background areas external to the catchment, for which spatial values are missing.
+Maps from the previous example can be greatly improved by setting additional arguments, for instance `msk=ConwyLU`, which masks the output map to the `ConwyLU` only, instead of the union of all spatial inputs (default). However, the example shows how the Bayesian network is able to produce coherent outputs even under missing values, such as the case of background areas external to the catchment, for which spatial values are missing.
 
 ## Loading external data {#anchor}
 For ease of use, *bnspatial* allows the use of external files in input, which can be handy if the user resorted to external software to build the Bayesian network. In particular, the network itself and the classification file, used to link node states to the input spatial data, may be compiled more easily outside R. For conciseness, the data used in this document is loaded from the R binary format which comes with the package, i.e. was already transformed in a suitable format for direct use in *bnspatial* (including spatial data). However, the same data are provided in raw format as well (see sub-directory *extdata* under *bnspatial* directory).    
@@ -130,7 +130,7 @@ $$\frac{\sqrt{\sum_{i=1}^n (mid_i - val)^{2} * p_i}}{val}$$ where $val$ is the e
 
 So for instance, the following command will produce two maps, one of probability of land use to be *forest* and the other for *arable*:
 ```{r, message=FALSE, warning=FALSE, results='hide', fig.height=4, fig.width=6}
-bn <- bnspatial(network, 'FinalLULC', spatialData, lookup, msk=currentLU, 
+bn <- bnspatial(network, 'FinalLULC', spatialData, lookup, msk=ConwyLU, 
                    what="probability", targetState=c("arable","forest"))
 par(mfrow=c(1,2))
 plot(bn$Probability$forest, main="Probability of forest")
@@ -144,12 +144,12 @@ The user may be interested in exploring the likelihood of outcome for a target n
 ```{r, message=FALSE, warning=FALSE, results='hide', fig.height=8, fig.width=6}
 par(mfrow=c(2,2))
 
-bn <- bnspatial(network, "RelativePreference", spatialData, lookup, msk=currentLU, 
+bn <- bnspatial(network, "RelativePreference", spatialData, lookup, msk=ConwyLU, 
                    Scenarios="intensification")
 plot(bn$Class, main="Intensification scenario")
 plot(bn$Entropy, main="Uncertainty (Shannon index)")
 
-bn <- bnspatial(network, 'RelativePreference', spatialData, lookup, msk=currentLU, 
+bn <- bnspatial(network, 'RelativePreference', spatialData, lookup, msk=ConwyLU, 
                    Scenarios="sustainable")
 plot(bn$Class, main="Sustainability scenario")
 plot(bn$Entropy, main="Uncertainty (Shannon index)")
@@ -159,12 +159,12 @@ No big differences are noticed, mainly because preferences do not change sensibl
 ```{r, message=FALSE, warning=FALSE, results='hide', fig.height=8, , fig.width=6, echo=-c(1:2)}
 par(mfrow=c(2,2))
 
-bn <- bnspatial(network, "RelativePreference", spatialData, lookup, msk=currentLU, 
+bn <- bnspatial(network, "RelativePreference", spatialData, lookup, msk=ConwyLU, 
                    what="probability", targetState=c("forest","arable"), Scenarios="intensification")
 plot(bn$Probability$forest, main="P of forest preference (intensif.)")
 plot(bn$Probability$arable, main="P of arable preference (intensif.)")
 
-bn <- bnspatial(network, 'RelativePreference', spatialData, lookup, msk=currentLU, 
+bn <- bnspatial(network, 'RelativePreference', spatialData, lookup, msk=ConwyLU, 
                    what="probability", targetState=c("forest","arable"), Scenarios="sustainable")
 plot(bn$Probability$forest, main="P of forest preference (sustain.)")
 plot(bn$Probability$arable, main="P of arable preference (sustain.)")
@@ -181,12 +181,12 @@ par(mfrow=c(2,2))
 
 midValues <- c(175, 75, 15)
 
-bn <- bnspatial(network, "CarbonStock", spatialData, lookup, msk=currentLU, 
+bn <- bnspatial(network, "CarbonStock", spatialData, lookup, msk=ConwyLU, 
                    midvals=midValues, what=c("expected","variation"), Scenarios="intensification")
 plot(bn$ExpectedValue, main="Expected carbon (t/ha) (intensif.)")
 plot(bn$CoeffVariation, main="Uncertainty (coeff. variation)")
 
-bn <- bnspatial(network, "CarbonStock", spatialData, lookup, msk=currentLU, 
+bn <- bnspatial(network, "CarbonStock", spatialData, lookup, msk=ConwyLU, 
                    midvals=midValues, what=c("expected","variation"), Scenarios="sustainable")
 plot(bn$ExpectedValue, main="Expected carbon (t/ha) (sustain.)")
 plot(bn$CoeffVariation, main="Uncertainty (coeff. variation)")
@@ -245,7 +245,7 @@ intervals
 #### `linkNode` ; `linkMultiple`
 `linkNode` links a node of the Bayesian network to its corresponding spatial dataset (in raster format), returning a list of objects, including the spatial data and relevant information about the node. `linkMultiple` operates on multiple rasters and nodes.
 ```{r, eval=FALSE}
-spatialData <- c(currentLU, slope, status)
+spatialData <- c(ConwyLU, ConwySlope, ConwyStatus)
 spatialDataList <- linkMultiple(spatialData, network, intervals)
 ```
 
@@ -260,8 +260,8 @@ head(msk)
 #### `extractByMask`
 This function extracts the values from a given input raster based on a mask.
 ```{r, eval=FALSE}
-m <- aoi(msk=currentLU, mskSub=c(2,3))
-head( extractByMask(slope, msk=m), 20)
+m <- aoi(msk=ConwyLU, mskSub=c(2,3))
+head( extractByMask(ConwySlope, msk=m), 20)
 ```
 #### `dataDiscretize` ; `bulkDiscretize`
 These functions discretize continuous input data into classes. Classes can be defined by the user or, if the user provides the number of expected classes, calculated from quantiles (default option) or by equal intervals. 
@@ -284,7 +284,7 @@ This function creates the required spatial outputs for the target node. By defau
 ```{r, eval=FALSE}
 target <- 'FinalLULC'
 statesProb <- queryNet(network, target, evidence)
-maps <- mapTarget(target, statesProb, msk=currentLU)
+maps <- mapTarget(target, statesProb, msk=ConwyLU)
 maps
 
 par(mfrow=c(1,2))

@@ -2,7 +2,7 @@
 #' @title Query the Bayesian network
 #'
 #' @description This function queries the Bayesian network and returns the probabilities for each 
-#' state of the target node. Available input variables are set as evidence. \cr 
+#' state of the target node. Available input variables are set as evidence.\cr 
 #' \code{queryNetParallel} works as \code{queryNet}, but makes use of multi cores/processors facilities 
 #' for big network queries, by splitting data into chunks and processing them in parallel.
 #' @aliases queryNetParallel

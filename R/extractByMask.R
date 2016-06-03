@@ -1,7 +1,7 @@
 #' @name extractByMask
 #' @title Extract raster values by mask
 #' @description This function extracts the values from a given input raster based on a mask.
-#' @param rast an object of class "RasterLayer" (package \href{https://cran.r-project.org/web/packages/raster/index.html}{raster}). The raster from which data will be extracted
+#' @param rast an object of class "RasterLayer" (package \href{https://cran.r-project.org/package=raster}{raster}). The raster from which data will be extracted
 #' @param msk an object of class "RasterLayer" or a two column matrix of coordinates. The reference raster (or coordinates) to be used as mask for extraction.
 #' @param spatial logical. Should the output be spatially explicit -i.e. a georeferenced raster? 
 #' Default is FALSE, returning a vector of extracted values from \code{rast}. 
@@ -11,12 +11,12 @@
 #' @seealso \code{\link{aoi}}
 #' @examples
 #' data(ConwyData)
-#' m <- aoi(msk=currentLU, mskSub=c(2,3))
-#' head( extractByMask(slope, msk=m), 20) 
+#' m <- aoi(msk=ConwyLU, mskSub=c(2,3))
+#' head( extractByMask(ConwySlope, msk=m), 20) 
 #' 
 #' # Extract making a raster
 #' library(raster)
-#' plot( extractByMask(slope, msk=m, spatial=TRUE) )
+#' plot( extractByMask(ConwySlope, msk=m, spatial=TRUE) )
 #' @export
 extractByMask <- function(rast, msk, spatial=FALSE){
     if(class(rast) != 'RasterLayer'){

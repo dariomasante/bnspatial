@@ -1,0 +1,6 @@
+^.*\.Rproj$
+^\.Rproj\.user$
+data-raw/
+bnspatial_examples.R
+bnspatialBugTest.R
+installMissingPackages.R

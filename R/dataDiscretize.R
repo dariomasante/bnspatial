@@ -3,7 +3,7 @@
 #'
 #' @description These functions discretize continuous input data into classes. Classes can be defined 
 #' by the user or, if the user provides the number of expected classes, calculated 
-#' from quantiles (default option) or by equal intervals. \cr
+#' from quantiles (default option) or by equal intervals.\cr
 #' \code{dataDiscretize} processes a single variable at a time, provided as vector.
 #' \code{bulkDiscretize} discretizes multiple input rasters, by using parallel processing.
 #' @rdname dataDiscretize
@@ -24,11 +24,12 @@
 #' @param inparallel logical or integer. Should the function use parallel processing facilities? Default is FALSE: a single process will be launched. If TRUE, all cores/processors but one will be used.
 #' Alternatively, an integer can be provided to dictate the number of cores/processors to be used. 
 #' @return \code{dataDiscretize} returns a named list of 4 vectors: 
-#' \describe{
+#' \itemize{
 #' \item{\code{$discreteData}}{the discretized data, labels are applied accordingly if \code{classStates} argument is provided }
 #' \item{\code{$classBoundaries}}{the class boundaries, i.e. values splitting the classes }
 #' \item{\code{$midValues}}{the mid point for each class (the mean of its lower and upper boundaries) }
-#' \item{\code{$classStates}}{the labels assigne to each class }} \cr
+#' \item{\code{$classStates}}{the labels assigne to each class }
+#' }
 #' \code{bulkDataDiscretize} returns a matrix: in columns each node associated to input spatial data, 
 #' in rows their discretized values at coordinates specified by argument \code{xy}.
 #' @examples
@@ -51,11 +52,11 @@
 #' ## Discretize multiple spatial data by location
 #' data(ConwyData)
 #' network <- LandUseChange
-#' spatialData <- c(currentLU, slope, status)
+#' spatialData <- c(ConwyLU, ConwySlope, ConwyStatus)
 #' 
 #' # Link multiple spatial data to the network nodes and discretize
 #' spDataLst <- linkMultiple(spatialData, network, LUclasses, verbose = FALSE)
-#' coord <- aoi(currentLU, xy=TRUE)
+#' coord <- aoi(ConwyLU, xy=TRUE)
 #' head( bulkDiscretize(spDataLst, coord) )
 #' @export
 dataDiscretize <- function(data, classBoundaries=NULL, classStates=NULL, method="quantile"){

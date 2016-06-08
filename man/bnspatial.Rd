@@ -10,7 +10,7 @@ bnspatial(network, target, spatialData, lookup, msk = NULL,
   verbose = TRUE, ...)
 }
 \arguments{
-\item{network}{The Bayesian network. An object of class "grain" (package \href{https://cran.r-project.org/package=gRain}{gRain}), or a character (the path to the ".net" file to be imported)}
+\item{network}{The Bayesian network. An object of class \code{grain} (from package \href{https://cran.r-project.org/package=gRain}{gRain}), or a character (the path to the \emph{.net} file to be imported)}
 
 \item{target}{character. The node of interest to be modelled and mapped.}
 

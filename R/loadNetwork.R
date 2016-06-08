@@ -1,11 +1,15 @@
 #' @name loadNetwork
 #' @title Load a Bayesian network
-#' @description This function loads the Bayesian network from a native gRain object of class "grain" or an external file with extension .net (as provided from Hugin or GeNIe), then compiles the network if a target node of interest is given. 
-#' @param network The Bayesian network. An object of class "grain" (package \href{https://cran.r-project.org/package=gRain}{gRain}), or a character (the path to the ".net" file to be imported)
-#' @param target character. The node of interest to be modelled and mapped. 
-#' @return An object of class "grain". The Bayesian network. If \code{target} argument is provided the network is compiled for a faster querying .
-#' @details Bayesian networks from the package "bnlearn" can be imported via the function 
-#' ".net" file format as provided from Netica currently does not correspond to a valid Hugin .net file.\cr
+#' @description This function loads the Bayesian network from a native gRain object of class \code{grain} or an external 
+#' file with extension \emph{.net} (as provided by external softwares \href{http://hugin.com/productsservices}{Hugin} or \href{http://www.bayesfusion.com/}{GeNIe}), 
+#' optionally compiling the network.
+#' @param network The Bayesian network. An object of class \code{grain} (from package \href{https://cran.r-project.org/package=gRain}{gRain}), or a character (the path to the \emph{.net} file to be imported)
+#' @param target character. The node of interest to be modelled and mapped.
+#' @note Under current release, this function wraps a set of hidden functions copied in block from the \href{https://cran.r-project.org/package=gRain}{gRain} package, as current CRAN policy
+#' discourages accessing hidden functions with the ":::" operator. These functions will be progressively substituted by bnspatial native ones.
+#' @return An object of class \code{grain}. The Bayesian network. If \code{target} argument is provided the network is compiled for a faster querying .
+#' @details Bayesian networks from the package \href{https://cran.r-project.org/package=bnlearn}{bnlearn} can be imported via the function as.grain
+#' \emph{.net} file format as provided from Netica currently does not correspond to a valid Hugin .net file.\cr
 #' Argument \code{target} has default set to NULL, but if provided the network will be compiled based on it for faster querying.
 #' @examples
 #' ## Load from external file (.net format)
@@ -33,7 +37,7 @@ loadNetwork <- function(network, target=NULL){
 ## This set of functions were copied in block from the gRain package, as current CRAN policy
 ## discourages accessing hidden functions with `:::` operator. The problem is that gRain::loadHuginNetwork 
 ## does not load .net files from the GeNIE software correctly and a simple tweak in the hidden functions 
-## is able to fix that. These functions will be prograssively substituted by bnspatial native ones.
+## is able to fix that. These functions will be progressively substituted by bnspatial native ones.
 
 .loadNet = function(file, description = rev(unlist(strsplit(file, "/")))[1], details = 0) {
     xxx <- .readHugin(file, details)

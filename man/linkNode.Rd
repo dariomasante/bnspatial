@@ -13,7 +13,7 @@ linkMultiple(spatialData, network, lookup, verbose = TRUE)
 \arguments{
 \item{layer}{character (path to raster file) or an object of class "RasterLayer". The spatial data corresponding to the network node in argument \code{node}.}
 
-\item{network}{The Bayesian network. An object of class "grain" (package \href{https://cran.r-project.org/package=gRain}{gRain}), or a character (the path to the ".net" file to be imported)}
+\item{network}{The Bayesian network. An object of class \code{grain} (from package \href{https://cran.r-project.org/package=gRain}{gRain}), or a character (the path to the \emph{.net} file to be imported)}
 
 \item{node}{character. A network node associated to the file in \code{layer} argument}
 

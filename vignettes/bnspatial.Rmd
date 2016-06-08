@@ -122,7 +122,7 @@ Other outputs can be obtained, by adding or removing the following to the argume
 * `class` (default) returns the relatively most likely state of the target node (expected state).  
 * `entropy` (default) calculates the Shannon index and returns the entropy given the state probabilities:
 $$-\sum_{i=1}^n p_i ln(p_i)$$ where $p_i$ is the probability associated to the state $i$ of target node.  
-* `probability` returns an object for each state of the target node, with associated probability.  
+* `probability` returns a map of probability for each (selected) state of the target node.  
 * `expected` returns the expected value for the target node. Only valid for continuous target nodes. `midValues` argument must be provided. The expected value is calculated by summing the mid values of target node states weighted by their probability:
  $$p_1 * mid_1 + p_2 * mid_2 + ... + p_n * mid_n$$ where $mid_n$ is the mid value of the $n^{t_h}$ state of a node.
 * `variation` returns the coefficient of variation, as a measure of uncertainty: 
@@ -201,7 +201,7 @@ However, these options do not prevent `bnspatial` from repeatedly loading and di
 
 ## Speeding up: parallel processing
 When the scale of analysis is very wide or spatial data has high resolution, computation time can be significant. To speed up the network querying, parallel processing options are provided in *bnspatial*, integrating the powerful functions from [*foreach*](https://cran.r-project.org/package=foreach) package and applying them in complete autonomy.
-When using parallel processing options, care should be paid to the RAM commitment, as memory should be sufficient to contain all data being processed in parallel (use of memory can be easily checked from Task Manager in Windows systems). Ssolutions to this issue are currently under implementation.  
+When using parallel processing options, care should be paid to the RAM commitment, as memory should be sufficient to contain all data being processed in parallel (use of memory can be easily checked from Task Manager in Windows systems). Solutions to this issue are currently under implementation.  
 To apply parallel processing, simply set `inparallel=TRUE`. By default the number of tasks will be the number of cores/processors available minus one. If a different number of tasks is required, that number can be set, e.g. `inparallel=2` will use two cores. A higher number of tasks than number of cores/processors can be provided, but there are potential shortcomings and the user should avoid that choice, unless knowing exactly the reason fot it.
 ```{r, eval=FALSE}
 bn <- bnspatial(network, 'FinalLULC', spatialData, lookup, inparallel=2)
@@ -219,7 +219,9 @@ File names can't be provided, as they are set automatically, depending on the ou
 * `"expected"` to *``<target node name>_ExpectedValue.<file format>``*
 * `"variation"` to *``<target node name>_CoefVariation.<file format>``*
 
-An additional comma separated file (.csv) is written to the same directory when `"class"`}, providing a key to relate the raster values to the node states they refer to.
+An additional comma separated file (.csv) is written to the same directory when `what` argument is `"class"`, providing a key to relate the raster values to the node states they refer to.
+
+---------------
 
 ## Unfolding *bnspatial* functions {#anchor2}
 The function `bnspatial` is actually a wrapper for a bunch of other functions. Below the same example as above is used, but using explicitly the functions underneath `bnspatial`. These can all be accessed independently from the user and offer many more options to handle and process the network spatially.

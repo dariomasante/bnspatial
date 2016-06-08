@@ -7,20 +7,26 @@
 loadNetwork(network, target = NULL)
 }
 \arguments{
-\item{network}{The Bayesian network. An object of class "grain" (package \href{https://cran.r-project.org/package=gRain}{gRain}), or a character (the path to the ".net" file to be imported)}
+\item{network}{The Bayesian network. An object of class \code{grain} (from package \href{https://cran.r-project.org/package=gRain}{gRain}), or a character (the path to the \emph{.net} file to be imported)}
 
 \item{target}{character. The node of interest to be modelled and mapped.}
 }
 \value{
-An object of class "grain". The Bayesian network. If \code{target} argument is provided the network is compiled for a faster querying .
+An object of class \code{grain}. The Bayesian network. If \code{target} argument is provided the network is compiled for a faster querying .
 }
 \description{
-This function loads the Bayesian network from a native gRain object of class "grain" or an external file with extension .net (as provided from Hugin or GeNIe), then compiles the network if a target node of interest is given.
+This function loads the Bayesian network from a native gRain object of class \code{grain} or an external 
+file with extension \emph{.net} (as provided by external softwares \href{http://hugin.com/productsservices}{Hugin} or \href{http://www.bayesfusion.com/}{GeNIe}), 
+optionally compiling the network.
 }
 \details{
-Bayesian networks from the package "bnlearn" can be imported via the function 
-".net" file format as provided from Netica currently does not correspond to a valid Hugin .net file.\cr
+Bayesian networks from the package \href{https://cran.r-project.org/package=bnlearn}{bnlearn} can be imported via the function as.grain
+\emph{.net} file format as provided from Netica currently does not correspond to a valid Hugin .net file.\cr
 Argument \code{target} has default set to NULL, but if provided the network will be compiled based on it for faster querying.
+}
+\note{
+Under current release, this function wraps a set of hidden functions copied in block from the \href{https://cran.r-project.org/package=gRain}{gRain} package, as current CRAN policy
+discourages accessing hidden functions with the ":::" operator. These functions will be progressively substituted by bnspatial native ones.
 }
 \examples{
 ## Load from external file (.net format)

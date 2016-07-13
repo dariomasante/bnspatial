@@ -58,6 +58,10 @@
 #' plot(maps$Class)
 #' plot(maps$Entropy)
 #' 
+#' ## Returns required outputs by coordinates for each 'msk' cell in a data frame:
+#' noMap <- mapTarget(target, statesProb, msk=ConwyLU, spatial=FALSE)
+#' head(noMap)
+#' 
 #' ## Create a probability surface for the "forest" state of target node "FinalLULC"
 #' mp <- mapTarget('FinalLULC', statesProb, what='probability', targetState='forest', msk=ConwyLU)
 #' plot(mp$Probability$forest)
@@ -72,15 +76,17 @@ mapTarget <- function(target, statesProb, what=c("class", "entropy"), msk, midva
         rFormat <- exportRaster
     }
     what <- match.arg(what, c("class", "entropy", "probability", "expected", "variation"), several.ok = TRUE)
-    if(spatial == TRUE){ 
-        if(class(msk) == 'RasterLayer'){
-            id <- msk
-            id[] <- seq_along(id)
-            id <- raster::getValues(id)[!is.na(raster::getValues(msk))]
-            msk[] <- NA
-        } else { 
-            stop('Please provide a valid "msk" argument (an object of class "RasterLayer"), or set spatial=FALSE.')
-        }
+    if(class(msk) != 'RasterLayer'){
+        stop('Please provide a valid "msk" argument (an object of class "RasterLayer").')
+    }
+    if(spatial == TRUE){
+        id <- msk
+        id[] <- seq_along(id)
+        id <- raster::getValues(id)[!is.na(raster::getValues(msk))]
+        msk[] <- NA
+    } else {
+        id <- seq_along(msk)
+        id <- id[!is.na(raster::getValues(msk))]
     }
     whatList <- list()
     if('class' %in% what){
@@ -88,16 +94,16 @@ mapTarget <- function(target, statesProb, what=c("class", "entropy"), msk, midva
         if(spatial == TRUE){
             Class <- match(Class, colnames(statesProb))
             msk[id] <- Class
-            Class <- msk
             keyLegend <- data.frame(colnames(statesProb), seq_along(colnames(statesProb)))
             names(keyLegend) <- c(target, 'ID')
             if(exportRaster == TRUE){
-                raster::writeRaster(Class, paste(path, '/', target, '_Class', rFormat, sep=''), overwrite=TRUE, datatype='INT2S')
+                .writeOutputMaps(msk, paste(path, '/', target, '_Class', rFormat, sep=''), 'INT2S')
                 utils::write.csv(keyLegend, paste(path, target, '_ClassKey.csv', sep=''), row.names = FALSE)
             } else {
                 writeLines(paste('Lookup table to interpret "', target, '" values:', sep=''))
                 print(keyLegend)
             }
+            Class <- msk
         }
         whatList$Class <- Class
     }
@@ -110,9 +116,10 @@ mapTarget <- function(target, statesProb, what=c("class", "entropy"), msk, midva
                 Variation <- .variationValue(statesProb, Expected, midvals)
                 if(spatial == TRUE){ 
                     msk[id] <- Variation
-                    Variation <- msk
                     if(exportRaster == TRUE){
-                        raster::writeRaster(Variation, paste(path, '/', target, '_CoeffVariation', rFormat, sep=''), datatype='FLT4S', overwrite=TRUE)
+                        .writeOutputMaps(msk, paste(path, '/', target, '_CoeffVariation', rFormat, sep=''), 'FLT4S')
+                    } else {
+                        Variation <- msk
                     }
                 }
                 whatList$CoeffVariation <- Variation			
@@ -120,9 +127,10 @@ mapTarget <- function(target, statesProb, what=c("class", "entropy"), msk, midva
             if('expected' %in% what){
                 if(spatial == TRUE){ 
                     msk[id] <- Expected
-                    Expected <- msk
                     if(exportRaster == TRUE){
                         raster::writeRaster(Expected, paste(path, '/', target, '_ExpectedValue', rFormat, sep=''), datatype='FLT4S', overwrite=TRUE)
+                    } else{
+                        Expected <- msk
                     }
                 }
                 whatList$ExpectedValue <- Expected
@@ -186,3 +194,18 @@ mapTarget <- function(target, statesProb, what=c("class", "entropy"), msk, midva
 .probabilityValue <- function(statesProb, targetState){
     lapply(targetState, function(x) {statesProb[, x]} )
 }
+
+.writeOutputMaps <- function(rst, outFile, datatype){
+    if(raster::canProcessInMemory(rst, 2)){
+        raster::writeRaster(rst, outFile, overwrite=TRUE, datatype=datatype)
+    } else {
+        blocks <- raster::blockSize(rst, minblocks=2)
+        out <- raster::writeStart(rst, outFile, overwrite=TRUE, datatype=datatype) ## open file to write
+        for (i in 1:blocks$n){
+            blockVals <- raster::getValues(rst, row=out$row[i], nrows=out$nrows[i]) ## values from rows to be written
+            out <- raster::writeValues(out, blockVals, out$row[i]) ## populate the raster with values
+        }
+        out <- raster::writeStop(out)
+    }
+}
+

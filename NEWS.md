@@ -1,14 +1,18 @@
-bnspatial v1.0 (Release date: )
+bnspatial v1.0 (Release date: 2016-07-31)
 -----------------------------------------------
 CHANGES:
 
+* Function `mapTarget` (and wrapper `bnspatial`) improved to write large spatial data without oveloading memory
 * Added NEWS.md file
+* Added copyright notes in LICENSE file
+* Fixed author list to CRAN standards
 * Improved and extended documentation
+* Added startup message with copyright notice and acknoledgments
 
 NEW FEATURES:
 
 
-bnspatial v0.9 (Release date: 2015-06-02)
+bnspatial v0.9 (Release date: 2016-06-02)
 -----------------------------------------------
 
 NEW FEATURES:

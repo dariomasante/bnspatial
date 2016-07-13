@@ -16,7 +16,44 @@ This document describes the package *bnspatial*. The package is aimed at impleme
 The package is designed to facilitate the spatial implementation of Bayesian networks with minimal knowledge of the R programming language. R provides a single consistent working environment, while currently available options to make maps out of Bayesian networks do not. The package acts partly as function wrapper integrating the packages [*raster*](https://cran.r-project.org/package=raster) and [*gRain*](https://cran.r-project.org/package=gRain), but offers some additional features too, including powerful parallel processing options (via [*foreach*](https://cran.r-project.org/package=foreach) package) and data discretization routines.   Bayesian networks must be constructed beforehand, either in R, with [*gRain*](https://cran.r-project.org/package=gRain) or [*bnlearn*](https://cran.r-project.org/package=bnlearn) packages, or via an external software, such as [GeNIe](http://www.bayesfusion.com/) (free for academic use) or [Hugin](http://hugin.com/productsservices), and saved in .net file format (Hugin native format); .net files can then be imported in *bnspatial*. Currently, .net files written with [Netica](https://www.norsys.com/) are not supported, due to reading issues which are encountered by Hugin itself. A workaround is to import Netica files to GeNIe and save to .net from there.   In *bnspatial*, Bayesian networks are objects of class `grain` and therefore are queried through the functions provided by the *gRain* package. All basic GIS tasks are performed through the *raster* package and spatial data are objects of its native class `RasterLayer`.  
 Bug reports and suggestions can be submitted at https://github.com/dariomasante/bnspatial/issues .
 
-## A quick tour: setting the scene
+#### Acknowledgements
+Development was partly funded by the European Union FP7 (2007-2013), under project ROBIN - Role Of Biodiversity In climate change mitigation (agreement 283093).
+
+## Installation notes
+bnspatial requires *gRain* package installed beforehand. To install, open a R session and enter the following commands:
+```{r, eval=FALSE}
+source("http://bioconductor.org/biocLite.R")
+biocLite("RBGL")
+```
+Then install *bnspatial*, by selecting it from the packages list, or typing in the console:
+```{r, eval=FALSE}
+install.packages("bnspatial")
+```
+
+Alternatively, to install from source:
+- download the [source file](https://cran.r-project.org/src/contrib/bnspatial_1.0.tar.gz) to the R working directory (or any other directory)
+- start an R session
+- run the following commands in the console:
+``` {r, eval=FALSE}
+## Install the required packages 
+source("http://bioconductor.org/biocLite.R")
+biocLite("RBGL")
+install.packages("gRain", repos="http://cran.uk.r-project.org/", dependencies=T, clean=T)
+install.packages("raster", repos="http://cran.uk.r-project.org/", dependencies=T, clean=T)
+
+## Install bnspatial (full path to the file, if not in the R working directory)
+install.packages("~/bnspatial_0.9.tar.gz", repos = NULL, type="source")
+```
+
+Reference manual: [bnspatial.pdf](https://cran.r-project.org/web/packages/bnspatial/bnspatial.pdf)  
+Vignettes: [Overview of package 'bnspatial'](https://cran.r-project.org/web/packages/bnspatial/vignettes/bnspatial.html)  
+Also from R console:
+```{r, eval=FALSE}
+help(package=bnspatial) ## opens package index
+?bnspatial ## help file for the main function
+```
+
+## A worked example: setting the scene
 The folowing example shows the use of *bnspatial* in a hypotetical land use change context and is inspired by works like Celio et al.[^1]. The aim is to analyze how different factors can influence land use change and where the change is most likely to occur.  
 A Bayesian network was built and its conditional probability table populated, in order to catch some of the relevant drivers of land use change in a sample catchment (Conwy, North Wales, UK). The links in the network reflect the relationships among variables: slope, legal status and current land use are assumed to be independent, as well as two hypotetical scenarios. One of them, intensification, predicts increase in demand and prices of agricultural products, while the other entails a more balanced management of natural resources, including measures for climate change mitigation, such as payments for carbon storage. Legal status of land determines a different level of direct or indirect involvement of stakeholders in land management and explain the link directed from it. Overall, change is defined by a combination of factors: stakeholder preferences, suitability of land for a given use (simplified with a single variable, slope) and the current land use, as a proxy for past suitability and preferences. Under protection, a given land use may or may not change, quite independently from other factors.  
 The simplified land use map under current and modelled conditions contains only three land use classes: arable, forest and other. The "final" land use type to be modelled depends on a set of drivers: some of them vary spatially (slope, legal status and current land use), while some other do not (socio-economic setting and stakeholder preferences). The model links the land use types to carbon stock as well, summarised under three broad categories identified as high, moderate or low.  

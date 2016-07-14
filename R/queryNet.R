@@ -91,10 +91,12 @@ queryNetParallel <- function(network, target, evidence, inparallel=TRUE, ...){
     evidence <- cbind(evidence, ...)
     splittedData <- split(as.data.frame(evidence), (seq(nrow(evidence))-1) %/% (nrow(evidence)/inparallel) )
     splittedData <- lapply(seq_along(splittedData), function(x){as.matrix(splittedData[[x]], ncol=ncol(evidence))})	
-    i <- `%dopar%` <- NULL # To remove NOTE from R package release check 
-    tab <- foreach::foreach(i = seq_along(splittedData), .combine=rbind, .packages=c("gRain", "bnspatial")) %dopar% {
+    #i <- `%dopar%` <- NULL # To remove NOTE from R package release check 
+    #tab <- foreach::foreach(i = seq_along(splittedData), .combine=rbind, .packages=c("gRain", "bnspatial")) %dopar% {
+    o <- foreach::foreach(i = seq_along(splittedData), .combine=rbind, .packages=c("gRain", "bnspatial"))
+    tab <- foreach::"%dopar%"(o, {
         queryNet(network=network, target=target, evidence=splittedData[[i]])
-    }
+    })
     if(exists('tokenToHaltChildrenFromParallelProc', envir=parent.frame()) == FALSE){
         parallel::stopCluster(clst); gc()
     }

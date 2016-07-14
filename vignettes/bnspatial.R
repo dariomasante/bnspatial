@@ -1,3 +1,24 @@
+## ---- eval=FALSE---------------------------------------------------------
+#  source("http://bioconductor.org/biocLite.R")
+#  biocLite("RBGL")
+
+## ---- eval=FALSE---------------------------------------------------------
+#  install.packages("bnspatial")
+
+## ---- eval=FALSE---------------------------------------------------------
+#  ## Install the required packages
+#  source("http://bioconductor.org/biocLite.R")
+#  biocLite("RBGL")
+#  install.packages("gRain", repos="http://cran.uk.r-project.org/", dependencies=T, clean=T)
+#  install.packages("raster", repos="http://cran.uk.r-project.org/", dependencies=T, clean=T)
+#  
+#  ## Install bnspatial (full path to the file, if not in the R working directory)
+#  install.packages("~/bnspatial_0.9.tar.gz", repos = NULL, type="source")
+
+## ---- eval=FALSE---------------------------------------------------------
+#  help(package=bnspatial) ## opens package index
+#  ?bnspatial ## help file for the main function
+
 ## ---- message=FALSE, warning=FALSE, results='hide', fig.height=4, fig.width=6----
 ## Loading package and data stored in it
 library(bnspatial)

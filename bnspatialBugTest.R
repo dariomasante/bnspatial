@@ -12,7 +12,10 @@ library(testthat)
 ##############################################################
 ## queryNet
 # % FIX Harmonize with .freezeEvidence the first bit of queryNet, lots of redundancy
- 
+# % FIX Accept non factors in input evidence table
+# % FIX Accept data.frame as input evidence table, not just matrices
+# % FIX Ignore extra columns when in evidence tab, instead of throwing error
+
 ##############################################################
 ## mapTarget
 #' % FIX COORD.REF. OUTPUT RASTERS
@@ -20,11 +23,20 @@ library(testthat)
 #' % ADD UTILITY VALUE
 #' % ADD AN EXAMPLE USING MIDVALUES
 #' % ADD HUGE RASTER MANAGEMENT
+# % ADD Output algoritms now hidden (e.g. expected value) to exportable functions
+
+## Good
+
+
+## Bad
 
 ##############################################################
 ## loadNetwork
-#% FIX UNDERSCORES REMOVAL (gRain:::.getNodeSpec AND gRain:::.toCamel)
-#% FIX rewrite all external file reading, remove dependency from gRain
+# % FIX UNDERSCORES REMOVAL (gRain:::.getNodeSpec AND gRain:::.toCamel)
+# % CHANGE rewrite all external file reading, remove dependency from gRain there
+# % ADD read genie native formats directly xml files
+# % ADD read utility nodes
+
 
 ## Good
 raw = system.file("extdata", "LandUseChange.net", package = "bnspatial")
@@ -54,11 +66,11 @@ loadNetwork(LandUseChange,'FinalLULC','FinalLULC')
 ## TO FIX
 
 ## Good
-linkNodeRaster(layer='N:/bnspatial_test/bnspatial/inst/extdata/CurrentLULC.tif', network=LandUseChange, node='CurrentLULC', intervals=c(2, 3, 1))
+linkNodeRaster(layer='N:/bnspatial/inst/extdata/CurrentLULC.tif', network=LandUseChange, node='CurrentLULC', intervals=c(2, 3, 1))
 data(bnspatial)
 linkNodeRaster(layer=ConwyLU, network=LandUseChange, node='CurrentLULC', intervals=c(2, 3, 1))
 spatialData <- c(ConwyLU,ConwySlope,ConwyStatus)
-spatialData <- c('N:/bnspatial_test/bnspatial/inst/extdata/CurrentLULC.tif','N:/bnspatial_test/bnspatial/inst/extdata/degSlope.tif','N:/bnspatial_test/bnspatial/inst/extdata/LegalStatus.tif')
+spatialData <- c('N:/bnspatial/inst/extdata/CurrentLULC.tif','N:/bnspatial/inst/extdata/degSlope.tif','N:/bnspatial/inst/extdata/LegalStatus.tif')
 lookup <- LUclasses
 linkMultiple(spatialData, network, lookup, verbose = FALSE)
 
@@ -157,7 +169,33 @@ setClass(c('CurrentLULC', 'LegalStatus'),
 list(c('forest', 'arable', 'other'), c('public', 'private', 'protected')),
 list(c(0.5, 4, 3, 1), (c(4, 3, 1))), wr='N:/delTest.txt')
 
+########## BIGGER DATA (below data evidence is provided for only ten nodes, as query 
+########## time start growing exponentially afterwards)
+library(raster); library(bnspatial)
 
+net = loadNetwork('N:/A.net')
+net = loadNetwork('N:/Hepar.net')
 
+r = raster('N:/bnspatial/inst/extdata/CurrentLULC.tif')
+
+set.seed(99)
+spNodes = net$universe$levels[sample(1:70, 10)]
+ls = list()
+for(n in seq_along(spNodes)){
+    rr = r
+    nNA = which(!is.na(getValues(rr)))
+    rr[nNA] = sample(length(spNodes[[n]]), length(nNA), replace=TRUE)
+    assign(names(spNodes[n]), rr)
+    ls = c(ls, get(names(spNodes[n])))
+    cat(
+        paste(names(spNodes[n]), '\n', 
+              paste(spNodes[[n]], collapse=','), '\n', 
+              paste(sample(length(spNodes[[n]])), collapse=','), '\n', sep='')
+        , file="N:/classes.txt", append=TRUE)
+}
+
+bnspatial(net, 'Cirrhosis', ls, 'N:/classes.txt', inparallel=TRUE)
+
+file.remove("N:/classes.txt")
 
 

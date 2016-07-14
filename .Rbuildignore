@@ -4,3 +4,8 @@ data-raw/
 bnspatial_examples.R
 bnspatialBugTest.R
 installMissingPackages.R
+README.md
+LICENSE.txt
+ES-2008-2362.pdf
+jolma.pdf
+nhess-6-911-2006.pdf

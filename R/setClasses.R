@@ -49,7 +49,7 @@
 #' @export
 setClasses <- function(nodes, states, classBoundaries, wr=NULL){
     if(length(nodes) != length(states) | length(nodes) != length(classBoundaries)){
-        stop('Number of nodes not matching the list of states and/or classBoundaries provided.')
+        stop('Number of nodes not matching the length of "states" list and/or that of classBoundaries provided.')
     }
     lst <- vector('list', length = length(nodes))
     names(lst) <- nodes

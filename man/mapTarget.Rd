@@ -82,6 +82,10 @@ library(raster)
 plot(maps$Class)
 plot(maps$Entropy)
 
+## Returns required outputs by coordinates for each 'msk' cell in a data frame:
+noMap <- mapTarget(target, statesProb, msk=ConwyLU, spatial=FALSE)
+head(noMap)
+
 ## Create a probability surface for the "forest" state of target node "FinalLULC"
 mp <- mapTarget('FinalLULC', statesProb, what='probability', targetState='forest', msk=ConwyLU)
 plot(mp$Probability$forest)

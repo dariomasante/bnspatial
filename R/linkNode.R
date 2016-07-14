@@ -10,7 +10,7 @@
 #' @param intervals A list of numeric vectors. For categorical variables the raster values associated to each state of the node, for continuous variables the boundary values dividing into the corresponding states.
 #' @param categorical logical. Is the node a categorical variable? Default is NULL.
 #' @param verbose logical. If \code{verbose = TRUE} a summary of class boundaries and associated nodes and data will be printed to screen for quick checks.
-#' @param spatialData character. The raster files corresponding to nodes 
+#' @param spatialData character or list of objects of class 'RasterLayer'. The raster files corresponding to nodes, as vector of full file paths or as list of rasters (objects of class 'RasterLayer').
 #' @param lookup character or a formatted list. This argument can be provided as path to a comma separated file or a formatted list (see \code{\link{setClasses}} )
 #' @return \code{linkNode} returns a list of objects, including the spatial data and summary information about each node.\cr
 #' \code{linkMultiple} returns a list of lists. Each element of the list includes the spatial data and summary information for each of the input nodes.

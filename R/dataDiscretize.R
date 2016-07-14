@@ -163,8 +163,10 @@ bulkDiscretize <- function(formattedLst, xy, inparallel=FALSE){
             clst <- parallel::makeCluster(inparallel)
             doParallel::registerDoParallel(clst)
         }
-        i <- `%dopar%` <- NULL # To remove NOTE from R package release check 
-        df <- foreach::foreach(i = seq_along(splittedData), .combine=rbind, .packages="raster") %dopar% {
+        #i <- `%dopar%` <- NULL # To remove NOTE from R package release check 
+        #df <- foreach::foreach(i = seq_along(splittedData), .combine=rbind, .packages="raster") %dopar% {
+        o <- foreach::foreach(i = seq_along(splittedData), .combine=rbind, .packages="raster")
+        df <- foreach::"%dopar%"(o, {
             lst <- lapply(names(formattedLst), function(x){
                 rst <- formattedLst[[x]]$Raster
                 ex <- extractByMask(rast=rst, msk=as.matrix(splittedData[[i]]))
@@ -175,7 +177,7 @@ bulkDiscretize <- function(formattedLst, xy, inparallel=FALSE){
                 }
             })
             matrix(unlist(lst), ncol=length(lst))
-        }
+        })
         if(exists('tokenToHaltChildrenFromParallelProc', envir=parent.frame()) == FALSE){
             parallel::stopCluster(clst); gc()
         }

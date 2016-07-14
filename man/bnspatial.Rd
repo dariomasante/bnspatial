@@ -14,7 +14,7 @@ bnspatial(network, target, spatialData, lookup, msk = NULL,
 
 \item{target}{character. The node of interest to be modelled and mapped.}
 
-\item{spatialData}{character. The raster files corresponding to nodes}
+\item{spatialData}{character or list of objects of class 'RasterLayer'. The raster files corresponding to nodes, as vector of full file paths or as list of rasters (objects of class 'RasterLayer').}
 
 \item{lookup}{character or a formatted list. This argument can be provided as path to a comma separated file or a formatted list (see \code{\link{setClasses}} )}
 

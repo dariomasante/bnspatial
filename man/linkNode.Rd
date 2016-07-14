@@ -23,7 +23,7 @@ linkMultiple(spatialData, network, lookup, verbose = TRUE)
 
 \item{verbose}{logical. If \code{verbose = TRUE} a summary of class boundaries and associated nodes and data will be printed to screen for quick checks.}
 
-\item{spatialData}{character. The raster files corresponding to nodes}
+\item{spatialData}{character or list of objects of class 'RasterLayer'. The raster files corresponding to nodes, as vector of full file paths or as list of rasters (objects of class 'RasterLayer').}
 
 \item{lookup}{character or a formatted list. This argument can be provided as path to a comma separated file or a formatted list (see \code{\link{setClasses}} )}
 }

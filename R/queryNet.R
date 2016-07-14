@@ -29,7 +29,6 @@
 #' head(q)
 #' 
 #' ## Use parallel processing
-#' library(doParallel)
 #' q <- queryNetParallel(network, 'FinalLULC', evidence, inparallel=2)
 #' head(q)
 #' 
@@ -91,7 +90,7 @@ queryNetParallel <- function(network, target, evidence, inparallel=TRUE, ...){
     evidence <- cbind(evidence, ...)
     splittedData <- split(as.data.frame(evidence), (seq(nrow(evidence))-1) %/% (nrow(evidence)/inparallel) )
     splittedData <- lapply(seq_along(splittedData), function(x){as.matrix(splittedData[[x]], ncol=ncol(evidence))})	
-    #i <- `%dopar%` <- NULL # To remove NOTE from R package release check 
+    i <- NULL # To remove NOTE from R package release check 
     #tab <- foreach::foreach(i = seq_along(splittedData), .combine=rbind, .packages=c("gRain", "bnspatial")) %dopar% {
     o <- foreach::foreach(i = seq_along(splittedData), .combine=rbind, .packages=c("gRain", "bnspatial"))
     tab <- foreach::"%dopar%"(o, {

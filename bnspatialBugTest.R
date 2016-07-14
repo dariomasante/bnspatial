@@ -18,15 +18,14 @@ library(testthat)
 
 ##############################################################
 ## mapTarget
-#' % FIX COORD.REF. OUTPUT RASTERS
-#' % FIX OUTPUT VALUE OF MOST LIKELY CLASS (to correspod if integer are provided)
-#' % ADD UTILITY VALUE
-#' % ADD AN EXAMPLE USING MIDVALUES
-#' % ADD HUGE RASTER MANAGEMENT
+# % FIX COORD.REF. OUTPUT RASTERS
+# % FIX OUTPUT VALUE OF MOST LIKELY CLASS (to correspod if integer are provided)
+# % ADD UTILITY VALUE
+# % ADD AN EXAMPLE USING MIDVALUES
+# % ADD HUGE RASTER MANAGEMENT
 # % ADD Output algoritms now hidden (e.g. expected value) to exportable functions
 
 ## Good
-
 
 ## Bad
 
@@ -36,43 +35,32 @@ library(testthat)
 # % CHANGE rewrite all external file reading, remove dependency from gRain there
 # % ADD read genie native formats directly xml files
 # % ADD read utility nodes
-
+raw = system.file("extdata", "LandUseChange.net", package = "bnspatial")
 
 ## Good
-raw = system.file("extdata", "LandUseChange.net", package = "bnspatial")
 loadNetwork(raw)
 loadNetwork(raw, 'FinalLULC')
-data(bnspatial)
+data("ConwyData")
 loadNetwork(LandUseChange)
 loadNetwork(LandUseChange,'FinalLULC')
 
 ## Bad
 loadNetwork(LandUseChange,'FinalLULC','FinalLULC')
 
+
 ##############################################################
 ## linkNode
 # % NOTE: FIX ORDER OF NODE STATES BETWEEN CLASSIFICATION AND SPATIAL DATA
+data("ConwyData")
 
 ## TO FIX
 
 ## Good
-
-## Bad
-
-
-##############################################################
-## linkNodeRaster
-
-## TO FIX
-
-## Good
-linkNodeRaster(layer='N:/bnspatial/inst/extdata/CurrentLULC.tif', network=LandUseChange, node='CurrentLULC', intervals=c(2, 3, 1))
-data(bnspatial)
-linkNodeRaster(layer=ConwyLU, network=LandUseChange, node='CurrentLULC', intervals=c(2, 3, 1))
+linkNode(system.file("extdata", "ConwyLU.tif", package = "bnspatial"), network=LandUseChange, node='CurrentLULC', intervals=c(2, 3, 1))
+linkMultiple(list(ConwyLU,ConwySlope,ConwyStatus), LandUseChange, LUclasses, verbose=TRUE)
+linkNode(layer=ConwyLU, network=LandUseChange, node='CurrentLULC', intervals=c(2, 3, 1))
 spatialData <- c(ConwyLU,ConwySlope,ConwyStatus)
-spatialData <- c('N:/bnspatial/inst/extdata/CurrentLULC.tif','N:/bnspatial/inst/extdata/degSlope.tif','N:/bnspatial/inst/extdata/LegalStatus.tif')
-lookup <- LUclasses
-linkMultiple(spatialData, network, lookup, verbose = FALSE)
+linkMultiple(spatialData, LandUseChange, LUclasses, verbose = FALSE)
 
 ## Bad
 
@@ -83,7 +71,6 @@ linkMultiple(spatialData, network, lookup, verbose = FALSE)
 s <- runif(100)
 
 ## TO FIX
-
 
 ## Good
 dataDiscretize(s, classBoundaries=c(0.2, 0.5, 0.8))
@@ -143,59 +130,65 @@ expect_error(dataDiscretize(s, classBoundaries=3, method = 'quanle') )
 
 
 ##############################################################
-## setClasses
+## setClasseses
 
 ## TO FIX
-setClass(c('CurrentLULC', 'LegalStatus'), list(c('flat', 'moderate', 'steep'),
-        c('forest', 'arable', 'other'), c('public', 'private', 'protected')),
-         list(c(-Inf, 0, 5, Inf), c(2, 3, 1), (c(4, 3, 1))), w='N:/delTest.txt')
 
 ## Good
-setClass(c('Slope', 'CurrentLULC', 'LegalStatus'), list(c('flat', 'moderate', 'steep'),
+setClasses(c('ConwySlope', 'ConwyLU', 'ConwyStatus'), list(c('flat', 'moderate', 'steep'),
 c('forest', 'arable', 'other'), c('public', 'private', 'protected')),
 list(c(-Inf, 0, 5, Inf), c(2, 3, 1), (c(4, 3, 1))), w='N:/delTest.txt')
 
 ## Bad
-setClass(c('CurrentLULC', 'LegalStatus'), list(c('flat', 'moderate', 'steep'),
+setClasses(c('CurrentLULC', 'LegalStatus'), list(c('flat', 'moderate', 'steep'),
 c('forest', 'arable', 'other'), c('public', 'private', 'protected')),
-list(c(-Inf, 0, 5, Inf), c(2, 3, 1), (c(4, 3, 1))), w='N:/delTest.txt')
-setClass(c('CurrentLULC', 'LegalStatus'), 
-list(c('forest', 'arable', 'other'), c('public', 'private', 'protected')),
-list(c(-Inf, 0, 5, Inf), c(2, 3, 1), (c(4, 3, 1))), w='N:/delTest.txt')
-setClass(c('CurrentLULC', 'LegalStatus'), 
-list(c('forest', 'arable', 'other'), c('public', 'private', 'protected')),
-list(c(3, 1), (c(4, 3, 1))), wr='N:/delTest.txt')
-setClass(c('CurrentLULC', 'LegalStatus'), 
-list(c('forest', 'arable', 'other'), c('public', 'private', 'protected')),
-list(c(0.5, 4, 3, 1), (c(4, 3, 1))), wr='N:/delTest.txt')
+    list(c(-Inf, 0, 5, Inf), c(2, 3, 1), (c(4, 3, 1))), w='N:/delTest.txt')
+setClasses(c('CurrentLULC', 'LegalStatus'), 
+    list(c('forest', 'arable', 'other'), c('public', 'private', 'protected')),
+    list(c(-Inf, 0, 5, Inf), c(2, 3, 1), (c(4, 3, 1))), w='N:/delTest.txt')
+setClasses(c('CurrentLULC', 'LegalStatus'), 
+    list(c('forest', 'arable', 'other'), c('public', 'private', 'protected')),
+    list(c(3, 1), (c(4, 3, 1))), wr='N:/delTest.txt')
+setClasses(c('CurrentLULC', 'LegalStatus'), 
+    list(c('forest', 'arable', 'other'), c('public', 'private', 'protected')),
+    list(c(0.5, 4, 3, 1), (c(4, 3, 1))), wr='N:/delTest.txt')
+setClasses(c('ConwyLU', 'ConwyStatus'), 
+    list(c('flat', 'moderate', 'steep'), c('forest', 'arable', 'other'), c('public', 'private', 'protected')),
+    list(c(-Inf, 0, 5, Inf), c(2, 3, 1), (c(4, 3, 1))), w='N:/delTest.txt')
+
 
 ########## BIGGER DATA (below data evidence is provided for only ten nodes, as query 
 ########## time start growing exponentially afterwards)
 library(raster); library(bnspatial)
 
-net = loadNetwork('N:/A.net')
-net = loadNetwork('N:/Hepar.net')
+#net = loadNetwork('N:\\A.net')
+net = loadNetwork('N:\\Hepar.net')
 
-r = raster('N:/bnspatial/inst/extdata/CurrentLULC.tif')
+r = raster('N:/bnspatial\\inst\\extdata\\ConwyLU.tif')
 
 set.seed(99)
-spNodes = net$universe$levels[sample(1:70, 10)]
-ls = list()
-for(n in seq_along(spNodes)){
-    rr = r
-    nNA = which(!is.na(getValues(rr)))
-    rr[nNA] = sample(length(spNodes[[n]]), length(nNA), replace=TRUE)
-    assign(names(spNodes[n]), rr)
-    ls = c(ls, get(names(spNodes[n])))
-    cat(
-        paste(names(spNodes[n]), '\n', 
-              paste(spNodes[[n]], collapse=','), '\n', 
-              paste(sample(length(spNodes[[n]])), collapse=','), '\n', sep='')
-        , file="N:/classes.txt", append=TRUE)
+spNodes = net$universe$levels[sample(1:70, 30)]
+
+secs = vector()
+for (i in 1:30){
+    ls = list()
+    for(n in seq(i)){
+        rr = r
+        nNA = which(!is.na(getValues(rr)))
+        rr[nNA] = sample(length(spNodes[[n]]), length(nNA), replace=TRUE)
+        assign(names(spNodes[n]), rr)
+        ls = c(ls, get(names(spNodes[n])))
+        cat(
+            paste(names(spNodes[n]), '\n', 
+                  paste(spNodes[[n]], collapse=','), '\n', 
+                  paste(sample(length(spNodes[[n]])), collapse=','), '\n', sep='')
+            , file="N:/classes.txt", append=TRUE)
+    }
+    pr = proc.time()
+    bnspatial(net, 'Cirrhosis', ls, 'N:/classes.txt', spatial=FALSE, what='entropy', inparallel=TRUE, verbose=FALSE)
+    file.remove("N:/classes.txt")
+    print(proc.time() - pr)
+    secs = c(secs, proc.time() - pr)
 }
 
-bnspatial(net, 'Cirrhosis', ls, 'N:/classes.txt', inparallel=TRUE)
-
-file.remove("N:/classes.txt")
-
-
+plot(1:length(secs),secs)

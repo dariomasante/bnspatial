@@ -22,7 +22,7 @@ Description: Package for the spatial implementation of Bayesian Networks and map
     data discretization routines and function wrappers designed for users with minimal knowledge of the R language.
     Outputs can be exported to any common GIS format. Development was partly funded by the European Union FP7 (2007-2013), 
     under project ROBIN - Role Of Biodiversity In climate change mitigation (agreement 283093).
-License: GPL-3 + file LICENSE
+License: GPL-3
 LazyLoad: yes
 NeedsCompilation: no
 RoxygenNote: 5.0.1

@@ -163,7 +163,7 @@ bulkDiscretize <- function(formattedLst, xy, inparallel=FALSE){
             clst <- parallel::makeCluster(inparallel)
             doParallel::registerDoParallel(clst)
         }
-        #i <- `%dopar%` <- NULL # To remove NOTE from R package release check 
+        i <- NULL # To remove NOTE from R package release check 
         #df <- foreach::foreach(i = seq_along(splittedData), .combine=rbind, .packages="raster") %dopar% {
         o <- foreach::foreach(i = seq_along(splittedData), .combine=rbind, .packages="raster")
         df <- foreach::"%dopar%"(o, {

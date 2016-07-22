@@ -24,10 +24,32 @@ library(testthat)
 # % ADD AN EXAMPLE USING MIDVALUES
 # % ADD HUGE RASTER MANAGEMENT
 # % ADD Output algoritms now hidden (e.g. expected value) to exportable functions
+data(ConwyData)
+network <- LandUseChange
+target <- 'FinalLULC'
+statesProb <- queryNet(network, target, evidence)
 
 ## Good
+mapTarget(target, statesProb, msk=ConwyLU)
+mapTarget(target, statesProb, msk=ConwyLU, what = c("class", "entropy", "probability"))
+mapTarget(target, statesProb, msk=ConwyLU, what = c("class", "entropy", "probability"))
+head(mapTarget(target, statesProb, msk=ConwyLU, spatial=FALSE))
+mapTarget(target, statesProb, msk=ConwyLU, what = c("clss", "entropy"))
+mp <- mapTarget('FinalLULC', statesProb, what='probability', targetState='forest', msk=ConwyLU); plot(mp$Probability$forest)
+mp <- mapTarget('FinalLULC', statesProb, targetState='forest', msk=ConwyLU); plot(mp$Probability$forest)
+mapTarget('FinalLULC', statesProb, what='probability', targetState=c('forest','other'), msk=ConwyLU)
+s = statesProb[,1:2]; mapTarget('FinalLULC', s, targetState='forest', msk=ConwyLU)
 
 ## Bad
+mp <- mapTarget('FinalLULC', statesProb, what='pbabity', targetState='forest', msk=ConwyLU); plot(mp$Probability$forest)
+mp <- mapTarget('FinalLULC', statesProb, what='probability', targetState='fest', msk=ConwyLU); plot(mp$Probability$forest)
+mapTarget('FinalLULC', statesProb, targetState=c('forest','xy'), msk=ConwyLU)
+s = statesProb[,1:2]; plot(mapTarget('FinalLULC', s, msk=ConwyLU))
+mapTarget(target, statesProb, msk=ConwyLU)
+
+mapTarget(target, statesProb, what = c("class", "entropy"), msk,
+          midvals = NULL, targetState = colnames(statesProb), spatial = TRUE,
+          exportRaster = FALSE, path = getwd())
 
 ##############################################################
 ## loadNetwork
@@ -46,6 +68,10 @@ loadNetwork(LandUseChange,'FinalLULC')
 
 ## Bad
 loadNetwork(LandUseChange,'FinalLULC','FinalLULC')
+loadNetwork(LandUseChange,'FinalLULC','FinalLULC')
+loadNetwork('FinalLULC',LandUseChange)
+loadNetwork(system.file("extdata", "LandUseChange.xls", package = "bnspatial"), 'FinalLULC')
+loadNetwork(LandUseChange,'Final')
 
 
 ##############################################################
@@ -114,6 +140,13 @@ dataDiscretize(s, classBoundaries=c(0.2, 0.5)) ## Borderline (should fail in a B
 dataDiscretize(s, classBoundaries=c(0.2, 0.5, 0.8, 0.8, 1.0))
 dataDiscretize(s, classBoundaries=c(0.5, 0.5))
 
+##############################################################
+## aoi
+# % FIX: make RAT=FALSE in `msk <- raster::raster(msk, RAT=FALSE)` even when an input layer is provided
+
+## TO FIX
+
+## Good
 
 
 ##############################################################
@@ -157,8 +190,8 @@ setClasses(c('ConwyLU', 'ConwyStatus'),
     list(c(-Inf, 0, 5, Inf), c(2, 3, 1), (c(4, 3, 1))), w='N:/delTest.txt')
 
 
-########## BIGGER DATA (below data evidence is provided for only ten nodes, as query 
-########## time start growing exponentially afterwards)
+########## BIGGER DATA (below data evidence is provided for only few nodes, as query 
+########## time start growing afterwards)
 library(raster); library(bnspatial)
 
 #net = loadNetwork('N:\\A.net')

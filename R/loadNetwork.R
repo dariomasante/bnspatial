@@ -21,15 +21,16 @@
 #' @export
 loadNetwork <- function(network, target=NULL){
     if (all(class(network) != "grain")){  # Check if a gRain network is loaded
-        if(class(network) == 'character' & length(network) == 1){
+        if(class(network) == 'character' & length(network) == 1 & grepl('.net', network)){
             network <- .loadNet(network) # If not load Bayesian network from file path
         } else {
-            stop('Input "network" must be a .net file (from any external software such as Hugin, Netica or GeNIe), or an object of class "grain" from the gRain package')
+            stop('Input "network" must be a .net file from an external software such as 
+                 Hugin or GeNIe, or an object of class "grain" from the gRain package')
         }
-        if(!is.null(target)){
-            .checkNames(network, target)
-            network <- gRbase::compile(network, root=target, propagate=TRUE) #Compile network to speed up queries
-        }
+    }
+    if(!is.null(target)){
+        .checkNames(network, target)
+        network <- gRbase::compile(network, root=target, propagate=TRUE) #Compile network to speed up queries
     }
     return(network)
 }

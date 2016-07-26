@@ -11,7 +11,7 @@ mapTarget(target, statesProb, what = c("class", "entropy"), msk,
 \arguments{
 \item{target}{character. The node of interest to be modelled and mapped.}
 
-\item{statesProb}{matrix. The probability matrix as returned by \code{\link{queryNet}} and \code{queryNetParallel}.
+\item{statesProb}{matrix. The probability matrix as returned by \code{\link{queryNet}} and \code{queryNetParallel}. Named columns required, accordingly to states.
 Columns are the \code{target} node states and rows each location considered from the area of interest.}
 
 \item{what}{character. The required output, one or more of these values are valid:

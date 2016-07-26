@@ -31,7 +31,7 @@ install.packages("bnspatial")
 ```
 
 Alternatively, to install from source:
-- download the [source file](https://cran.r-project.org/src/contrib/bnspatial_1.0.tar.gz) to the R working directory (or any other directory)
+- download the [.tar.gz source file](https://cran.r-project.org/package=bnspatial) to the R working directory (or any other directory)
 - start an R session
 - run the following commands in the console:
 ``` {r, eval=FALSE}
@@ -148,7 +148,7 @@ In the above example, the external .txt appears as follows:
   
 Please refer to help pages for `setClasses` and `importClasses` for further details (`?setClasses` from R console).
 
-Under current release, Bayesian networks from external software must be provided in .net format. The use of either GeNIe (free for academic use) or Hugin is recommended to build the Bayesian networks, as both can export them successfully to the .net format. Currently, .net files written with Netica are not supported, due to reading issues which are encountered by Hugin itself. A workaround is to open Netica networks with GeNIe and export to .net from there.  
+Under current release, Bayesian networks from external software must be provided in .net format. The use of either GeNIe (free for academic use) or Hugin is recommended to build the Bayesian networks, as both can export them successfully to the .net format (.net is the native format for Hugin). Currently, .net files written by Netica 5.24 are not supported, due to loading issues which are encountered by Hugin itself. A workaround is to open Netica networks with GeNIe and export to .net from there.  
 The use of [*gRain*](https://cran.r-project.org/package=gRain) or [*bnlearn*](https://cran.r-project.org/package=bnlearn) packages is recommended for building and manipulating Bayesian networks in the R environment. If the network was built with *bnlearn*, through the function `as.grain` it can be exported to an object of class `grain`, suitable for *bnspatial*.  
 All input spatial data must be in raster format, no vector data is accepted. Categorical data in shapefile format, for instance, must be converted to raster. Functionalities to accept other file formats for networks and vector data formats are planned for future releases. Packages [*rgdal*](https://cran.r-project.org/package=rgdal), [*raster*](https://cran.r-project.org/package=raster) and [*sp*](https://cran.r-project.org/package=sp) offer a great deal of GIS tools for R, including a complete range of read/write functionalities.  
 

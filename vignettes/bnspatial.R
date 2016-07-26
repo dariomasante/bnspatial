@@ -76,7 +76,7 @@ bn <- bnspatial(network, 'RelativePreference', spatialData, lookup, msk=ConwyLU,
 plot(bn$Class, main="Sustainability scenario")
 plot(bn$Entropy, main="Uncertainty (Shannon index)")
 
-## ---- message=FALSE, warning=FALSE, results='hide', fig.height=8, , fig.width=6, echo=-c(1:2)----
+## ---- message=FALSE, warning=FALSE, results='hide', fig.height=8, fig.width=6, echo=-c(1:2)----
 par(mfrow=c(2,2))
 
 bn <- bnspatial(network, "RelativePreference", spatialData, lookup, msk=ConwyLU, 
@@ -124,7 +124,7 @@ plot(bn$CoeffVariation, main="Uncertainty (coeff. variation)")
 
 ## ---- eval=FALSE---------------------------------------------------------
 #  ## Return coordinates of valid cells inside the mask instead of a raster layer
-#  msk <- aoi(spatialData, xy=TRUE)
+#  msk <- aoi(spatialData, msk=ConwyLU, xy=TRUE)
 #  head(msk)
 
 ## ---- eval=FALSE---------------------------------------------------------

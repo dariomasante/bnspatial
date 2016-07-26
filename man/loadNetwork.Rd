@@ -20,9 +20,9 @@ file with extension \emph{.net} (as provided by external softwares \href{http://
 optionally compiling the network.
 }
 \details{
-Bayesian networks from the package \href{https://cran.r-project.org/package=bnlearn}{bnlearn} can be imported via the function as.grain
-\emph{.net} file format as provided from Netica currently does not correspond to a valid Hugin .net file.\cr
-Argument \code{target} has default set to NULL, but if provided the network will be compiled based on it for faster querying.
+Bayesian networks from the package \href{https://cran.r-project.org/package=bnlearn}{bnlearn} can be imported via the function as.grain, from package \href{https://cran.r-project.org/package=gRain}{gRain}.\cr
+\emph{.net} file format as provided from Netica 5.24 currently does not correspond to a valid Hugin .net file.\cr
+Argument \code{target} has default set to NULL, but if provided the network will be compiled for faster querying.
 }
 \note{
 Under current release, this function wraps a set of hidden functions copied in block from the \href{https://cran.r-project.org/package=gRain}{gRain} package, as current CRAN policy

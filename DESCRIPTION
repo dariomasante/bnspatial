@@ -15,13 +15,7 @@ Imports:
 Suggests:
     knitr,
     rmarkdown
-Description: Package for the spatial implementation of Bayesian Networks and mapping in geographical space. 
-    It makes maps of expected value (or most likely state) given known and unknown conditions, maps of uncertainty 
-    measured as coefficient of variation or Shannon index (entropy), maps of probability associated to any states 
-    of any node of the network. Some additional features are provided as well: parallel processing options,
-    data discretization routines and function wrappers designed for users with minimal knowledge of the R language.
-    Outputs can be exported to any common GIS format. Development was partly funded by the European Union FP7 (2007-2013), 
-    under project ROBIN - Role Of Biodiversity In climate change mitigation (agreement 283093).
+Description: Package for the spatial implementation of Bayesian Networks and mapping in geographical space. It makes maps of expected value (or most likely state) given known and unknown conditions, maps of uncertainty measured as coefficient of variation or Shannon index (entropy), maps of probability associated to any states of any node of the network. Some additional features are provided as well: parallel processing options, data discretization routines and function wrappers designed for users with minimal knowledge of the R language. Outputs can be exported to any common GIS format. Development was funded by the European Union FP7 (2007-2013), under project ROBIN (agreement 283093).
 License: GPL-3
 LazyLoad: yes
 NeedsCompilation: no

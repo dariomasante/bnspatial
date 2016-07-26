@@ -12,8 +12,6 @@ library(testthat)
 ##############################################################
 ## queryNet
 # % FIX Harmonize with .freezeEvidence the first bit of queryNet, lots of redundancy
-# % FIX Accept non factors in input evidence table
-# % FIX Accept data.frame as input evidence table, not just matrices
 # % FIX Ignore extra columns when in evidence tab, instead of throwing error
 
 ##############################################################
@@ -22,7 +20,6 @@ library(testthat)
 # % FIX OUTPUT VALUE OF MOST LIKELY CLASS (to correspod if integer are provided)
 # % ADD UTILITY VALUE
 # % ADD AN EXAMPLE USING MIDVALUES
-# % ADD HUGE RASTER MANAGEMENT
 # % ADD Output algoritms now hidden (e.g. expected value) to exportable functions
 data(ConwyData)
 network <- LandUseChange

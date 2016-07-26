@@ -8,9 +8,9 @@
 #' @note Under current release, this function wraps a set of hidden functions copied in block from the \href{https://cran.r-project.org/package=gRain}{gRain} package, as current CRAN policy
 #' discourages accessing hidden functions with the ":::" operator. These functions will be progressively substituted by bnspatial native ones.
 #' @return An object of class \code{grain}. The Bayesian network. If \code{target} argument is provided the network is compiled for a faster querying .
-#' @details Bayesian networks from the package \href{https://cran.r-project.org/package=bnlearn}{bnlearn} can be imported via the function as.grain
-#' \emph{.net} file format as provided from Netica currently does not correspond to a valid Hugin .net file.\cr
-#' Argument \code{target} has default set to NULL, but if provided the network will be compiled based on it for faster querying.
+#' @details Bayesian networks from the package \href{https://cran.r-project.org/package=bnlearn}{bnlearn} can be imported via the function as.grain, from package \href{https://cran.r-project.org/package=gRain}{gRain}.\cr
+#' \emph{.net} file format as provided from Netica 5.24 currently does not correspond to a valid Hugin .net file.\cr
+#' Argument \code{target} has default set to NULL, but if provided the network will be compiled for faster querying.
 #' @examples
 #' ## Load from external file (.net format)
 #' raw = system.file("extdata/LandUseChange.net", package = "bnspatial")
@@ -24,16 +24,18 @@ loadNetwork <- function(network, target=NULL){
         if(class(network) == 'character' & length(network) == 1 & grepl('.net', network)){
             network <- .loadNet(network) # If not load Bayesian network from file path
         } else {
-            stop('Input "network" must be a .net file from an external software such as 
+            stop('Input argument "network" must be a .net file from an external software such as 
                  Hugin or GeNIe, or an object of class "grain" from the gRain package')
         }
     }
     if(!is.null(target)){
         .checkNames(network, target)
-        network <- gRbase::compile(network, root=target, propagate=TRUE) #Compile network to speed up queries
+        #network <- gRbase::compile(network, root=target, propagate=TRUE) #Compile network to speed up queries
+        network <- gRain::compile.CPTgrain(network, root=target, propagate=TRUE) #Compile network to speed up queries
     }
     return(network)
 }
+
 
 ## This set of functions were copied in block from the gRain package, as current CRAN policy
 ## discourages accessing hidden functions with `:::` operator. The problem is that gRain::loadHuginNetwork 

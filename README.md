@@ -15,7 +15,7 @@ install.packages("bnspatial")
 ```
 
 Alternatively, to install from source:
-- download the source file [bnspatial_0.9.tar.gz](https://cran.r-project.org/src/contrib/bnspatial_0.9.tar.gz) to the R working directory (or any other directory)
+- download the [source file (.tar.gz)](https://cran.r-project.org/package=bnspatial) to the R working directory (or any other directory)
 - start an R session
 - run the following commands in the console:
 ``` r
@@ -29,7 +29,7 @@ install.packages("raster", repos="http://cran.uk.r-project.org/", dependencies=T
 install.packages("~/bnspatial_0.9.tar.gz", repos = NULL, type="source")
 ```
 
-Reference manual: [bnspatial.pdf](https://cran.r-project.org/web/packages/bnspatial/bnspatial.pdf)  
+Reference manual: [bnspatial.pdf](https://cran.r-project.org/package=bnspatial/bnspatial.pdf)  
 Vignettes: [Overview of package 'bnspatial'](https://cran.r-project.org/web/packages/bnspatial/vignettes/bnspatial.html)  
 Also from R console:
 ```r
@@ -39,7 +39,7 @@ help(package=bnspatial) ## opens package index
 
 ## Overview
 This document describes the package *bnspatial*. The package is aimed at implementing Bayesian networks in the geographical space. It makes maps of expected value (or most likely state) given known and unknown conditions specified in the network, maps of uncertainty measured as coefficient of variation or Shannon index (entropy), maps of probability associated to any states of any node in the network. *bnspatial* can be used any time a Bayesian network contains variables for which some sort of spatial data is available and maps are needed from the model. However, it can be useful in non-spatial context as well, for instance to discretize data before querying the network, or when many iterations and/or queries over a network are needed. Utility nodes are currently under development.  
-The package is designed to facilitate the spatial implementation of Bayesian networks with minimal knowledge of the R programming language. R provides a single consistent working environment, while currently available options to make maps out of Bayesian networks do not. The package acts partly as function wrapper integrating the packages [*raster*](https://cran.r-project.org/web/packages/raster/index.html) and [*gRain*](https://cran.r-project.org/web/packages/gRain/index.html), but offers some additional features too, including powerful parallel processing options (via [*foreach*](https://cran.r-project.org/web/packages/foreach/index.html) package) and data discretization routines.   Bayesian networks must be constructed beforehand, either in R, with [*gRain*](https://cran.r-project.org/web/packages/gRain/index.html) or [*bnlearn*](https://cran.r-project.org/web/packages/bnlearn/index.html) packages, or via an external software, such as [GeNIe](http://www.bayesfusion.com/) (free for academic use) or [Hugin](http://hugin.com/productsservices), and saved in .net file format (Hugin native format); .net files can then be imported in *bnspatial*. Currently, .net files written with [Netica](https://www.norsys.com/) are not supported, due to reading issues which are encountered by Hugin itself. A workaround is to import Netica files to GeNIe and save to .net from there.   In *bnspatial*, Bayesian networks are objects of class `grain` and therefore are queried through the functions provided by the *gRain* package. All basic GIS tasks are performed through the *raster* package and spatial data are objects of its native class `RasterLayer`. 
+The package is designed to facilitate the spatial implementation of Bayesian networks with minimal knowledge of the R programming language. R provides a single consistent working environment, while currently available options to make maps out of Bayesian networks do not. The package acts partly as function wrapper integrating the packages [*raster*](https://cran.r-project.org/package=raster) and [*gRain*](https://cran.r-project.org/package=gRain), but offers some additional features too, including powerful parallel processing options (via [*foreach*](https://cran.r-project.org/package=foreach) package) and data discretization routines.   Bayesian networks must be constructed beforehand, either in R, with [*gRain*](https://cran.r-project.org/package=gRain) or [*bnlearn*](https://cran.r-project.org/package=bnlearn) packages, or via an external software, such as [GeNIe](http://www.bayesfusion.com/) (free for academic use) or [Hugin](http://hugin.com/productsservices), and saved in .net file format (Hugin native format); .net files can then be imported in *bnspatial*. Currently, .net files written with [Netica](https://www.norsys.com/) are not supported, due to reading issues which are encountered by Hugin itself. A workaround is to import Netica files to GeNIe and save to .net from there.   In *bnspatial*, Bayesian networks are objects of class `grain` and therefore are queried through the functions provided by the *gRain* package. All basic GIS tasks are performed through the *raster* package and spatial data are objects of its native class `RasterLayer`. 
 
 #### Acknowledgements
 Development was partly funded by the European Union FP7 (2007-2013), under project ROBIN - Role Of Biodiversity In climate change mitigation (agreement 283093).

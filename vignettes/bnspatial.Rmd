@@ -232,7 +232,7 @@ plot(bn$CoeffVariation, main="Uncertainty (coeff. variation)")
 
 It should be noted that this model does not return a quantitative estimate of carbon as it may be in a deterministic or process based model, but rather a quantitative *expectation* of carbon stock. That is the estimate based on uncertainty. For instance, a cell in the output raster may have any value between 15 and 175, but its land use class would be only one of three (forest, arable or other). However, the probabilities of having any of the three land use classes would vary and this variation is accounted for in the carbon stock estimate. This is not a general statement and the meaning of the expected value of a target node depends on the model structure and variables.  
 
----------------
+
 In the examples above the function `bnspatial` was used exclusively, but it can be quite inefficient when multiple options have to be tested, or the spatial data involved is big enough to require significant computing time. An option is to resort to parallel processing, by setting argument `inparallel=TRUE` (see next paragraph), or making sure that the query is run on the area of interest only, by setting argument `msk` as already shown.  
 However, these options do not prevent `bnspatial` from repeatedly loading and discretize the same data over and over, which can be a very time consuming process. To avoid that, using directly the [wider set](#anchor2) of functions provided by *bnspatial* is recommended, instead of their wrapper `bnspatial`. 
 
@@ -258,7 +258,6 @@ File names can't be provided, as they are set automatically, depending on the ou
 
 An additional comma separated file (.csv) is written to the same directory when `what` argument is `"class"`, providing a key to relate the raster values to the node states they refer to.
 
----------------
 
 ## Unfolding *bnspatial* functions {#anchor2}
 The function `bnspatial` is actually a wrapper for a bunch of other functions. Below the same example as above is used, but using explicitly the functions underneath `bnspatial`. These can all be accessed independently from the user and offer many more options to handle and process the network spatially.

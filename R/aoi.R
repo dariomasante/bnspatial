@@ -60,9 +60,9 @@ aoi <- function(msk, mskSub=NULL, xy=FALSE){  ## Check if aoi and extractByMask 
         }
         mskVals <- raster::getValues(msk)
         if(!is.null(mskSub)){
-            id = which(mskVals %in% mskSub)
+            id = mskVals %in% mskSub
         } else {
-            id = which(!is.na(mskVals))
+            id = is.finite(mskVals)
         }
         if(xy == TRUE) {
             return( raster::xyFromCell(msk, id) )

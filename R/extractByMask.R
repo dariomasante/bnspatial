@@ -45,5 +45,5 @@ extractByMask <- function(rast, msk, spatial=FALSE){
 .whichValidCells <- function(r){
     v <- raster::getValues(r)
     id <- seq_along(v)
-    id[!is.na(v)]
+    id[is.finite(v)]
 }

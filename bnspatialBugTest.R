@@ -206,7 +206,7 @@ for (i in 1:30){
     ls = list()
     for(n in seq(i)){
         rr = r
-        nNA = which(!is.na(getValues(rr)))
+        nNA = which(is.finite(getValues(rr)))
         rr[nNA] = sample(length(spNodes[[n]]), length(nNA), replace=TRUE)
         assign(names(spNodes[n]), rr)
         ls = c(ls, get(names(spNodes[n])))

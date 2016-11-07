@@ -82,11 +82,11 @@ mapTarget <- function(target, statesProb, what=c("class", "entropy"), msk, midva
     if(spatial == TRUE){
         msk_cells_ID <- msk
         msk_cells_ID[] <- seq_along(msk_cells_ID)
-        msk_cells_ID <- raster::getValues(msk_cells_ID)[!is.na(raster::getValues(msk))]
+        msk_cells_ID <- raster::getValues(msk_cells_ID)[is.finite(raster::getValues(msk))]
         msk[] <- NA
     } else {
         msk_cells_ID <- seq_along(msk)
-        msk_cells_ID <- msk_cells_ID[!is.na(raster::getValues(msk))]
+        msk_cells_ID <- msk_cells_ID[is.finite(raster::getValues(msk))]
     }
     whatList <- list()
     if('class' %in% what){

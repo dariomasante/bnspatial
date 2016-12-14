@@ -13,7 +13,7 @@ All locations with no data (i.e. NA) cells in \code{msk} will be ignored as well
 
 \item{mskSub}{vector. The subset values from \code{msk} which should be considered to build the area of interest. All other values will be ignored and returned as NA.}
 
-\item{xy}{logical. Should return a two column matrix of coordinates? If FALSEan object of class RasterLayer is returned.}
+\item{xy}{logical. Should return a two column matrix of coordinates? If FALSE an object of class RasterLayer is returned.}
 }
 \value{
 An object of class RasterLayer (default), or a matrix of coordinates of mask cells. In the former case, valid cells (i.e. the area of interest) will have value 1, \code{NA} otherwise.

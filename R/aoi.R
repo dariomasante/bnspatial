@@ -8,7 +8,7 @@
 #' The reference raster(s) to be used as mask. All model outputs will have the same resolution and same extent as this raster(s). 
 #' All locations with no data (i.e. NA) cells in \code{msk} will be ignored as well.
 #' @param mskSub vector. The subset values from \code{msk} which should be considered to build the area of interest. All other values will be ignored and returned as NA.
-#' @param xy logical. Should return a two column matrix of coordinates? If FALSEan object of class RasterLayer is returned.
+#' @param xy logical. Should return a two column matrix of coordinates? If FALSE an object of class RasterLayer is returned.
 #' @details All model outputs will have the same resolution and same extent as inherited from \code{msk}. All locations with no data (i.e. NA) cells 
 #' from \code{msk} will be ignored as well.
 #' @return An object of class RasterLayer (default), or a matrix of coordinates of mask cells. In the former case, valid cells (i.e. the area of interest) will have value 1, \code{NA} otherwise.
@@ -65,6 +65,7 @@ aoi <- function(msk, mskSub=NULL, xy=FALSE){  ## Check if aoi and extractByMask 
             id = is.finite(mskVals)
         }
         if(xy == TRUE) {
+            id = seq_along(msk)[id]
             return( raster::xyFromCell(msk, id) )
         } else {
             msk[] <- NA

@@ -1,10 +1,10 @@
-bnspatial v1.0.1 (Release date: )
+bnspatial v1.0.1 (Release date: 2016-12-14)
 -----------------------------------------------
 CHANGES:
 
-* Updated citation and added it to startup message
-* Minor fix fix to html documentation format
-
+* New mantainer's email address in the DESCRIPTION file
+* Minor fix to html documentation format
+* Slight speed improvements with better use of internal functions
 
 
 bnspatial v1.0 (Release date: 2016-07-27)

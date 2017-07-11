@@ -11,13 +11,13 @@
 #' the first one indicates the node name, as in the Bayesian network; the second indicates the states associated with such node, as they are in the Bayesian network (note that underscores are not allowed);
 #' the third one contains the values associated to each state in the spatial data (for discrete variables) or the class boundaries dividing the states (for continuous variables), including minimum and maximum.
 #' @param nodes character. The nodes known and available as spatial data.
-#' @param states A list of characters. The states associated to each of the nodes (order must match \code{nodes} names)
+#' @param states A list of characters. The states associated to each of the nodes (order must match \code{nodes} names). 
 #' @param classBoundaries A list of numeric. The boundary values splitting the nodes into their corresponding states. They must be sorted in ascending order. For nominal categorical variables, \code{classBoundaries} must be the unique raster values associated to node states. 
 #' @param wr The full path to the file to be written. Default is set to NULL, otherwise it writes the formatted list returned by \code{setClasses} to the specified path. Suggested file format is .txt, albeit not mandatory.
 #' @return A formatted list, specifying states break values for continuous nodes and integer values for categorical nodes.
 #' @details As a reference for the text file format required by \code{importClasses}, for each node of the network:\cr
 #' \strong{First line}: the node name.\cr
-#' \strong{Second line}: the node states, comma separated (spaces allowed).\cr
+#' \strong{Second line}: the node states, comma separated (spaces allowed). NOTE: commas are NOT allowed inside the state names.\cr
 #' \strong{Third line}: interval values from the spatial data associated to the states (integer values for discrete data; interval boundaries, including endpoints, for continuous data). The same exact order as node states is required.\cr
 #' 
 #' For example:
@@ -66,8 +66,8 @@ setClasses <- function(nodes, states, classBoundaries, wr=NULL){
         if((length(classBoundaries[[i]]) - length(states[[i]])) %in% c(0, 1)){
             categorical <- ifelse(length(classBoundaries[[i]]) == length(states[[i]]), TRUE, FALSE)
         } else {
-            stop('Number of classes not matching the number of states. Also, for non categorical data 
-                 minimum and maximum boundaries must be set (-Inf and Inf allowed).')
+            stop('Number of intervals does not match number of states. For non categorical data 
+                 outer boundaries (minimum and maximum) must be set (-Inf and Inf allowed).')
         }
         lst[[i]]$ClassBoundaries <- classBoundaries[[i]]
         lst[[i]]$Categorical <- categorical

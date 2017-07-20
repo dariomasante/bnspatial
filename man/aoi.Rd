@@ -30,6 +30,8 @@ from \code{msk} will be ignored as well.
 \examples{
 ## Make a mask from a group of input layers:
 data(ConwyData)
+list2env(ConwyData, environment())
+
 network <- LandUseChange
 spatialData <- c(ConwyLU, ConwySlope, ConwyStatus)
 m <- aoi(spatialData)
@@ -51,4 +53,3 @@ head(coord)
 \seealso{
 \code{\link{extractByMask}}
 }
-

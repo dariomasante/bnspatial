@@ -26,7 +26,7 @@ install.packages("gRain", repos="http://cran.uk.r-project.org/", dependencies=T,
 install.packages("raster", repos="http://cran.uk.r-project.org/", dependencies=T, clean=T)
 
 ## Install bnspatial (full path to the file, if not in the R working directory)
-install.packages("~/bnspatial_0.9.tar.gz", repos = NULL, type="source")
+install.packages("~/bnspatial_1.0.2.tar.gz", repos = NULL, type="source")
 ```
 
 Reference manual: [bnspatial.pdf](https://cran.r-project.org/package=bnspatial/bnspatial.pdf)  
@@ -46,7 +46,7 @@ Development was partly funded by the European Union FP7 (2007-2013), under proje
 
 ## A worked example
 ### Setting the scene
-This example shows the use of *bnspatial* in a hypotetical land use change context and is inspired by works like Celio et al.[^1]. The aim is to analyze how different factors can influence land use change and where the change is most likely to occur.  
+This example shows the use of *bnspatial* in a hypotetical land use change context and is inspired by works like Celio et al.<sup>1</sup>. The aim is to analyze how different factors can influence land use change and where the change is most likely to occur.  
 A Bayesian network was built and its conditional probability table populated, in order to catch some of the relevant drivers of land use change in a sample catchment (Conwy, North Wales, UK). The links in the network reflect the relationships among variables: slope, legal status and current land use are assumed to be independent, as well as two hypotetical scenarios. One of them, intensification, predicts increase in demand and prices of agricultural products, while the other entails a more balanced management of natural resources, including measures for climate change mitigation, such as payments for carbon storage. Legal status of land determines a different level of direct or indirect involvement of stakeholders in land management and explain the link directed from it. Overall, change is defined by a combination of factors: stakeholder preferences, suitability of land for a given use (simplified with a single variable, slope) and the current land use, as a proxy for past suitability and preferences. Under protection, a given land use may or may not change, quite independently from other factors.  
 The simplified land use map under current and modelled conditions contains only three land use classes: arable, forest and other. The "final" land use type to be modelled depends on a set of drivers: some of them vary spatially (slope, legal status and current land use), while some other do not (socio-economic setting and stakeholder preferences). The model links the land use types to carbon stock as well, summarised under three broad categories identified as high, moderate or low.  
 Together with the spatial data and the network, a lookup list must be provided, to link properly the nodes from the network to the spatial data in input.  
@@ -68,7 +68,7 @@ Below a brief description of the data (also accessed through command `?ConwyData
 * evidence: a matrix, the collection of previous spatial data as extracted from each location (i.e. raster cell) in the catchment. Each value from the spatial data was discretized through `dataDiscretize` or `bulkDiscretize` functions, then assigned to the corresponding state from the Bayesian network (LandUseChange).
 * LUclasses (LUclasses.txt): the look up list and classification of input spatial data (corresponding states and values). The list is formatted accordingly to *bnspatial* functions requirements and as returned by functions `importClasses` and `setClasses`.
 
-[^1]: Celio, E., Koellner, T., & Gret-Regamey, A., 2014. Modelling land use decisions with Bayesian networks: Spatially explicit analysis of driving forces on land use change. Environmental Modelling & Software, 52, 222-233.
+<sup>1</sup>: Celio, E., Koellner, T., & Gret-Regamey, A., 2014. Modelling land use decisions with Bayesian networks: Spatially explicit analysis of driving forces on land use change. Environmental Modelling & Software, 52, 222-233.
 
 
 In the following the main function `bnspatial` will be used to query the network and map the outputs. This function wraps most *bnspatial* functions into one, bringing directly from the network and input spatial data to the output maps. The use of `bnspatial` allows the user to provide external files as inputs (the Bayesian network in .net format, a look up classification file in .txt format, spatial data in various formats; see details below), and minimizes the user interaction with R and it is therefore recommended to light R users. Several additional options are available in both input and output, as shown by the tutorial below (also, type `?bnspatial` in R console). Below, `FinalLULC` is the name of the node of interest (target), as indicated in the Bayesian network.

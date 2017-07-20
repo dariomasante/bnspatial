@@ -51,6 +51,9 @@ bnspatial <- function(network, target, spatialData, lookup, msk=NULL, what=c("cl
     if(length(spatialData) != length(lookup)){
         stop('Check "spatialData": must be a vector of file names or a list of RasterLayer objects of length equal to the number of nodes provided by lookup argument')
     }
+    if(class(spatialData) == 'character'){
+        spatialData <- lapply(spatialData, raster)
+    }
     spatialDataList <- linkMultiple(spatialData=spatialData, network=network, lookup=lookup, verbose=verbose)
     
     ## Load or create mask

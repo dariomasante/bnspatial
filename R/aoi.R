@@ -35,6 +35,9 @@
 #' head(coord)
 #' @export
 aoi <- function(msk, mskSub=NULL, xy=FALSE){  ## Check if aoi and extractByMask can be condensed in one or nested.
+    if(class(msk) == 'character'){
+        msk <- lapply(msk, function(x) raster::raster(x, RAT=FALSE)) ## Should apply this even when an input raster is provided
+    }
     if(is.list(msk)){ 
         r <- msk[[1]]
         ext <- raster::extent(r)
@@ -55,9 +58,6 @@ aoi <- function(msk, mskSub=NULL, xy=FALSE){  ## Check if aoi and extractByMask 
             return( msk )
         }
     } else {
-        if(class(msk) != 'RasterLayer'){
-            msk <- raster::raster(msk, RAT=FALSE) ## Should apply this even when an input raster is provided
-        }
         mskVals <- raster::getValues(msk)
         if(!is.null(mskSub)){
             id = mskVals %in% mskSub

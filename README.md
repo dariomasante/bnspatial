@@ -218,7 +218,7 @@ plot(bn$CoeffVariation, main="Uncertainty (sustain.)")
 ```
 
 
-It should be noted that this model does not return a quantitative estimate of carbon as it may be in a deterministic or process based model, but rather a quantitative *expectation* of carbon stock. That is the estimate based on uncertainty. For instance, a cell in the output raster may have any value between 15 and 175, but its land use class would be only one of three (forest, arable or other). However, the probabilities of having any of the three land use classes would vary and this variation is accounted for in the carbon stock estimate. This is not a general statement and the meaning of the expected value of a target node depends on the model structure and variables.  
+It should be noted that this model does not return a quantitative estimate of carbon as it may be in a deterministic or process based model, but rather a quantitative *expectation* of carbon stock. That is the estimate based on uncertainty. For instance, a cell in the output raster may have any value between 15 and 175, but its land use class would be only one of three (forest, arable or other). However, the probabilities of having any of the three land use classes would vary and this variation is accounted for in the carbon stock estimate. This is not a generally valid statement and the meaning of the expected value of a target node depends on the model structure and variables.  
 
 ---------------
 In the examples above the function `bnspatial` was used exclusively, but it can be quite inefficient when multiple options have to be tested, or the spatial data involved is big enough to require significant computing time. An option is to resort to parallel processing, by setting argument `inparallel=TRUE` (see next paragraph), or making sure that the query is run on the area of interest only, by setting argument `msk` as already shown.  
@@ -226,7 +226,7 @@ However, these options do not prevent `bnspatial` from repeatedly loading and di
 
 ### Speeding up: parallel processing
 When the scale of analysis is very wide or spatial data has high resolution, computation time can be significant. To speed up the network querying, parallel processing options are provided in *bnspatial*, integrating the powerful functions from [`foreach`](https://cran.r-project.org/web/packages/foreach/index.html) package and applying them in complete autonomy.
-When using parallel processing options, care should be paid to the RAM commitment, as memory should be sufficient to contain all data being processed in parallel (use of memory can be easily checked from Task Manager in Windows systems). Ssolutions to this issue are currently under implementation.  
+When using parallel processing options, care should be paid to the RAM commitment, as memory should be sufficient to contain all data being processed in parallel (use of memory can be easily checked from Task Manager in Windows systems). Solutions to this issue in bnspatial are currently under development.  
 To apply parallel processing, simply set `inparallel=TRUE`. By default the number of tasks will be the number of cores/processors available minus one. If a different number of tasks is required, that number can be set, e.g. `inparallel=2` will use two cores. A higher number of tasks than number of cores/processors can be provided, but there are potential shortcomings and the user should avoid that choice, unless knowing exactly the reason fot it.
 
 ```{r, eval=FALSE}

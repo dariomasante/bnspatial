@@ -19,5 +19,5 @@ Description: Package for the spatial implementation of Bayesian Networks and map
 License: GPL-3
 LazyLoad: yes
 NeedsCompilation: no
-RoxygenNote: 5.0.1
+RoxygenNote: 6.0.1
 VignetteBuilder: knitr

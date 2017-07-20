@@ -72,6 +72,8 @@ providing a key to interpret the raster values and the state they refer to.
 }
 \examples{
 data(ConwyData)
+list2env(ConwyData, environment())
+
 network <- LandUseChange
 target <- 'FinalLULC'
 statesProb <- queryNet(network, target, evidence)
@@ -94,4 +96,3 @@ plot(mp$Probability$forest)
 \seealso{
 \code{\link{bnspatial}}, \code{\link{aoi}}, \code{\link{queryNet}}
 }
-

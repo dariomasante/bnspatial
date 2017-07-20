@@ -4,6 +4,7 @@ library(bnspatial)
 ###### aoi
 ## Make a mask from a group of input layers:
 data(ConwyData)
+list2env(ConwyData, environment())
 network <- LandUseChange
 spatialData <- c(currentLU, slope, status)
 spDataLst <- linkMultiple(spatialData, network, LUclasses, verbose = FALSE)
@@ -25,6 +26,7 @@ head(coord)
 
 ###### bnSpatialize
 data(ConwyData)
+list2env(ConwyData, environment())
 network <- LandUseChange
 spatialData <- c(currentLU, slope, status)
 lookup <- LUclasses
@@ -34,6 +36,7 @@ bn
 
 ######
 data(ConwyData)
+list2env(ConwyData, environment())
 network <- LandUseChange
 target <- 'FinalLULC'
 statesProb <- queryNet(network, target, evidence)
@@ -66,6 +69,7 @@ dataDiscretize(s, classBoundaries=c(-Inf, 0.5, Inf), classStates=c("first", "sec
 ###### bulkDiscretize
 ## Discretize multiple spatial data by location
 data(ConwyData)
+list2env(ConwyData, environment())
 network <- LandUseChange
 spatialData <- c(currentLU, slope, status)
 
@@ -76,6 +80,7 @@ head( bulkDiscretize(spDataLst, coord) )
 
 ###### extractByMask
 data(ConwyData)
+list2env(ConwyData, environment())
 m <- aoi(msk=currentLU, mskSub=c(2,3))
 head( extractByMask(slope, msk=m), 20) 
 
@@ -85,7 +90,7 @@ plot( extractByMask(slope, msk=m, spatial=TRUE) )
 
 ###### queryNet
 data(ConwyData)
-
+list2env(ConwyData, environment())
 network <- LandUseChange
 q <- queryNet(network, 'FinalLULC', evidence)
 head(q)
@@ -97,6 +102,7 @@ head(q)
 
 ###### bnSpatialize
 data(ConwyData)
+list2env(ConwyData, environment())
 network <- LandUseChange
 spatialData <- c(currentLU, slope, status)
 bn = bnSpatialize(network, 'FinalLULC', spatialData, LUclasses, msk=currentLU, spatial=TRUE, inparallel=FALSE, exportRaster=FALSE)

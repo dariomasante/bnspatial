@@ -3,6 +3,7 @@
 \docType{data}
 \name{ConwyData}
 \alias{ConwyData}
+\alias{ConwySlope}
 \title{Land use change data}
 \format{A dataset in native \code{RData} format.}
 \usage{
@@ -13,7 +14,7 @@ Data derived from the Conwy catchment in North Wales (UK), widely modified
 for demonstration purposes. Once loaded, the data consist of several objects:
 \itemize{
   \item LandUseChange An object of class \href{https://cran.r-project.org/package=gRain}{\code{grain}}. 
-  The Bayesian network.
+  The Bayesian network, built for demonstration purposes.
   \item ConwyLU An object of class \href{https://cran.r-project.org/package=raster}{\code{RasterLayer}}. 
   A simplified version of the current land use map from the Conwy catchment (Wales, UK). It includes three classes: arable (raster value 3), forest (2), other (1).
   \item ConwySlope An object of class RasterLayer. A raster of slope derived from a digital elevation model at 50 meters resolution, units are degrees.
@@ -29,6 +30,7 @@ for demonstration purposes. Once loaded, the data consist of several objects:
 \examples{
 library(bnspatial)
 data(ConwyData)
+list2env(ConwyData, environment())
 ls()
 
 ## The network nodes and states
@@ -46,4 +48,3 @@ raster::plot(ConwyLU)
 raster::plot(ConwySlope)
 raster::plot(ConwyStatus)
 }
-

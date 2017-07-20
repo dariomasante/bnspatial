@@ -48,6 +48,8 @@
 #' @seealso \code{\link{bnspatial}}, \code{\link{aoi}}, \code{\link{queryNet}}
 #' @examples
 #' data(ConwyData)
+#' list2env(ConwyData, environment())
+#' 
 #' network <- LandUseChange
 #' target <- 'FinalLULC'
 #' statesProb <- queryNet(network, target, evidence)

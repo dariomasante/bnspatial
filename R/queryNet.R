@@ -19,6 +19,8 @@
 #' @return A matrix of probabilities: columns are the target node states and rows are the probabilities associated to each record from argument \code{evidence} (e.g. spatial locations).
 #' @examples
 #' data(ConwyData)
+#' list2env(ConwyData, environment())
+#' 
 #' network <- LandUseChange
 #' 
 #' q <- queryNet(network, 'FinalLULC', evidence)

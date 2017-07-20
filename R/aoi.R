@@ -16,6 +16,8 @@
 #' @examples
 #' ## Make a mask from a group of input layers:
 #' data(ConwyData)
+#' list2env(ConwyData, environment())
+#' 
 #' network <- LandUseChange
 #' spatialData <- c(ConwyLU, ConwySlope, ConwyStatus)
 #' m <- aoi(spatialData)
@@ -36,7 +38,7 @@
 #' @export
 aoi <- function(msk, mskSub=NULL, xy=FALSE){  ## Check if aoi and extractByMask can be condensed in one or nested.
     if(class(msk) == 'character'){
-        msk <- lapply(msk, function(x) raster::raster(x, RAT=FALSE)) ## Should apply this even when an input raster is provided
+        msk <- lapply(msk, function(x) { raster::raster(x, RAT=FALSE) }) ## Should apply this even when an input raster is provided
     }
     if(is.list(msk)){ 
         r <- msk[[1]]

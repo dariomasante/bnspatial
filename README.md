@@ -76,6 +76,8 @@ In the following the main function `bnspatial` will be used to query the network
 ## Loading package and data stored in it
 library(bnspatial)
 data(ConwyData)
+list2env(ConwyData, environment())
+
 network <- LandUseChange
 spatialData <- c(currentLU, slope, status)
 lookup <- LUclasses

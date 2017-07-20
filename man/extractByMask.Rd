@@ -26,6 +26,8 @@ When input data given to \code{rast} does not match the resolution and extent of
 }
 \examples{
 data(ConwyData)
+list2env(ConwyData, environment())
+
 m <- aoi(msk=ConwyLU, mskSub=c(2,3))
 head( extractByMask(ConwySlope, msk=m), 20) 
 
@@ -36,4 +38,3 @@ plot( extractByMask(ConwySlope, msk=m, spatial=TRUE) )
 \seealso{
 \code{\link{aoi}}
 }
-

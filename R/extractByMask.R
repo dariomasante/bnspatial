@@ -11,6 +11,8 @@
 #' @seealso \code{\link{aoi}}
 #' @examples
 #' data(ConwyData)
+#' list2env(ConwyData, environment())
+#' 
 #' m <- aoi(msk=ConwyLU, mskSub=c(2,3))
 #' head( extractByMask(ConwySlope, msk=m), 20) 
 #' 

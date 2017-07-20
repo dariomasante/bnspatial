@@ -3,6 +3,7 @@
 \name{queryNet}
 \alias{queryNet}
 \alias{queryNetParallel}
+\alias{queryNetParallel}
 \title{Query the Bayesian network}
 \usage{
 queryNet(network, target, evidence, ...)
@@ -10,7 +11,7 @@ queryNet(network, target, evidence, ...)
 queryNetParallel(network, target, evidence, inparallel = TRUE, ...)
 }
 \arguments{
-\item{network}{The Bayesian network. An object of class \code{grain} (from package \href{https://cran.r-project.org/package=gRain}{gRain}), or a character (the path to the \emph{.net} file to be imported)}
+\item{network}{The Bayesian network. An object of class \code{grain} (from package \href{https://cran.r-project.org/package=bnlearn}{bnlearn}), or a character (the path to the \emph{.net} file to be imported)}
 
 \item{target}{character. The node of interest to be modelled and mapped.}
 
@@ -35,6 +36,8 @@ for big network queries, by splitting data into chunks and processing them in pa
 }
 \examples{
 data(ConwyData)
+list2env(ConwyData, environment())
+
 network <- LandUseChange
 
 q <- queryNet(network, 'FinalLULC', evidence)
@@ -49,4 +52,3 @@ q <- queryNetParallel(network, 'FinalLULC', evidence, inparallel=2)
 head(q)
 
 }
-

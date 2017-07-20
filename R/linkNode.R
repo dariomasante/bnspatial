@@ -14,17 +14,18 @@
 #' @param lookup character or a formatted list. This argument can be provided as path to a comma separated file or a formatted list (see \code{\link{setClasses}} )
 #' @return \code{linkNode} returns a list of objects, including the spatial data and summary information about each node.\cr
 #' \code{linkMultiple} returns a list of lists. Each element of the list includes the spatial data and summary information for each of the input nodes.
-#' @details In future releases, this function may be rewritten to provide an S4 object instead of a list.
+#' @details In future releases, this function may be rewritten to provide an S4/S3 object.
 #' @seealso \code{\link{dataDiscretize}}; \code{\link{setClasses}}
 #' @examples
+#' ## Load data into global environment
 #' data(ConwyData)
+#' list2env(ConwyData, environment())
+#' 
 #' network <- LandUseChange
 #' lst <- linkNode(layer=ConwyLU, network, node='CurrentLULC', intervals=c(2, 3, 1))
 #' lst
 #'
 #' ## Link the Bayesian network to multiple spatial data at once, using a lookup list
-#' data(ConwyData)
-#' network <- LandUseChange
 #' spatialData <- c(ConwyLU, ConwySlope, ConwyStatus)
 #' lookup <- LUclasses
 #' linkMultiple(spatialData, network, lookup, verbose = FALSE)

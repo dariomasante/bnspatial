@@ -10,7 +10,7 @@ bnspatial(network, target, spatialData, lookup, msk = NULL,
   verbose = TRUE, ...)
 }
 \arguments{
-\item{network}{The Bayesian network. An object of class \code{grain} (from package \href{https://cran.r-project.org/package=gRain}{gRain}), or a character (the path to the \emph{.net} file to be imported)}
+\item{network}{The Bayesian network. An object of class \code{grain} (from package \href{https://cran.r-project.org/package=bnlearn}{bnlearn}), or a character (the path to the \emph{.net} file to be imported)}
 
 \item{target}{character. The node of interest to be modelled and mapped.}
 
@@ -84,6 +84,8 @@ providing a key to interpret the raster values and the state they refer to.
 }
 \examples{
 data(ConwyData)
+list2env(ConwyData, environment())
+
 network <- LandUseChange
 spatialData <- c(ConwyLU, ConwySlope, ConwyStatus)
 lookup <- LUclasses
@@ -95,4 +97,3 @@ bn
 \seealso{
 \code{\link{setClasses}}; \code{\link{mapTarget}}; \code{\link{linkNode}}; \code{\link{loadNetwork}}
 }
-

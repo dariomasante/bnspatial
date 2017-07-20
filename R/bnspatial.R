@@ -26,6 +26,8 @@
 #' @seealso \code{\link{setClasses}}; \code{\link{mapTarget}}; \code{\link{linkNode}}; \code{\link{loadNetwork}}
 #' @examples
 #' data(ConwyData)
+#' list2env(ConwyData, environment())
+#' 
 #' network <- LandUseChange
 #' spatialData <- c(ConwyLU, ConwySlope, ConwyStatus)
 #' lookup <- LUclasses
@@ -50,9 +52,6 @@ bnspatial <- function(network, target, spatialData, lookup, msk=NULL, what=c("cl
     ## Load input spatial data and corresponding nodes and states into a list
     if(length(spatialData) != length(lookup)){
         stop('Check "spatialData": must be a vector of file names or a list of RasterLayer objects of length equal to the number of nodes provided by lookup argument')
-    }
-    if(class(spatialData) == 'character'){
-        spatialData <- lapply(spatialData, raster)
     }
     spatialDataList <- linkMultiple(spatialData=spatialData, network=network, lookup=lookup, verbose=verbose)
     

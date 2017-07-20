@@ -7,31 +7,33 @@ rm(list=ls()) ## note this may not be enough
 library(raster)
 library(bnspatial)
 
+ConwyData <- list()
+
 rawPath <- system.file("extdata/ConwyStatus.tif", package = "bnspatial")
-ConwyStatus <- raster(rawPath)
-ConwyStatus <- readAll(ConwyStatus)
+ConwyData$ConwyStatus <- readAll(raster(rawPath))
 
 rawPath <- system.file("extdata/ConwySlope.tif", package = "bnspatial")
 ConwySlope <- raster(rawPath)
 ConwySlope[ConwySlope == 128] <- NA
+ConwyData$ConwySlope <- ConwySlope
 
 rawPath <- system.file("extdata/ConwyLU.tif", package = "bnspatial")
-ConwyLU <- raster(rawPath)
-ConwyLU <- readAll(ConwyLU)
+ConwyData$ConwyLU <- readAll(raster(rawPath))
 
 rawPath <- system.file("extdata/LUclasses.txt", package = "bnspatial")
-LUclasses <- importClasses(rawPath)
+ConwyData$LUclasses <- importClasses(rawPath)
 
 rawPath <- system.file("extdata/LandUseChange.net", package = "bnspatial")
-LandUseChange <- loadNetwork(rawPath,'FinalLULC')
+ConwyData$LandUseChange <- loadNetwork(rawPath,'FinalLULC')
 
 spDataLst <- linkMultiple(c(ConwyLU, ConwySlope, ConwyStatus), LandUseChange, LUclasses, verbose = FALSE)
 coord <- aoi(ConwyLU, xy=TRUE)
-evidence <- bulkDiscretize(spDataLst, coord)
+ConwyData$evidence <- bulkDiscretize(spDataLst, coord)
 
 rm(rawPath)
 rm(coord)
+rm(ConwySlope)
 rm(spDataLst)
 rm(.Random.seed)
-#save.image(file=system.file("data/ConwyData.RData", package = "bnspatial"))
+#save('ConwyData', file=system.file("data/ConwyData.RData", package = "bnspatial"))
 

@@ -5,7 +5,7 @@
 #' for demonstration purposes. Once loaded, the data consist of several objects:
 #' \itemize{
 #'   \item LandUseChange An object of class \href{https://cran.r-project.org/package=gRain}{\code{grain}}. 
-#'   The Bayesian network.
+#'   The Bayesian network, built for demonstration purposes.
 #'   \item ConwyLU An object of class \href{https://cran.r-project.org/package=raster}{\code{RasterLayer}}. 
 #'   A simplified version of the current land use map from the Conwy catchment (Wales, UK). It includes three classes: arable (raster value 3), forest (2), other (1).
 #'   \item ConwySlope An object of class RasterLayer. A raster of slope derived from a digital elevation model at 50 meters resolution, units are degrees.
@@ -17,12 +17,19 @@
 #'   \item LUclasses A list with the classification of input spatial data (its corresponding states and values). The list is formatted accordingly to 
 #'   bnspatial functions requirement and as returned by functions \code{\link{importClasses}} and \code{\link{setClasses}}.
 #' }
+#' @aliases ConwySlope
+#' @aliases LandUseChange
+#' @aliases ConwyStatus
+#' @aliases evidence
+#' @aliases ConwyLU
+#' @aliases LUclasses
 #' @docType data
 #' @usage data(ConwyData)
 #' @format A dataset in native \code{RData} format.
 #' @examples
 #' library(bnspatial)
 #' data(ConwyData)
+#' list2env(ConwyData, environment())
 #' ls()
 #' 
 #' ## The network nodes and states
@@ -40,47 +47,3 @@
 #' raster::plot(ConwySlope)
 #' raster::plot(ConwyStatus)
 NULL
-
-#' @name LandUseChange
-#' @title Bayesian network
-#' @description Bayesian network built for demonstration purposes, inspired by works like Celio et al (2014).
-#' @docType data
-NULL
-
-#' @name ConwySlope
-#' @title Slope raster for Conwy catchment.
-#' @description An object of class RasterLayer, sourced from \emph{extdata/ConwySlope.tif}. A raster of slope derived from a digital elevation model at 50 meters resolution, units are degrees.
-#' @docType data
-NULL
-
-#' @name ConwyStatus
-#' @title Ownership/legal status raster for Conwy catchment (dummy data).
-#' @description An object of class RasterLayer, sourced from \emph{extdata/ConwyStatus.tif}. The land ownership type (dummy data), divided into three possible classes: public (raster value 4), private (3), protected (1).
-#' @docType data
-NULL
-
-#' @name evidence
-#' @title Evidence from extracted spatial inputs.
-#' @description A matrix. The collection of available spatial data (see above) as extracted from each location (i.e. cell) 
-#'   in the catchment, where the latter is represented by the raster object \code{ConwyLU}. Each value from the spatial data was 
-#'   discretized through \code{\link{dataDiscretize}} or \code{\link{bulkDiscretize}} functions, then assigned to the corresponding 
-#'   state from the Bayesian network (LandUseChange).
-#' @docType data
-NULL
-
-#' @name ConwyLU
-#' @title Current land use map (heavily aggregated)
-#' @description An object of class \href{https://cran.r-project.org/package=raster}{\code{RasterLayer}}, sourced from \emph{extdata/ConwyLU.tif}. 
-#' A simplified version of the current land use map from the Conwy catchment (Wales, UK). 
-#' It includes three classes: arable (raster value 3), forest (2), other (1).
-#' @docType data
-NULL
-
-#' @name LUclasses
-#' @title Lookup list, linking input spatial data and the Bayesian network
-#' @description A list with the classification of input spatial data (its corresponding states and values). 
-#' The list is formatted accordingly to bnspatial functions requirement and as returned by 
-#' functions \code{\link{importClasses}} and \code{\link{setClasses}}.
-#' @docType data
-NULL
- 

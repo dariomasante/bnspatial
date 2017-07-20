@@ -51,6 +51,8 @@
 #' 
 #' ## Discretize multiple spatial data by location
 #' data(ConwyData)
+#' list2env(ConwyData, environment())
+#' 
 #' network <- LandUseChange
 #' spatialData <- c(ConwyLU, ConwySlope, ConwyStatus)
 #' 

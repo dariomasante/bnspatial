@@ -13,7 +13,7 @@
 #  install.packages("raster", repos="http://cran.uk.r-project.org/", dependencies=T, clean=T)
 #  
 #  ## Install bnspatial (full path to the file, if not in the R working directory)
-#  install.packages("~/bnspatial_0.9.tar.gz", repos = NULL, type="source")
+#  install.packages("~/bnspatial_1.0.2.tar.gz", repos = NULL, type="source")
 
 ## ---- eval=FALSE---------------------------------------------------------
 #  help(package=bnspatial) ## opens package index
@@ -23,6 +23,8 @@
 ## Loading package and data stored in it
 library(bnspatial)
 data(ConwyData)
+list2env(ConwyData, environment())
+
 network <- LandUseChange
 spatialData <- c(ConwyLU, ConwySlope, ConwyStatus)
 lookup <- LUclasses

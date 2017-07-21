@@ -5,6 +5,7 @@ CHANGES:
 * `aoi` function now accepts character vectors (i.e. input files paths)
 * Example data compacted into a list for neater index of package content
 * Minor typos corrected in documentation
+* New mantainer's email address in the DESCRIPTION file
 
 
 bnspatial v1.0.1 (Release date: 2016-12-14)

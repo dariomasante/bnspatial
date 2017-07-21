@@ -1,7 +1,7 @@
 #' @name loadNetwork
 #' @title Load a Bayesian network
 #' @description This function loads the Bayesian network from a native gRain object of class \code{grain} or an external 
-#' file with extension \emph{.net} (as provided by external softwares \href{http://hugin.com/productsservices}{Hugin} or \href{http://www.bayesfusion.com/}{GeNIe}), 
+#' file with extension \emph{.net} (as provided by external softwares \href{http://www.hugin.com/}{Hugin} or \href{http://www.bayesfusion.com/}{GeNIe}), 
 #' optionally compiling the network.
 #' @param network The Bayesian network. An object of class \code{grain} (from package \href{https://cran.r-project.org/package=bnlearn}{bnlearn}), or a character (the path to the \emph{.net} file to be imported)
 #' @param target character. The node of interest to be modelled and mapped.

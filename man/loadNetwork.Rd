@@ -16,7 +16,7 @@ An object of class \code{grain}. The Bayesian network. If \code{target} argument
 }
 \description{
 This function loads the Bayesian network from a native gRain object of class \code{grain} or an external 
-file with extension \emph{.net} (as provided by external softwares \href{http://hugin.com/productsservices}{Hugin} or \href{http://www.bayesfusion.com/}{GeNIe}), 
+file with extension \emph{.net} (as provided by external softwares \href{http://www.hugin.com/}{Hugin} or \href{http://www.bayesfusion.com/}{GeNIe}), 
 optionally compiling the network.
 }
 \details{

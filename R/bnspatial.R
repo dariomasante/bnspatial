@@ -94,6 +94,7 @@ bnspatial <- function(network, target, spatialData, lookup, msk=NULL, what=c("cl
         }
         probs <- queryNet(network=network, target=target, evidence=tab, ...)
     }
-    mapTarget(target=target, statesProb=probs, what=what, msk=msk, midvals=midvals, spatial=spatial, targetState=targetState, exportRaster=exportRaster, path=path)
+    mapTarget(target=target, statesProb=probs, what=what, msk=msk, midvals=midvals, 
+              spatial=spatial, targetState=targetState, exportRaster=exportRaster, path=path)
 }
 

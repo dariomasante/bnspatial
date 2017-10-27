@@ -1,3 +1,11 @@
+bnspatial v1.0.3 (Release date: 2017-10-27)
+-----------------------------------------------
+CHANGES:
+
+* Added exception handling and error messages for impossible input values
+* Changed an internal variable name in function queryNet to avoid mantainer confusion 
+
+
 bnspatial v1.0.2 (Release date: 2017-07-21)
 -----------------------------------------------
 CHANGES:

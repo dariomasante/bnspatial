@@ -37,7 +37,7 @@
 #' @export
 queryNet <- function(network, target, evidence, ...){
     .checkNames(network, target)
-    nodeNames <- network$universe$nodes
+    nodesName <- network$universe$nodes
     if(is.data.frame(evidence)){
         evidence <- as.matrix(evidence)
     }
@@ -54,16 +54,17 @@ queryNet <- function(network, target, evidence, ...){
             evidence <- evidence[,-fix]
         }
     }
+    .checkPriors(network, evidence)
     inputNodes <- colnames(evidence) ## Harmonize with .freezeEvidence above
-    if(any(inputNodes %in% nodeNames == FALSE)){
-        wrong = paste(inputNodes[!inputNodes %in% nodeNames], collapse=', ')
+    if(any(inputNodes %in% nodesName == FALSE)){
+        wrong = paste(inputNodes[!inputNodes %in% nodesName], collapse=', ')
         stop(paste('One or more nodes not found in the network, please check names:', wrong))
     }
     # Create single codes to identify all existing combinations of variables state
     # Codes are preferred as character type instead of numeric, although performance may be slightly affected
     key <- as.factor(evidence)
     evidenceCoded <- matrix(as.integer(key), nrow = nrow(evidence), ncol= ncol(evidence))
-    uniqueCodes <- 1:(length(levels(key))+1) # Add an index for NAs
+    # uniqueCodes <- 1:(length(levels(key))+1) # Add an index for NAs
     key <- c(levels(key), NA) # Add NA to lookup vector
     evidenceCoded[is.na(evidenceCoded)] <- length(key)
     singleCodes <- apply(evidenceCoded, 1, function(x) {paste(x, collapse="")})
@@ -76,6 +77,9 @@ queryNet <- function(network, target, evidence, ...){
         } else {
             as.numeric(gRain::querygrain(gRain::setEvidence(network, inputNodes, x)) [[target]])
         }
+        if(any(is.nan(out) | is.infinite(out))){ # Extra check to cope with 
+            stop('Impossible values have been set in the input network, e.g. zero as prior probability for an existing class.')
+        }
     })
     probs <- t(probs)[match(singleCodes, uniCodes), ]
     colnames(probs) <- network$universe$levels[[target]]
@@ -87,12 +91,13 @@ queryNet <- function(network, target, evidence, ...){
 queryNetParallel <- function(network, target, evidence, inparallel=TRUE, ...){
     .checkNames(network, target)
     inparallel <- .inParallel(inparallel)
-    if(exists('tokenToHaltChildrenFromParallelProc', envir=parent.frame()) == FALSE){
+    if(!exists('tokenToHaltChildrenFromParallelProc', envir=parent.frame())){
         clst <- parallel::makeCluster(inparallel)
         doParallel::registerDoParallel(clst)
     }
     network <- loadNetwork(network=network)
     evidence <- cbind(evidence, ...)
+    .checkPriors(network, evidence)
     splittedData <- split(as.data.frame(evidence), (seq(nrow(evidence))-1) %/% (nrow(evidence)/inparallel) )
     splittedData <- lapply(seq_along(splittedData), function(x){as.matrix(splittedData[[x]], ncol=ncol(evidence))})	
     i <- NULL # To remove NOTE from R package release check 
@@ -101,7 +106,7 @@ queryNetParallel <- function(network, target, evidence, inparallel=TRUE, ...){
     tab <- foreach::"%dopar%"(o, {
         queryNet(network=network, target=target, evidence=splittedData[[i]])
     })
-    if(exists('tokenToHaltChildrenFromParallelProc', envir=parent.frame()) == FALSE){
+    if(!exists('tokenToHaltChildrenFromParallelProc', envir=parent.frame())){
         parallel::stopCluster(clst); gc()
     }
     return(tab)
@@ -133,3 +138,20 @@ queryNetParallel <- function(network, target, evidence, inparallel=TRUE, ...){
     }
     return(tab)	
 }
+
+## Check whether the input network contains impossible or potentially wrong values given the data
+.checkPriors <- function(network, evidence){
+    for(nm in colnames(evidence)){
+        vals <- network$cptlist[[nm]]
+        if(any(vals < 0 | vals > 1) | sum(vals) > 1){
+            stop('Impossible probability values have been set in the input network for node: ', nm)
+        }
+        if(any(vals == 0)){
+            wrong <- names(vals)[vals == 0]
+            if(any(evidence[ ,nm] == wrong)){
+                stop('Cannot have zero prior probability for an existing class in the spatial data, nor for a fixed evidence state.\n  Check state "', wrong, '" of node "', nm, '"')
+            }
+        } 
+    }
+}
+

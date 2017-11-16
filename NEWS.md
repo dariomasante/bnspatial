@@ -1,4 +1,4 @@
-bnspatial v1.0.3 (Release date: 2017-10-27)
+bnspatial v1.0.3 (Release date: 2017-11-16)
 -----------------------------------------------
 CHANGES:
 

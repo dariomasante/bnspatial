@@ -77,7 +77,7 @@ queryNet <- function(network, target, evidence, ...){
         } else {
             as.numeric(gRain::querygrain(gRain::setEvidence(network, inputNodes, x)) [[target]])
         }
-        if(any(is.nan(out) | is.infinite(out))){ # Extra check to cope with 
+        if(any(is.nan(x) | is.infinite(x))){ # Extra check to cope with 
             stop('Impossible values have been set in the input network, e.g. zero as prior probability for an existing class.')
         }
     })

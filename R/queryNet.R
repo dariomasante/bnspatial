@@ -144,15 +144,16 @@ queryNetParallel <- function(network, target, evidence, inparallel=TRUE, ...){
 .checkPriors <- function(network, evidence){
     for(nm in colnames(evidence)){
         vals <- network$cptlist[[nm]]
-        if(any(vals < 0 | vals > 1) | sum(vals) > 1){
+        vvals <- as.vector(vals)
+        if(any(vals < 0 | vals > 1) | sum(vvals) > length(vvals)){
             stop('Impossible probability values have been set in the input network for node: ', nm)
         }
-        if(any(vals == 0)){
-            wrong <- names(vals)[vals == 0]
-            if(any(evidence[ ,nm] == wrong)){
-                stop('Cannot have zero prior probability for an existing class in the spatial data, nor for a fixed evidence state.\n  Check state "', wrong, '" of node "', nm, '"')
-            }
-        } 
+        # if(any(vals == 0)){
+        #     wrong <- names(vals)[vals == 0]
+        #     if(any(evidence[ ,nm] == wrong)){
+        #         stop('Cannot have zero prior probability for an existing class in the spatial data, nor for a fixed evidence state.\n  Check state "', wrong, '" of node "', nm, '"')
+        #     }
+        # }
     }
 }
 

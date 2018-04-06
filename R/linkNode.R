@@ -1,16 +1,17 @@
 #' @name linkNode
 #' @title Link nodes to spatial data
 #' 
-#' @description \code{linkNode} links a node of the Bayesian network to its corresponding spatial dataset (in raster format), returning a list of objects, including the spatial data and relevant information about the node.\cr
-#' \code{linkMultiple} operates on multiple rasters and nodes.
+#' @description \code{linkNode} links a node of the Bayesian network to its corresponding spatial data, returning a list of objects, including the spatial data and relevant information about the node.\cr
+#' \code{linkMultiple} operates on multiple spatial layers and nodes.
 #' @aliases linkMultiple
-#' @param layer	character (path to raster file) or an object of class "RasterLayer". The spatial data corresponding to the network node in argument \code{node}. 
+#' @param layer	character (path to spatial data file) or an object of class "RasterLayer" or "SpatialPolygonsDataFrame". The spatial data corresponding to the network node in argument \code{node}.
 #' @inheritParams loadNetwork
 #' @param node character. A network node associated to the file in \code{layer} argument
-#' @param intervals A list of numeric vectors. For categorical variables the raster values associated to each state of the node, for continuous variables the boundary values dividing into the corresponding states.
+#' @param intervals A list of numeric vectors. For categorical variables the spatial data values associated to each state of the node, for continuous variables the boundary values dividing into the corresponding states.
 #' @param categorical logical. Is the node a categorical variable? Default is NULL.
+#' @param field character. Only for vectorial data, the field/column name in the attribute table corresponding to the node.
 #' @param verbose logical. If \code{verbose = TRUE} a summary of class boundaries and associated nodes and data will be printed to screen for quick checks.
-#' @param spatialData character or list of objects of class 'RasterLayer'. The raster files corresponding to nodes, as vector of full file paths or as list of rasters (objects of class 'RasterLayer').
+#' @param spatialData character or list of objects of class 'RasterLayer' or 'SpatialPolygonsDataFrame'. The spatial data files corresponding to nodes, provided as a vector of file paths or as list of spatial objects of class 'RasterLayer' or 'SpatialPolygonsDataFrame'.
 #' @param lookup character or a formatted list. This argument can be provided as path to a comma separated file or a formatted list (see \code{\link{setClasses}} )
 #' @return \code{linkNode} returns a list of objects, including the spatial data and summary information about each node.\cr
 #' \code{linkMultiple} returns a list of lists. Each element of the list includes the spatial data and summary information for each of the input nodes.
@@ -30,7 +31,7 @@
 #' lookup <- LUclasses
 #' linkMultiple(spatialData, network, lookup, verbose = FALSE)
 #' @export
-linkNode <- function(layer, network, node, intervals, categorical=NULL, verbose=TRUE){
+linkNode <- function(layer, network, node, intervals, categorical=NULL, field=NULL, verbose=TRUE){
     network = loadNetwork(network=network)
     
     ## Perform checks
@@ -49,24 +50,27 @@ linkNode <- function(layer, network, node, intervals, categorical=NULL, verbose=
         if(categorical == TRUE & delta != 0) {
             stop('Number of classes does not match number of states.')
         } else if(categorical == FALSE & delta != 1) {
-            stop('Number of intervals does not match number of states. For non categorical data 
-                 outer boundaries (minimum and maximum) must be set (-Inf and Inf allowed).')
+            stop('Number of intervals does not match number of states. For non categorical data', 
+                 'outer boundaries (minimum and maximum) must be set (-Inf and Inf allowed).')
         }
-        }
+    }
     categorical <- ifelse(delta != 0, FALSE, TRUE)
     if( identical(intervals, sort(intervals)) == FALSE & categorical == FALSE){
         stop('"intervals" must be sorted from lowest to highest.')
     }
+
     ##
-    
-    if(class(layer) != 'RasterLayer'){
-        layer <- raster::raster(layer)
-    }
+    layer <- .makeSpatial(layer, field)
     if(categorical == TRUE){
-        v <- as.factor(raster::getValues(layer))
+        if(class(layer) == 'RasterLayer'){
+            v <- as.factor(raster::getValues(layer))
+        } else {
+            v <- as.factor(layer@data[ ,field])
+        }
         if(is.null(intervals)){
             intervals <- as.numeric(levels(v))
-            warning('For categorical data check classes integer value and corresponding states. If not matching, a look up list should be provided (function "setClasses") or modified from current list.')
+            warning('For categorical data check classes integer value and corresponding states. If not matching,',
+                    ' a look up list should be provided (function "setClasses") or modified from current list.')
         } else {
             ## May set as 
             if(identical(as.numeric(levels(v)), sort(intervals)) == FALSE){
@@ -74,25 +78,26 @@ linkNode <- function(layer, network, node, intervals, categorical=NULL, verbose=
             }
         }
     }
-    
-    lst <- list(list(States = states, Categorical = categorical, ClassBoundaries = intervals, Raster = layer)) #FilePath = layer@file@name, 
+    lst <- list(list(States = states, Categorical = categorical, ClassBoundaries = intervals, SpatialData = layer)) #FilePath = layer@file@name, 
     names(lst) <- node
     if(verbose == TRUE){
         writeLines(c(paste('\n"', node, '"', ' points to:', sep=''), 
                      paste(' -> ', layer@data@names, '\n'), 
                      'With states:', 
                      paste(states, collapse='    '), 
-                     ifelse(is.null(categorical), '', ifelse(categorical == TRUE, '\nRepresented by integer values:', '\nDiscretized by intervals:')), 
+                     ifelse(is.null(categorical), '', ifelse(categorical == TRUE, 
+                                                             '\nRepresented by integer values:', 
+                                                             '\nDiscretized by intervals:')), 
                      paste(intervals, collapse= ' <-> '))
         )
         writeLines('----------------------------------')
     }
     return(lst)
-    }
+}
 
 #' @rdname linkNode
 #' @export
-linkMultiple <- function(spatialData, network, lookup, verbose=TRUE){
+linkMultiple <- function(spatialData, network, lookup, field=NULL, verbose=TRUE){
     if(is.character(lookup) & length(lookup) == 1){
         lookup <- importClasses(lookup)
     }
@@ -112,12 +117,13 @@ linkMultiple <- function(spatialData, network, lookup, verbose=TRUE){
         } else {
             ClassBoundaries <- lookup[[nm]]$ClassBoundaries
         }
-        lst[nm] <- linkNode(spatialData[ names(lookup) == nm ][[1]], network=network, node=nm, 
-                            intervals=ClassBoundaries, categorical=Categorical, verbose=verbose)
+        n <- which(names(lookup) == nm) 
+        lst[nm] <- linkNode(spatialData[n][[1]], network=network, node=nm, 
+                            intervals=ClassBoundaries, categorical=Categorical, field=field[n], verbose=verbose)
     }
     return(lst)
 }
-
+####
 .checkNames <- function(network, nodes){
     for(node in nodes){
         check <- node %in% network$universe$nodes
@@ -126,7 +132,7 @@ linkMultiple <- function(spatialData, network, lookup, verbose=TRUE){
         }
     }
 }
-
+####
 .checkStates <- function(inputStates, nodeStateNames, node=NULL){
     check <- inputStates %in% nodeStateNames
     msg <- ifelse(is.null(node), '.', paste(':', '"', node, '"'))
@@ -134,4 +140,23 @@ linkMultiple <- function(spatialData, network, lookup, verbose=TRUE){
         stop(paste('Names of states provided do not match the node states from the network: \n"', 
                    inputStates[!check], '" missing from network node', msg))
     }
+}
+####
+.makeSpatial <- function(item, fld){ # This is more complex than it could be, but avoids loading the shape if field is missing
+    if(is.character(item)){
+        if(grepl('\\.shp$', basename(item))){ # check for shapefiel extension
+            if(is.null(fld) | is.na(fld)){
+                stop('"field" argument missing for ',item,'. Using vectorial data (e.g. shapefiles) ',
+                     'one field/column from the attribute table must be specified for each corresponding node.')
+            }
+            item <- raster::shapefile(item)[fld]
+        } else {
+            item <- raster::raster(item)
+        }
+    }
+    if(class(item) == 'SpatialPolygonsDataFrame' & !(is.null(fld) | is.na(fld))){ # Make null only
+        stop('"field" argument missing or incomplete. Using vectorial data (e.g. shapefiles) ',
+             'one field/column from the attribute table must be specified for each corresponding node.')
+    }
+    return(item)
 }

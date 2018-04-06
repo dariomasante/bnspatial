@@ -32,7 +32,7 @@
 #' \code{public, private, protected} \cr
 #' \code{4, 3, 1 }
 #' 
-#' It is possible to write the formatted file automatically using \code{setClasses}, by setting argument \code{w} as path to the text file to be created.
+#' It is possible to write the formatted file automatically using \code{setClasses}, by setting argument \code{wr} as path to the text file to be created.
 #' @seealso \code{\link{dataDiscretize}}
 #' @examples
 #' ## Load classes from external formatted text file
@@ -66,8 +66,8 @@ setClasses <- function(nodes, states, classBoundaries, wr=NULL){
         if((length(classBoundaries[[i]]) - length(states[[i]])) %in% c(0, 1)){
             categorical <- ifelse(length(classBoundaries[[i]]) == length(states[[i]]), TRUE, FALSE)
         } else {
-            stop('Number of intervals does not match number of states. For non categorical data 
-                 outer boundaries (minimum and maximum) must be set (-Inf and Inf allowed).')
+            stop('Number of intervals does not match number of states. For non categorical data ', 
+                 'outer boundaries (minimum and maximum) must be set (-Inf and Inf allowed).')
         }
         lst[[i]]$ClassBoundaries <- classBoundaries[[i]]
         lst[[i]]$Categorical <- categorical
@@ -75,7 +75,7 @@ setClasses <- function(nodes, states, classBoundaries, wr=NULL){
             print(classBoundaries[[i]])
             stop('"classBoundaries" for non categorical data must be sorted from lowest to highest')
         }
-        }
+    }
     if(!is.null(wr)){
         .makeClassFile(wr, lst)
     }

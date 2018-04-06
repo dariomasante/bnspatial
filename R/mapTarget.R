@@ -69,7 +69,8 @@
 #' plot(mp$Probability$forest)
 #' 
 #' @export
-mapTarget <- function(target, statesProb, what=c("class", "entropy"), msk, midvals=NULL, targetState=colnames(statesProb), spatial=TRUE, exportRaster=FALSE, path=getwd()){
+mapTarget <- function(target, statesProb, what=c("class", "entropy"), msk, midvals=NULL, 
+                      targetState=colnames(statesProb), spatial=TRUE, exportRaster=FALSE, path=getwd()){
     .checkStates(targetState, colnames(statesProb))
     if(exportRaster == TRUE){
         rFormat <- '.tif'
@@ -111,7 +112,8 @@ mapTarget <- function(target, statesProb, what=c("class", "entropy"), msk, midva
     }
     if('expected' %in% what | 'variation' %in% what){
         if(is.null(midvals)){
-            warning('Could not calculate the expected value (nor coefficient of variation) as either target node seems to be categorical or mid-values for each states of target node were not provided.')
+            warning('Could not calculate the expected value (nor coefficient of variation) as either target',
+                    ' node seems to be categorical or mid-values for each states of target node were not provided.')
         } else {
             Expected <- .expectedValue(statesProb, midvals)
             if('variation' %in% what){
@@ -130,7 +132,8 @@ mapTarget <- function(target, statesProb, what=c("class", "entropy"), msk, midva
                 if(spatial == TRUE){ 
                     msk[msk_cells_ID] <- Expected
                     if(exportRaster == TRUE){
-                        raster::writeRaster(Expected, paste(path, '/', target, '_ExpectedValue', rFormat, sep=''), datatype='FLT4S', overwrite=TRUE)
+                        raster::writeRaster(Expected, paste(path, '/', target, '_ExpectedValue', rFormat, sep=''), 
+                                            datatype='FLT4S', overwrite=TRUE)
                     } else{
                         Expected <- msk
                     }
@@ -145,7 +148,8 @@ mapTarget <- function(target, statesProb, what=c("class", "entropy"), msk, midva
             msk[msk_cells_ID] <- Entropy
             Entropy <- msk
             if(exportRaster == TRUE){
-                raster::writeRaster(Entropy, paste(path, '/', target, '_ShanEntropy', rFormat, sep=''), datatype='FLT4S', overwrite=TRUE)
+                raster::writeRaster(Entropy, paste(path, '/', target, '_ShanEntropy', rFormat, sep=''), 
+                                    datatype='FLT4S', overwrite=TRUE)
             }
         }
         whatList$Entropy <- Entropy
@@ -153,13 +157,16 @@ mapTarget <- function(target, statesProb, what=c("class", "entropy"), msk, midva
     if('probability' %in% what){
         Probability <- .probabilityValue(statesProb, targetState)
         if(spatial == TRUE){
-            Probability <- lapply(seq_along(Probability), function(x) {msk[msk_cells_ID] <- Probability[[x]]; return(msk)})	
+            Probability <- lapply(seq_along(Probability), function(x) {msk[msk_cells_ID] <- Probability[[x]]
+            return(msk)})	
         }
         names(Probability) <- targetState
         whatList$Probability <- Probability
         if(spatial == TRUE & exportRaster == TRUE){
             lapply(seq_along(Probability), function(x) {
-                raster::writeRaster(Probability[[x]], paste(path, '/', target, '_Probability_', targetState[x], rFormat, sep=''), datatype='FLT4S', overwrite=TRUE)
+                raster::writeRaster(Probability[[x]], paste(path, '/', target, '_Probability_', 
+                                                            targetState[x], rFormat, sep=''), 
+                                    datatype='FLT4S', overwrite=TRUE)
             })
         }
     }
@@ -169,18 +176,18 @@ mapTarget <- function(target, statesProb, what=c("class", "entropy"), msk, midva
     }
     return(whatList)
 }
-
+####
 .classValue <- function(statesProb){
     classes <- apply(statesProb, 1, function(x){
         colnames(statesProb)[which.max(x)]
     })
     as.factor(classes)
 }
-
+####
 .expectedValue <- function(statesProb, midvals) {
     apply(statesProb, 1, function(x){x %*% midvals})
 }
-
+####
 .variationValue <- function(statesProb, expect, midvals){
     uncertainty <- sapply(seq_along(expect), function(x) {
         s <- (midvals - expect[x])^2 * statesProb[x,]
@@ -188,15 +195,15 @@ mapTarget <- function(target, statesProb, what=c("class", "entropy"), msk, midva
     })
     return(uncertainty / expect)
 }
-
+####
 .entropyValue <- function(statesProb){
     apply(statesProb, 1, function(x){-x %*% log(x)} )
 }
-
+####
 .probabilityValue <- function(statesProb, targetState){
     lapply(targetState, function(x) {statesProb[, x]} )
 }
-
+####
 .writeOutputMaps <- function(rst, outFile, datatype){
     if(raster::canProcessInMemory(rst, 2)){
         raster::writeRaster(rst, outFile, overwrite=TRUE, datatype=datatype)

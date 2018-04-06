@@ -66,7 +66,8 @@ dataDiscretize <- function(data, classBoundaries=NULL, classStates=NULL, method=
     mn <- min(data, na.rm=TRUE)
     mx <- max(data, na.rm=TRUE)
     
-    classBoundaries <- .makeClassBoundaries(data=data, classBoundaries=classBoundaries, classStates=classStates, method=method, mn=mn, mx=mx)
+    classBoundaries <- .makeClassBoundaries(data=data, classBoundaries=classBoundaries, 
+                                            classStates=classStates, method=method, mn=mn, mx=mx)
     
     minimum <- classBoundaries[1]
     maximum <- classBoundaries[length(classBoundaries)]
@@ -107,10 +108,12 @@ dataDiscretize <- function(data, classBoundaries=NULL, classStates=NULL, method=
                  or a vector of values to be used as class boundaries')
         }
         if(method == "quantile"){
-            classBoundaries <- stats::quantile(data, probs=cumsum(rep(1/classBoundaries, classBoundaries-1)), na.rm=TRUE, names = FALSE)
+            classBoundaries <- stats::quantile(data, probs=cumsum(rep(1/classBoundaries, classBoundaries-1)), 
+                                               na.rm=TRUE, names = FALSE)
             classBoundaries <- c(mn, classBoundaries, mx)
             if(any(duplicated(classBoundaries))){
-                stop('Non unique quantile separators (a single value may cover a substantial fraction of the data). Please specify a vector of class boundaries instead.')
+                stop('Non unique quantile separators (a single value may cover a substantial fraction of the data).',
+                     ' Please specify a vector of class boundaries instead.')
             }
         } 
         if(method == "equal"){

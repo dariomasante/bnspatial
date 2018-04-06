@@ -24,8 +24,8 @@ loadNetwork <- function(network, target=NULL){
         if(class(network) == 'character' & length(network) == 1 & grepl('.net', network)){
             network <- .loadNet(network) # If not load Bayesian network from file path
         } else {
-            stop('Input argument "network" must be a .net file from an external software such as 
-                 Hugin or GeNIe, or an object of class "grain" from the gRain package')
+            stop('Input argument "network" must be a .net file from an external software such as ', 
+                 'Hugin or GeNIe, or an object of class "grain" from the gRain package')
         }
     }
     if(!is.null(target)){

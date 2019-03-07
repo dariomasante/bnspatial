@@ -7,7 +7,7 @@
 loadNetwork(network, target = NULL)
 }
 \arguments{
-\item{network}{The Bayesian network. An object of class \code{grain} (from package \href{https://cran.r-project.org/package=bnlearn}{bnlearn}), or a character (the path to the \emph{.net} file to be imported)}
+\item{network}{The Bayesian network. An object of class \code{grain}, or a character (the path to the \emph{.net} file to be imported)}
 
 \item{target}{character. The node of interest to be modelled and mapped.}
 }
@@ -20,7 +20,7 @@ file with extension \emph{.net} (as provided by external softwares \href{http://
 optionally compiling the network.
 }
 \details{
-Bayesian networks from the package \href{https://cran.r-project.org/package=bnlearn}{bnlearn} can be imported via the function as.grain, from package \href{https://cran.r-project.org/package=gRain}{gRain}.\cr
+Bayesian networks built with the package \href{https://cran.r-project.org/package=bnlearn}{bnlearn} can be imported with the function \code{bnlearn::as.grain}, which converts them into \code{grain} objects.\cr
 \emph{.net} file format as provided from Netica 5.24 currently does not correspond to a valid Hugin .net file.\cr
 Argument \code{target} has default set to NULL, but if provided the network will be compiled for faster querying.
 }

@@ -6,6 +6,11 @@ URL: https://cran.r-project.org/package=bnspatial
 
 To install, open a R session and enter the following commands, which will install some mandatory functions underlying *gRain*:
 ```r
+# Use this for R version > 3.5.0
+if (!requireNamespace("BiocManager")) install.packages("BiocManager")
+BiocManager::install('RBGL', version = "3.8"))
+
+# ...or this for older versions:
 source("http://bioconductor.org/biocLite.R")
 biocLite("RBGL")
 ```
@@ -20,13 +25,19 @@ Alternatively, to install from source:
 - run the following commands in the console:
 ``` r
 ## Install the required packages 
+# Use this for R version > 3.5.0
+if (!requireNamespace("BiocManager")) install.packages("BiocManager")
+BiocManager::install('RBGL', version = "3.8"))
+
+# ...or this for older versions:
 source("http://bioconductor.org/biocLite.R")
 biocLite("RBGL")
+
 install.packages("gRain", repos="http://cran.uk.r-project.org/", dependencies=T, clean=T)
 install.packages("raster", repos="http://cran.uk.r-project.org/", dependencies=T, clean=T)
 
 ## Install bnspatial (full path to the file, if not in the R working directory)
-install.packages("~/bnspatial_1.0.2.tar.gz", repos = NULL, type="source")
+install.packages("~/bnspatial_1.0.3.tar.gz", repos = NULL, type="source")
 ```
 
 Reference manual: [bnspatial.pdf](https://cran.r-project.org/package=bnspatial/bnspatial.pdf)  

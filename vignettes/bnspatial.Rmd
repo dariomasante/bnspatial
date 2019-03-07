@@ -22,8 +22,13 @@ Development was partly funded by the European Union FP7 (2007-2013), under proje
 ## Installation notes
 bnspatial requires *gRain* package installed beforehand. To install, open a R session and enter the following commands:
 ```{r, eval=FALSE}
+# Use this for R version > 3.5.0
+if (!requireNamespace("BiocManager")) install.packages("BiocManager")
+BiocManager::install('RBGL', version = "3.8"))
+
+# ...or this for older versions:
 source("http://bioconductor.org/biocLite.R")
-biocLite("RBGL")
+biocLite("RBGL")")
 ```
 Then install *bnspatial*, by selecting it from the packages list, or typing in the console:
 ```{r, eval=FALSE}
@@ -36,8 +41,15 @@ Alternatively, to install from source:
 - run the following commands in the console:
 ``` {r, eval=FALSE}
 ## Install the required packages 
+# Use this for R version > 3.5.0
+if (!requireNamespace("BiocManager")) install.packages("BiocManager")
+BiocManager::install('RBGL', version = "3.8"))
+
+# ...or this for older versions:
 source("http://bioconductor.org/biocLite.R")
 biocLite("RBGL")
+
+# Then:
 install.packages("gRain", repos="http://cran.uk.r-project.org/", dependencies=T, clean=T)
 install.packages("raster", repos="http://cran.uk.r-project.org/", dependencies=T, clean=T)
 

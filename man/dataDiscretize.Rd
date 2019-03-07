@@ -3,7 +3,6 @@
 \name{dataDiscretize}
 \alias{dataDiscretize}
 \alias{bulkDiscretize}
-\alias{bulkDiscretize}
 \title{Discretize data}
 \usage{
 dataDiscretize(data, classBoundaries = NULL, classStates = NULL,

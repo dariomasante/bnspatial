@@ -1,14 +1,15 @@
 Package: bnspatial
 Title: Spatial Implementation of Bayesian Networks and Mapping 
-Version: 1.0.3
-Date: 2017-11-16
+Version: 1.0.4
+Date: 2019-03-07
 Authors@R: c(person(given = "Dario", family = "Masante", role = c("aut", "cre"), email = "dario.masante@gmail.com"))
 Maintainer: Dario Masante <dario.masante@gmail.com>
 Copyright: Natural Environment Research Council (NERC) and Centre for Ecology and Hydrology (CEH)
 URL: http://github.com/dariomasante/bnspatial
 BugReports: https://github.com/dariomasante/bnspatial/issues
 Imports:
-    raster, 
+    raster,
+    rgdal,
     gRbase, 
     gRain,
     doParallel, 
@@ -21,5 +22,5 @@ License: GPL-3
 LazyLoad: yes
 LazyData: yes
 NeedsCompilation: no
-RoxygenNote: 6.0.1
+RoxygenNote: 6.1.1
 VignetteBuilder: knitr

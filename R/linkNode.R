@@ -119,7 +119,8 @@ linkMultiple <- function(spatialData, network, lookup, field=NULL, verbose=TRUE)
         }
         n <- which(names(lookup) == nm) 
         lst[nm] <- linkNode(spatialData[n][[1]], network=network, node=nm, 
-                            intervals=ClassBoundaries, categorical=Categorical, field=field[n], verbose=verbose)
+                            intervals=ClassBoundaries, categorical=Categorical, 
+                            field=field[n], verbose=verbose)
     }
     return(lst)
 }
@@ -142,13 +143,14 @@ linkMultiple <- function(spatialData, network, lookup, field=NULL, verbose=TRUE)
     }
 }
 ####
-.makeSpatial <- function(item, fld){ # This is more complex than it could be, but avoids loading the shape if field is missing
+.makeSpatial <- function(item, fld, ...){ # This is more complex than it could be, but avoids loading the shape if field is missing
     if(is.character(item)){
-        if(grepl('\\.shp$', basename(item))){ # check for shapefiel extension
+        if(grepl('\\.shp$', basename(item))){ # check for shapefile extension
             if(is.null(fld) | is.na(fld)){
                 stop('"field" argument missing for ',item,'. Using vectorial data (e.g. shapefiles) ',
                      'one field/column from the attribute table must be specified for each corresponding node.')
             }
+            if(exists()){}
             item <- raster::shapefile(item)[fld]
         } else {
             item <- raster::raster(item)
@@ -159,4 +161,12 @@ linkMultiple <- function(spatialData, network, lookup, field=NULL, verbose=TRUE)
              'one field/column from the attribute table must be specified for each corresponding node.')
     }
     return(item)
+}
+####
+.checkFields <- function(shp, flds){
+    shpInfo <- rgdal::ogrInfo(dirname(shp), gsub('.shp', '', basename(shp)))
+    if(!all(fields %in% shpInfoa$iteminfo$name)){
+        f <- flds[!flds %in% shpInfo$iteminfo$name]
+        stop(paste(f, collapse=','),' missing from attribute table of ', shp)
+    }
 }

@@ -3,12 +3,12 @@
 #' @description This function loads the Bayesian network from a native gRain object of class \code{grain} or an external 
 #' file with extension \emph{.net} (as provided by external softwares \href{http://www.hugin.com/}{Hugin} or \href{http://www.bayesfusion.com/}{GeNIe}), 
 #' optionally compiling the network.
-#' @param network The Bayesian network. An object of class \code{grain} (from package \href{https://cran.r-project.org/package=bnlearn}{bnlearn}), or a character (the path to the \emph{.net} file to be imported)
+#' @param network The Bayesian network. An object of class \code{grain}, or a character (the path to the \emph{.net} file to be imported)
 #' @param target character. The node of interest to be modelled and mapped.
 #' @note Under current release, this function wraps a set of hidden functions copied in block from the \href{https://cran.r-project.org/package=gRain}{gRain} package, as current CRAN policy
 #' discourages accessing hidden functions with the ":::" operator. These functions will be progressively substituted by bnspatial native ones.
 #' @return An object of class \code{grain}. The Bayesian network. If \code{target} argument is provided the network is compiled for a faster querying .
-#' @details Bayesian networks from the package \href{https://cran.r-project.org/package=bnlearn}{bnlearn} can be imported via the function as.grain, from package \href{https://cran.r-project.org/package=gRain}{gRain}.\cr
+#' @details Bayesian networks built with the package \href{https://cran.r-project.org/package=bnlearn}{bnlearn} can be imported with the function \code{bnlearn::as.grain}, which converts them into \code{grain} objects.\cr
 #' \emph{.net} file format as provided from Netica 5.24 currently does not correspond to a valid Hugin .net file.\cr
 #' Argument \code{target} has default set to NULL, but if provided the network will be compiled for faster querying.
 #' @examples

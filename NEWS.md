@@ -1,3 +1,9 @@
+bnspatial v1.0.4 (Release date: 2019-03-07)
+-----------------------------------------------
+CHANGES:
+
+* Updated to R 3.5 with Bioconductor 3.8 installation notes
+
 bnspatial v1.0.3 (Release date: 2017-11-16)
 -----------------------------------------------
 CHANGES:

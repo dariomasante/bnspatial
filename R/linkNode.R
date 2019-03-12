@@ -81,7 +81,7 @@ linkNode <- function(layer, network, node, intervals, categorical=NULL, field=NU
     lst <- list(list(States = states, Categorical = categorical, ClassBoundaries = intervals, SpatialData = layer)) #FilePath = layer@file@name, 
     names(lst) <- node
     if(verbose == TRUE){
-        writeLines(c(paste('\n"', node, '"', ' points to:', sep=''), 
+        writeLines(c(paste('\n"', node, '"', ' reads from spatial data source:', sep=''), 
                      paste(' -> ', layer@data@names, '\n'), 
                      'With states:', 
                      paste(states, collapse='    '), 

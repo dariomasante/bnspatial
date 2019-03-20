@@ -1,4 +1,9 @@
 ## ---- eval=FALSE---------------------------------------------------------
+#  # Use this for R version > 3.5.0
+#  if (!requireNamespace("BiocManager")) install.packages("BiocManager")
+#  BiocManager::install('RBGL', version = "3.8")
+#  
+#  # ...or this for older versions:
 #  source("http://bioconductor.org/biocLite.R")
 #  biocLite("RBGL")
 
@@ -7,8 +12,15 @@
 
 ## ---- eval=FALSE---------------------------------------------------------
 #  ## Install the required packages
+#  # Use this for R version > 3.5.0
+#  if (!requireNamespace("BiocManager")) install.packages("BiocManager")
+#  BiocManager::install('RBGL', version = "3.8")
+#  
+#  # ...or this for older versions:
 #  source("http://bioconductor.org/biocLite.R")
 #  biocLite("RBGL")
+#  
+#  # Then:
 #  install.packages("gRain", repos="http://cran.uk.r-project.org/", dependencies=T, clean=T)
 #  install.packages("raster", repos="http://cran.uk.r-project.org/", dependencies=T, clean=T)
 #  

@@ -6,8 +6,8 @@
 \usage{
 bnspatial(network, target, spatialData, lookup, msk = NULL,
   what = c("class", "entropy"), midvals = NULL, targetState = NULL,
-  spatial = TRUE, inparallel = FALSE, exportRaster = FALSE, path = NULL,
-  verbose = TRUE, ...)
+  spatial = TRUE, inparallel = FALSE, exportRaster = FALSE,
+  path = NULL, verbose = TRUE, ...)
 }
 \arguments{
 \item{network}{The Bayesian network. An object of class \code{grain} (from package \href{https://cran.r-project.org/package=bnlearn}{bnlearn}), or a character (the path to the \emph{.net} file to be imported)}

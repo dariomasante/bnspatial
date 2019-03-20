@@ -49,7 +49,7 @@ For example:
 \code{public, private, protected} \cr
 \code{4, 3, 1 }
 
-It is possible to write the formatted file automatically using \code{setClasses}, by setting argument \code{wr} as path to the text file to be created.
+It is possible to write the formatted file automatically using \code{setClasses}, by setting argument \code{w} as path to the text file to be created.
 }
 \examples{
 ## Load classes from external formatted text file

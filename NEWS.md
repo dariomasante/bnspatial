@@ -1,3 +1,10 @@
+bnspatial v1.0.5 (Release date: 2019-03-21)
+-----------------------------------------------
+CHANGES:
+
+* Bug fix on mapTarget output probabilities under specific circumstances
+* Add system of reference and remove names for all spatial outputs
+
 bnspatial v1.0.4 (Release date: 2019-03-07)
 -----------------------------------------------
 CHANGES:

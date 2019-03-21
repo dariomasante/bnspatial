@@ -189,6 +189,9 @@ mapTarget <- function(target, statesProb, what=c("class", "entropy"), msk, midva
 }
 
 .expectedValue <- function(statesProb, midvals) {
+    if(length(midvals) != ncol(statesProb)){
+        stop('Argument "midvals" must be a vector with length equal to the number of states of target node')
+    }
     apply(statesProb, 1, function(x){x %*% midvals})
 }
 

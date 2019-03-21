@@ -3,7 +3,6 @@
 \name{linkNode}
 \alias{linkNode}
 \alias{linkMultiple}
-\alias{linkMultiple}
 \title{Link nodes to spatial data}
 \usage{
 linkNode(layer, network, node, intervals, categorical = NULL,

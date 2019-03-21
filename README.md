@@ -8,7 +8,7 @@ To install, open a R session and enter the following commands, which will instal
 ```r
 # Use this for R version > 3.5.0
 if (!requireNamespace("BiocManager")) install.packages("BiocManager")
-BiocManager::install('RBGL', version = "3.8"))
+BiocManager::install('RBGL', version = "3.8")
 
 # ...or this for older versions:
 source("http://bioconductor.org/biocLite.R")
@@ -27,7 +27,7 @@ Alternatively, to install from source:
 ## Install the required packages 
 # Use this for R version > 3.5.0
 if (!requireNamespace("BiocManager")) install.packages("BiocManager")
-BiocManager::install('RBGL', version = "3.8"))
+BiocManager::install('RBGL', version = "3.8")
 
 # ...or this for older versions:
 source("http://bioconductor.org/biocLite.R")

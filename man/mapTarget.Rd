@@ -5,7 +5,7 @@
 \title{Make maps for target node}
 \usage{
 mapTarget(target, statesProb, what = c("class", "entropy"), msk,
-  midvals = NULL, targetState = colnames(statesProb), spatial = TRUE,
+  midvals = NULL, targetState = NULL, spatial = TRUE,
   exportRaster = FALSE, path = getwd())
 }
 \arguments{

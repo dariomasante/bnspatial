@@ -6,6 +6,29 @@ library(testthat)
 # Swap current example
 # Read xml files and change loading network function
 
+##############################################################
+## bnspatial
+data(ConwyData)
+list2env(ConwyData, environment())
+network <- LandUseChange
+spatialData <- c(ConwyLU, ConwySlope, ConwyStatus)
+lookup <- LUclasses
+bnspatial(network, 'FinalLULC', spatialData, lookup, what='probability')
+bnspatial(network,  spatialData, lookup, what='probability', msk=ConwySlope)
+bnspatial(network, 'FinalLULC', spatialData, lookup, what=c('probability','entropy','class','expected'), msk=ConwySlope)
+bnspatial(network, 'FinalLULC', spatialData, lookup, what=c('probability','entropy','class','expected'), msk=ConwySlope, spatial=FALSE)
+bnspatial(network, 'FinalLULC', spatialData, lookup, what=c('probability','entropy','class','expected'), msk=ConwySlope, spatial=FALSE, inparallel=TRUE)
+bnspatial(network, 'FinalLULC', spatialData, lookup, what=c('probability','entropy','class','expected'), msk=ConwySlope, inparallel=TRUE)
+bnspatial(network, 'FinalLULC', spatialData, lookup, what=c('probability','entropy','variation','class','expected'), msk=list(ConwySlope,ConwyLU), inparallel=TRUE)
+bnspatial(network, 'CarbonStorage', spatialData, lookup, what=c('probability','variation','entropy','class','expected'), msk=list(ConwySlope,ConwyLU))
+bnspatial(network, 'CarbonStock', spatialData, lookup, what=c('probability','entropy','class','expected'), msk=list(ConwySlope,ConwyLU))
+bnspatial(network, 'Scenarios', spatialData, lookup, what=c('probability','entropy','class','expected'), msk=list(ConwySlope,ConwyLU))
+bnspatial(network, 'Scenarios', spatialData, lookup, what=c('probability','variation','entropy','class','expected'), msk=list(ConwySlope,ConwyLU))
+bnspatial(network, 'CarbonStock', spatialData, lookup, what=c('probability','variation','entropy','class','expected'), msk=list(ConwySlope,ConwyLU))
+bnspatial(network, 'CarbonStock', spatialData, lookup, what=c('probability','variation','entropy','class','expected'), msk=list(ConwySlope,ConwyLU), midvals = c(0,1,4,20))
+bnspatial(network, 'CarbonStock', spatialData, lookup, what=c('probability','variation','entropy','class','expected'), msk=list(ConwySlope,ConwyLU), midvals = c(0,1,4))
+bnspatial(network, 'CarbonStock', spatialData, lookup, what=c('probability','variation','entropy','class','expected'), msk=list(ConwySlope,ConwyLU), midvals = c(0,1,4), Scenarios='intensification')
+
 
 ##############################################################
 ## extractByMask
@@ -18,7 +41,6 @@ library(testthat)
 
 ##############################################################
 ## mapTarget
-# % FIX COORD.REF. OUTPUT RASTERS
 # % FIX OUTPUT VALUE OF MOST LIKELY CLASS (to correspod if integer are provided)
 # % ADD UTILITY VALUE
 # % ADD AN EXAMPLE USING MIDVALUES

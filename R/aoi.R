@@ -42,18 +42,20 @@ aoi <- function(msk, mskSub=NULL, xy=FALSE){  ## Check if aoi and extractByMask 
     }
     if(is.list(msk)){ 
         r <- msk[[1]]
+        sr <- raster::crs(r)
         ext <- raster::extent(r)
         cellSizeX <- raster::res(r)[1]
         cellSizeY <- raster::res(r)[2]
         if(length(msk) > 1){
             for(i in 2:length(msk)){
                 r <- msk[[i]]
+                if(!raster::compareCRS(raster::crs(r), sr)){ stop('Multiple reference systems found. Please convert all data to a single one.') }
                 ext <- raster::union(ext, raster::extent(r) )
                 cellSizeX <- ifelse(cellSizeX > raster::res(r)[1], raster::res(r)[1], cellSizeX)
                 cellSizeY <- ifelse(cellSizeY > raster::res(r)[2], raster::res(r)[2], cellSizeY)
             }
         }
-        msk <- raster::raster(ext=ext, resolution=c(cellSizeX, cellSizeY), vals = 1) 
+        msk <- raster::raster(ext=ext, resolution=c(cellSizeX, cellSizeY), crs=sr, vals = 1) 
         if(xy == TRUE){
             return( raster::xyFromCell(msk, seq_along(msk)) )
         } else {
@@ -72,6 +74,7 @@ aoi <- function(msk, mskSub=NULL, xy=FALSE){  ## Check if aoi and extractByMask 
         } else {
             msk[] <- NA
             msk[id] <- 1
+            names(msk) <- 'layer'
             return( msk )
         }
     }

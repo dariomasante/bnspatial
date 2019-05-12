@@ -116,8 +116,11 @@ queryNetParallel <- function(network, target, evidence, inparallel=TRUE, ...){
 
 ## Append to evidence and return
 .freezeEvidence <- function(tab, network, ...){ 
-    ## Check if add. arg. is one on the provided nodes and substitute
+    ## Check if add. arg. is one of the provided nodes and substitute
     added <- list(...)
+    if( length(added) == 1 ){
+        added <- unlist(added, recursive=FALSE)
+    }
     args <- names(added)
     .checkNames(network, args)
     tabNames <- colnames(tab)

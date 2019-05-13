@@ -36,8 +36,20 @@ bnspatial(network, 'CarbonStock', spatialData, lookup, what=c('probability','var
  
 ##############################################################
 ## queryNet
-# % FIX Harmonize with .freezeEvidence the first bit of queryNet, lots of redundancy
 # % FIX Ignore extra columns when in evidence tab, instead of throwing error
+
+# Good
+head(queryNet(network, 'FinalLULC', evidence))
+head(queryNet(network, 'FinalLULC', evidence, Stakeholders = 'farmers'))
+head(queryNet(network, 'FinalLULC', evidence, list(Stakeholders = 'farmers')))
+head(queryNet(network, 'FinalLULC', evidence, Stakeholders = 'farmers', Scenarios='intensification'))
+head(queryNet(network, 'FinalLULC', evidence, list(Stakeholders = 'farmers', Scenarios='intensification')))
+head(queryNet(network, 'FinalLULC', evidence, CurrentLULC= 'forest'))
+
+# Bad
+head(queryNet(network, 'FinalLULC', evidence, Stakeholders = 'fars', Scenarios='intensification'))
+head(queryNet(network, 'FinalLULC', evidence, Stakeholders = 'farmers', Scrios='intensification'))
+
 
 ##############################################################
 ## mapTarget

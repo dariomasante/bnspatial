@@ -10,9 +10,9 @@
 #' @inheritParams loadNetwork
 #' @param target character. The node of interest to be modelled and mapped.
 #' @param evidence matrix or data.frame. Named columns are the known input variables; rows are the discrete states associated to them for each record (NA allowed).
-#' @param ... Additional arguments to fix a state (i.e. setting evidence) to one or more nodes, 
-#' as known and independent from any spatial data (e.g. the case of non-spatial variables 
-#' which are equal everywhere). Node name is provided as argument and the associated fixed state as 
+#' @param ... Additional arguments to force one or more nodes to a state (i.e. fixing evidence), 
+#' or rather, setting a node spatially equal everywhere. If the node is associated to input spatial data, the latter is ignored.
+#' Node name is provided as argument and the associated fixed state as 
 #' character; both node and state names must be typed accordingly to their names in the network.
 #' @param inparallel logical or integer. Number of cores/processors to be used by \code{queryNetParallel}. 
 #' Default is TRUE, so the maximum number available minus one is set.
@@ -29,6 +29,13 @@
 #' ## Fix a given node on a state (i.e. fixed evidence) by providing an additional argument
 #' q <- queryNet(network, 'FinalLULC', evidence, Stakeholders = 'farmers')
 #' head(q)
+#' 
+#' ## Fix two nodes, including one of the spatial inputs that gets overriden by fixed state
+#' q <- queryNet(network, 'FinalLULC', evidence, Stakeholders = 'farmers', CurrentLULC = 'forest')
+#' head(q)
+#' ## For a programmatic approach, the arguments could be passed as named list:
+#' # lst <- list(Stakeholders = 'farmers', CurrentLULC = 'forest')
+#' # queryNet(network, 'FinalLULC', evidence, lst)
 #' 
 #' ## Use parallel processing
 #' q <- queryNetParallel(network, 'FinalLULC', evidence, inparallel=2)
@@ -51,7 +58,7 @@ queryNet <- function(network, target, evidence, ...){
         for(i in fixed){
             fix <- max(which(nms == i))
             evidence[, nms == i] <- evidence[, fix]
-            evidence <- evidence[,-fix]
+            evidence <- evidence[ ,-fix]
         }
     }
     .checkPriors(network, evidence)
@@ -62,20 +69,15 @@ queryNet <- function(network, target, evidence, ...){
     }
     # Create single codes to identify all existing combinations of variables state
     # Codes are preferred as character type instead of numeric, although performance may be slightly affected
-    key <- as.factor(evidence)
-    evidenceCoded <- matrix(as.integer(key), nrow = nrow(evidence), ncol= ncol(evidence))
-    # uniqueCodes <- 1:(length(levels(key))+1) # Add an index for NAs
-    key <- c(levels(key), NA) # Add NA to lookup vector
-    evidenceCoded[is.na(evidenceCoded)] <- length(key)
-    singleCodes <- apply(evidenceCoded, 1, function(x) {paste(x, collapse="")})
+    singleCodes <- apply(evidence, 1, function(x) {paste(x, collapse="_")})
     uniCodes <- unique(singleCodes)
     # Query the network only once for each identified combinations, then append results to all corresponding cases
     evidenceSingle <- as.matrix(evidence[match(uniCodes, singleCodes), ])
     probs <- apply(evidenceSingle, 1, function(x){
         if(all(is.na(x))){
-            out <- as.numeric(gRain::querygrain(network)[[target]])
+            out <- as.numeric(gRain::querygrain(network, target)[[1]] )
         } else {
-            out <- as.numeric(gRain::querygrain(gRain::setEvidence(network, inputNodes, x)) [[target]])
+            out <- as.numeric(gRain::querygrain(gRain::setEvidence(network, inputNodes, x), target)[[1]] )
         }
         if(any(is.nan(out) | is.infinite(out))){ # Extra check to cope with 
             stop('Impossible values have been set in the input network, ',

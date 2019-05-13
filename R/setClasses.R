@@ -13,7 +13,8 @@
 #' @param nodes character. The nodes known and available as spatial data.
 #' @param states A list of characters. The states associated to each of the nodes (order must match \code{nodes} names). 
 #' @param classBoundaries A list of numeric. The boundary values splitting the nodes into their corresponding states. They must be sorted in ascending order. For nominal categorical variables, \code{classBoundaries} must be the unique raster values associated to node states. 
-#' @param wr The full path to the file to be written. Default is set to NULL, otherwise it writes the formatted list returned by \code{setClasses} to the specified path. Suggested file format is .txt, albeit not mandatory.
+#' @param wr character. Optional, the full path to the file to be written. Default is set to NULL, otherwise it writes the formatted list returned by \code{setClasses} to the specified path. Suggested file format is .txt, albeit not mandatory.
+#' @param layer character. Optional argument to indicate the path to files with input spatial data. If not NULL, then all nodes must have a corresponding file path, stored in the 'layer' element of output list.
 #' @return A formatted list, specifying states break values for continuous nodes and integer values for categorical nodes.
 #' @details As a reference for the text file format required by \code{importClasses}, for each node of the network:\cr
 #' \strong{First line}: the node name.\cr
@@ -47,7 +48,7 @@
 #' list(c(-Inf, 0, 5, Inf), c(2, 3, 1), (c(4, 3, 1))))
 #' 
 #' @export
-setClasses <- function(nodes, states, classBoundaries, wr=NULL){
+setClasses <- function(nodes, states, classBoundaries, wr=NULL, layer=NULL){
     if(length(nodes) != length(states) | length(nodes) != length(classBoundaries)){
         stop('Number of nodes not matching the length of "states" list and/or that of classBoundaries provided.')
     }
@@ -55,12 +56,12 @@ setClasses <- function(nodes, states, classBoundaries, wr=NULL){
     names(lst) <- nodes
     for(i in seq_along(names(lst)) ){
         if(!identical(states[[i]], unique(states[[i]]))){
-            print(states[[i]])
+            cat(states[[i]])
             stop('Non unique node state defined')
         }		
         lst[[i]]$States <- states[[i]]
         if(!identical(classBoundaries[[i]], unique(classBoundaries[[i]]))){
-            print(classBoundaries[[i]])
+            cat(classBoundaries[[i]])
             stop('Non unique "classBoundaries" defined')
         }
         if((length(classBoundaries[[i]]) - length(states[[i]])) %in% c(0, 1)){
@@ -72,8 +73,14 @@ setClasses <- function(nodes, states, classBoundaries, wr=NULL){
         lst[[i]]$ClassBoundaries <- classBoundaries[[i]]
         lst[[i]]$Categorical <- categorical
         if( identical(classBoundaries[[i]], sort(classBoundaries[[i]])) == FALSE & categorical == FALSE){
-            print(classBoundaries[[i]])
+            cat(classBoundaries[[i]])
             stop('"classBoundaries" for non categorical data must be sorted from lowest to highest')
+        }
+        if(!is.null(layer)){
+            if(length(layer) != length(nodes)){
+                stop('Number of items provided in argument "layer" not matching the number of nodes')
+            }
+            lst[[i]]$layer = layer[[i]]
         }
     }
     if(!is.null(wr)){

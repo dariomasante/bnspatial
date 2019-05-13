@@ -6,8 +6,8 @@ library(testthat)
 # Swap current example
 # Read xml files and change loading network function
 
-##############################################################
-## bnspatial
+####
+## bnspatial ----
 data(ConwyData)
 list2env(ConwyData, environment())
 network <- LandUseChange
@@ -30,12 +30,12 @@ bnspatial(network, 'CarbonStock', spatialData, lookup, what=c('probability','var
 bnspatial(network, 'CarbonStock', spatialData, lookup, what=c('probability','variation','entropy','class','expected'), msk=list(ConwySlope,ConwyLU), midvals = c(0,1,4), Scenarios='intensification')
 
 
-##############################################################
-## extractByMask
+####
+## extractByMask ----
 # % FIX CHECK FOR MISSING NA
  
-##############################################################
-## queryNet
+####
+## queryNet ----
 # % FIX Ignore extra columns when in evidence tab, instead of throwing error
 
 # Good
@@ -45,14 +45,16 @@ head(queryNet(network, 'FinalLULC', evidence, list(Stakeholders = 'farmers')))
 head(queryNet(network, 'FinalLULC', evidence, Stakeholders = 'farmers', Scenarios='intensification'))
 head(queryNet(network, 'FinalLULC', evidence, list(Stakeholders = 'farmers', Scenarios='intensification')))
 head(queryNet(network, 'FinalLULC', evidence, CurrentLULC= 'forest'))
+head(queryNet(network, 'FinalLULC', evidence, list()))
 
 # Bad
 head(queryNet(network, 'FinalLULC', evidence, Stakeholders = 'fars', Scenarios='intensification'))
+head(queryNet(network, 'FinalLULC', evidence, CurrentLULC = 'x', Scenarios='intensification'))
 head(queryNet(network, 'FinalLULC', evidence, Stakeholders = 'farmers', Scrios='intensification'))
 
 
-##############################################################
-## mapTarget
+####
+## mapTarget ----
 # % FIX OUTPUT VALUE OF MOST LIKELY CLASS (to correspod if integer are provided)
 # % ADD UTILITY VALUE
 # % ADD AN EXAMPLE USING MIDVALUES
@@ -84,8 +86,8 @@ mapTarget(target, statesProb, what = c("class", "entropy"), msk,
           midvals = NULL, targetState = colnames(statesProb), spatial = TRUE,
           exportRaster = FALSE, path = getwd())
 
-##############################################################
-## loadNetwork
+####
+## loadNetwork ----
 # % FIX UNDERSCORES REMOVAL (gRain:::.getNodeSpec AND gRain:::.toCamel)
 # % CHANGE rewrite all external file reading, remove dependency from gRain there
 # % ADD read genie native formats directly xml files
@@ -107,8 +109,8 @@ loadNetwork(system.file("extdata", "LandUseChange.xls", package = "bnspatial"), 
 loadNetwork(LandUseChange,'Final')
 
 
-##############################################################
-## linkNode
+####
+## linkNode ----
 # % NOTE: FIX ORDER OF NODE STATES BETWEEN CLASSIFICATION AND SPATIAL DATA
 data("ConwyData")
 
@@ -118,14 +120,15 @@ data("ConwyData")
 linkNode(system.file("extdata", "ConwyLU.tif", package = "bnspatial"), network=LandUseChange, node='CurrentLULC', intervals=c(2, 3, 1))
 linkMultiple(list(ConwyLU,ConwySlope,ConwyStatus), LandUseChange, LUclasses, verbose=TRUE)
 linkNode(layer=ConwyLU, network=LandUseChange, node='CurrentLULC', intervals=c(2, 3, 1))
+
 spatialData <- c(ConwyLU,ConwySlope,ConwyStatus)
 linkMultiple(spatialData, LandUseChange, LUclasses, verbose = FALSE)
 
 ## Bad
 
 
-##############################################################
-## dataDiscretize
+####
+## dataDiscretize ----
 
 s <- runif(100)
 
@@ -173,8 +176,8 @@ dataDiscretize(s, classBoundaries=c(0.2, 0.5)) ## Borderline (should fail in a B
 dataDiscretize(s, classBoundaries=c(0.2, 0.5, 0.8, 0.8, 1.0))
 dataDiscretize(s, classBoundaries=c(0.5, 0.5))
 
-##############################################################
-## aoi
+####
+## aoi ----
 # % FIX: make RAT=FALSE in `msk <- raster::raster(msk, RAT=FALSE)` even when an input layer is provided
 
 ## TO FIX
@@ -182,8 +185,8 @@ dataDiscretize(s, classBoundaries=c(0.5, 0.5))
 ## Good
 
 
-##############################################################
-### Use testthat
+####
+### Use testthat ----
 
 expect_error(dataDiscretize(s, classBoundaries=c(0.5, 0.2)) ) 
 expect_error(dataDiscretize(s, classBoundaries=c(0.5, 0.8, 0.2)) )
@@ -195,32 +198,45 @@ expect_error(dataDiscretize(s, classBoundaries=2.1) )
 expect_error(dataDiscretize(s, classBoundaries=3, method = 'quanle') )
 
 
-##############################################################
-## setClasseses
+####
+## setClasses ----
 
 ## TO FIX
 
 ## Good
 setClasses(c('ConwySlope', 'ConwyLU', 'ConwyStatus'), list(c('flat', 'moderate', 'steep'),
+    c('forest', 'arable', 'other'), c('public', 'private', 'protected')),
+    list(c(-Inf, 0, 5, Inf), c(2, 3, 1), (c(4, 3, 1))))
+setClasses(c('ConwySlope', 'ConwyLU', 'ConwyStatus'), list(c('flat', 'moderate', 'steep'),
 c('forest', 'arable', 'other'), c('public', 'private', 'protected')),
-list(c(-Inf, 0, 5, Inf), c(2, 3, 1), (c(4, 3, 1))), w='N:/delTest.txt')
+list(c(-Inf, 0, 5, Inf), c(2, 3, 1), (c(4, 3, 1))), wr='delTest.txt')
+setClasses(c('ConwySlope', 'ConwyLU', 'ConwyStatus'), list(c('flat', 'moderate', 'steep'),
+           c('forest', 'arable', 'other'), c('public', 'private', 'protected')),
+           list(c(-Inf, 0, 5, Inf), c(2, 3, 1), (c(4, 3, 1))), layer=c('a.tif','b.shp','xyz'))
+setClasses(c('ConwySlope', 'ConwyLU', 'ConwyStatus'), list(c('flat', 'moderate', 'steep'),
+           c('forest', 'arable', 'other'), c('public', 'private', 'protected')),
+           list(c(-Inf, 0, 5, Inf), c(2, 3, 1), (c(4, 3, 1))), layer=c('a.tif','b.shp','xyz'),
+           wr='delTest.txt')
 
 ## Bad
 setClasses(c('CurrentLULC', 'LegalStatus'), list(c('flat', 'moderate', 'steep'),
 c('forest', 'arable', 'other'), c('public', 'private', 'protected')),
-    list(c(-Inf, 0, 5, Inf), c(2, 3, 1), (c(4, 3, 1))), w='N:/delTest.txt')
+    list(c(-Inf, 0, 5, Inf), c(2, 3, 1), (c(4, 3, 1))), wr='delTest.txt')
 setClasses(c('CurrentLULC', 'LegalStatus'), 
     list(c('forest', 'arable', 'other'), c('public', 'private', 'protected')),
-    list(c(-Inf, 0, 5, Inf), c(2, 3, 1), (c(4, 3, 1))), w='N:/delTest.txt')
+    list(c(-Inf, 0, 5, Inf), c(2, 3, 1), (c(4, 3, 1))), wr='delTest.txt')
 setClasses(c('CurrentLULC', 'LegalStatus'), 
     list(c('forest', 'arable', 'other'), c('public', 'private', 'protected')),
-    list(c(3, 1), (c(4, 3, 1))), wr='N:/delTest.txt')
+    list(c(3, 1), (c(4, 3, 1))), wr='delTest.txt')
 setClasses(c('CurrentLULC', 'LegalStatus'), 
     list(c('forest', 'arable', 'other'), c('public', 'private', 'protected')),
-    list(c(0.5, 4, 3, 1), (c(4, 3, 1))), wr='N:/delTest.txt')
+    list(c(0.5, 4, 3, 1), (c(4, 3, 1))), wr='delTest.txt')
 setClasses(c('ConwyLU', 'ConwyStatus'), 
     list(c('flat', 'moderate', 'steep'), c('forest', 'arable', 'other'), c('public', 'private', 'protected')),
-    list(c(-Inf, 0, 5, Inf), c(2, 3, 1), (c(4, 3, 1))), w='N:/delTest.txt')
+    list(c(-Inf, 0, 5, Inf), c(2, 3, 1), (c(4, 3, 1))), wr='delTest.txt')
+setClasses(c('ConwySlope', 'ConwyLU', 'ConwyStatus'), list(c('flat', 'moderate', 'steep'),
+           c('forest', 'arable', 'other'), c('public', 'private', 'protected')),
+           list(c(-Inf, 0, 5, Inf), c(2, 3, 1), (c(4, 3, 1))), layer=c('a.tif','b.shp'))
 
 
 ########## BIGGER DATA (below data evidence is provided for only few nodes, as query 
@@ -230,7 +246,7 @@ library(raster); library(bnspatial)
 #net = loadNetwork('N:\\A.net')
 net = loadNetwork('N:\\Hepar.net')
 
-r = raster('N:/bnspatial\\inst\\extdata\\ConwyLU.tif')
+r = raster('bnspatial\\inst\\extdata\\ConwyLU.tif')
 
 set.seed(99)
 spNodes = net$universe$levels[sample(1:70, 30)]
@@ -248,11 +264,11 @@ for (i in 1:30){
             paste(names(spNodes[n]), '\n', 
                   paste(spNodes[[n]], collapse=','), '\n', 
                   paste(sample(length(spNodes[[n]])), collapse=','), '\n', sep='')
-            , file="N:/classes.txt", append=TRUE)
+            , file="classes.txt", append=TRUE)
     }
     pr = proc.time()
-    bnspatial(net, 'Cirrhosis', ls, 'N:/classes.txt', spatial=FALSE, what='entropy', inparallel=TRUE, verbose=FALSE)
-    file.remove("N:/classes.txt")
+    bnspatial(net, 'Cirrhosis', ls, 'classes.txt', spatial=FALSE, what='entropy', inparallel=TRUE, verbose=FALSE)
+    file.remove("classes.txt")
     print(proc.time() - pr)
     secs = c(secs, proc.time() - pr)
 }

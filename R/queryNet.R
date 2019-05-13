@@ -126,8 +126,9 @@ queryNetParallel <- function(network, target, evidence, inparallel=TRUE, ...){
     args <- names(added)
     .checkNames(network, args)
     tabNames <- colnames(tab)
-    toFreeze <- added[which(args %in% tabNames)]
+    toFreeze <- added[args %in% tabNames]
     for(nm in names(toFreeze)){
+        .checkStates(toFreeze[[nm]], network$universe$levels[[nm]], nm)
         tab[, nm] <- toFreeze[[nm]]
     }
     ## Check additional args: var name in node names

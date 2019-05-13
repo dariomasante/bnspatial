@@ -11,7 +11,7 @@
 #' @param categorical logical. Is the node a categorical variable? Default is NULL.
 #' @param field character. Only for vectorial data, the field/column name in the attribute table corresponding to the node.
 #' @param verbose logical. If \code{verbose = TRUE} a summary of class boundaries and associated nodes and data will be printed to screen for quick checks.
-#' @param spatialData character or list of objects of class 'RasterLayer' or 'SpatialPolygonsDataFrame'. The spatial data files corresponding to nodes, provided as a vector of file paths or as list of spatial objects of class 'RasterLayer' or 'SpatialPolygonsDataFrame'.
+#' @param spatialData character, or list of objects of class 'RasterLayer' or 'SpatialPolygonsDataFrame'. The spatial data associated to some network node, provided as file paths or as list of spatial objects of said classes. Must be ordered accordingly to the corresponding nodes in \code{lookup}, or provided as named list, where names correspond exactly to the corresponding node names. In case it is not a named list, but \code{lookup} contains already the optional 'layer' item, the latter will be passed to the loader function for each node.
 #' @param lookup character or a formatted list. This argument can be provided as path to a comma separated file or a formatted list (see \code{\link{setClasses}} )
 #' @return \code{linkNode} returns a list of objects, including the spatial data and summary information about each node.\cr
 #' \code{linkMultiple} returns a list of lists. Each element of the list includes the spatial data and summary information for each of the input nodes.
@@ -117,8 +117,22 @@ linkMultiple <- function(spatialData, network, lookup, field=NULL, verbose=TRUE)
         } else {
             ClassBoundaries <- lookup[[nm]]$ClassBoundaries
         }
-        n <- which(names(lookup) == nm) 
-        lst[nm] <- linkNode(spatialData[n][[1]], network=network, node=nm, 
+        if(is.null(names(spatialData)) ){ # names from this list get priority
+            if(is.null(lookup[[nm]]$layer) ){
+                n <- which(names(lookup) == nm) 
+                spd <- spatialData[[n]] # associate by simple order of list
+            } else {
+                spd <- lookup[[nm]]$layer
+            }
+        } else {
+            n <- which(names(spatialData) == nm)
+            if(length(n) == 0){
+                stop('No names in list "spatialData" matching the network node ', nm, 
+                     ' :  \n', paste(names(spatialData), collapse=' '))
+            }
+            spd <- spatialData[[n]] 
+        }
+        lst[nm] <- linkNode(spd, network=network, node=nm, 
                             intervals=ClassBoundaries, categorical=Categorical, 
                             field=field[n], verbose=verbose)
     }
@@ -143,24 +157,21 @@ linkMultiple <- function(spatialData, network, lookup, field=NULL, verbose=TRUE)
     }
 }
 ####
-.makeSpatial <- function(item, fld, ...){ # This is more complex than it could be, but avoids loading the shape if field is missing
-    if(is.character(item)){
-        if(grepl('\\.shp$', basename(item))){ # check for shapefile extension
-            if(is.null(fld) | is.na(fld)){
-                stop('"field" argument missing for ',item,'. Using vectorial data (e.g. shapefiles) ',
-                     'one field/column from the attribute table must be specified for each corresponding node.')
-            }
-            if(exists()){}
-            item <- raster::shapefile(item)[fld]
-        } else {
-            item <- raster::raster(item)
-        }
+.makeSpatial <- function(item, fld=NULL, ...){ # TODO This should avoid loading the shape if field is missing
+    if(is.character(item)){ 
+        item <- tryCatch(raster::raster(item), error=function(e){
+            sf::st_read(item, quiet = TRUE)
+            cat('Trying as vectorial...')
+        } )
     }
-    if(class(item) == 'SpatialPolygonsDataFrame' & !(is.null(fld) | is.na(fld))){ # Make null only
-        stop('"field" argument missing or incomplete. Using vectorial data (e.g. shapefiles) ',
-             'one field/column from the attribute table must be specified for each corresponding node.')
+    if(!'RasterLayer' %in% class(item) & is.null(fld)){
+        stop('"field" argument missing for ',item,'. Using vectorial data (e.g. shapefiles) ',
+        'one field/column from the attribute table must be specified for each corresponding node.')
     }
-    return(item)
+    if('SpatialPolygonsDataFrame' %in% class(item)){
+        item <- sf::st_as_sf(item) # transform from sp to sf
+    }
+    return(item) 
 }
 ####
 .checkFields <- function(shp, flds){

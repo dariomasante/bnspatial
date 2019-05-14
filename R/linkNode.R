@@ -4,14 +4,14 @@
 #' @description \code{linkNode} links a node of the Bayesian network to its corresponding spatial data, returning a list of objects, including the spatial data and relevant information about the node.\cr
 #' \code{linkMultiple} operates on multiple spatial layers and nodes.
 #' @aliases linkMultiple
-#' @param layer	character (path to spatial data file) or an object of class "RasterLayer" or "SpatialPolygonsDataFrame". The spatial data corresponding to the network node in argument \code{node}.
+#' @param layer	character (path to spatial data file) or an object of class "RasterLayer", "sf" or "SpatialPolygonsDataFrame". The spatial data corresponding to the network node in argument \code{node}.
 #' @inheritParams loadNetwork
 #' @param node character. A network node associated to the file in \code{layer} argument
 #' @param intervals A list of numeric vectors. For categorical variables the spatial data values associated to each state of the node, for continuous variables the boundary values dividing into the corresponding states.
 #' @param categorical logical. Is the node a categorical variable? Default is NULL.
-#' @param field character. Only for vectorial data, the field/column name in the attribute table corresponding to the node.
+#' @param field character. Only for vectorial data, the field/column name in the attribute table corresponding to the node, ordered accordingly.
 #' @param verbose logical. If \code{verbose = TRUE} a summary of class boundaries and associated nodes and data will be printed to screen for quick checks.
-#' @param spatialData character, or list of objects of class 'RasterLayer' or 'SpatialPolygonsDataFrame'. The spatial data associated to some network node, provided as file paths or as list of spatial objects of said classes. Must be ordered accordingly to the corresponding nodes in \code{lookup}, or provided as named list, where names correspond exactly to the corresponding node names. In case it is not a named list, but \code{lookup} contains already the optional 'layer' item, the latter will be passed to the loader function for each node.
+#' @param spatialData character, or list of objects of class 'RasterLayer', or a single object of class 'sf' or 'SpatialPolygonsDataFrame'. The spatial data associated to some network node, provided as file paths or as (list of) spatial object of said classes. Must be ordered accordingly to the corresponding nodes in \code{lookup}, or provided as named list, where names correspond exactly to the corresponding node names. In case it is not a named list, but \code{lookup} contains already the optional 'layer' item, the latter will be passed to the loader function for each node.
 #' @param lookup character or a formatted list. This argument can be provided as path to a comma separated file or a formatted list (see \code{\link{setClasses}} )
 #' @return \code{linkNode} returns a list of objects, including the spatial data and summary information about each node.\cr
 #' \code{linkMultiple} returns a list of lists. Each element of the list includes the spatial data and summary information for each of the input nodes.
@@ -30,11 +30,13 @@
 #' spatialData <- c(ConwyLU, ConwySlope, ConwyStatus)
 #' lookup <- LUclasses
 #' linkMultiple(spatialData, network, lookup, verbose = FALSE)
+#' 
+#' ## Method for class 'sf' or 'SpatialPolygon' etc.
+#' linkMultiple(spatialData, network, lookup, field= c('LU', 'Slope', 'Status'),verbose = FALSE)
+#' 
 #' @export
 linkNode <- function(layer, network, node, intervals, categorical=NULL, field=NULL, verbose=TRUE){
     network = loadNetwork(network=network)
-    
-    ## Perform checks
     # Check correspondence of node and states names between lookup list and network
     .checkNames(network, node)
     states <- network$universe$levels[[node]]
@@ -60,29 +62,64 @@ linkNode <- function(layer, network, node, intervals, categorical=NULL, field=NU
     }
 
     ##
-    layer <- .makeSpatial(layer, field)
-    if(categorical == TRUE){
-        if(class(layer) == 'RasterLayer'){
-            v <- as.factor(raster::getValues(layer))
+    layer <- .loadSpatial(layer, field)
+    if(categorical == TRUE) {
+        if('RasterLayer' %in% class(layer)){
+            nm <- names(layer)
+            uni <- unique(layer)
+            if(!all(uni %in% intervals) ) {
+                vals = uni[!uni %in% intervals]
+                warning('Some values in the spatial data do not have an associated state in the network node.',
+                        'The following values will be masked out: ', paste(vals,collapse=', '))
+                rcl <- cbind(from = vals, to=NA)
+                layer <- reclassify(layer, rcl)
+                uni <- unique(layer)
+            }
+            if(is.factor(layer)) {
+                df <- levels(layer)[[1]]
+                m <- data.frame(intervals,states, stringsAsFactors = FALSE)
+                mm <- merge(m, df, by.x='intervals', by.y='ID')
+                vals <- mm[!apply(mm, 1, function(x){x[2] == x[3] }) , ]
+                if(!all(vals)){
+                    stop('Some values in categorical spatial data and associated states do not match: ',
+                         'value ', vals[,1], ' corresponds to state "', vals[,2], '" in network node "', node, 
+                         '", but to "', vals[,3], '" in associated spatial data "')
+                }
+            } else {
+                layer <- ratify(layer)
+                df <- data.frame(ID=levels(layer)[[1]])
+                df$VALUE <- states[match(df$ID, intervals)]
+                levels(layer) <- df
+            }
         } else {
-            v <- as.factor(layer@data[ ,field])
-        }
-        if(is.null(intervals)){
-            intervals <- as.numeric(levels(v))
-            warning('For categorical data check classes integer value and corresponding states. If not matching,',
-                    ' a look up list should be provided (function "setClasses") or modified from current list.')
-        } else {
-            ## May set as 
-            if(identical(as.numeric(levels(v)), sort(intervals)) == FALSE){
-                stop('Integer values in categorical data do not match categories provided.')
+            v <- layer[[field]]
+            uni <- unique(v)
+            if(!all(uni %in% intervals) ) {
+                vals <- uni[!uni %in% intervals]
+                warning('Some values in the spatial data do not have an associated state in the network node.',
+                        'The following values will be masked out: ', paste(vals,collapse=', '))
+                layer[[field]][v %in% vals] <- NA
+                uni <- uni[!uni %in% vals]
+                nm <- field
+                layer <- layer[field]
             }
         }
+        ##
+        # if(is.null(intervals)){
+        #     intervals <- as.numeric(levels(v))
+        #     warning('For categorical data check classes integer value and corresponding states. If not matching,',
+        #             ' a look up list should be provided (function "setClasses") or modified from current list.')
+        # }
     }
-    lst <- list(list(States = states, Categorical = categorical, ClassBoundaries = intervals, SpatialData = layer)) #FilePath = layer@file@name, 
+    lst <- list(list(States = states, 
+                     Categorical = categorical, 
+                     ClassBoundaries = intervals, 
+                     SpatialData = layer)
+                ) 
     names(lst) <- node
     if(verbose == TRUE){
         writeLines(c(paste('\n"', node, '"', ' points to:', sep=''), 
-                     paste(' -> ', layer@data@names, '\n'), 
+                     paste(' -> ', nm, '\n'), 
                      'With states:', 
                      paste(states, collapse='    '), 
                      ifelse(is.null(categorical), '', ifelse(categorical == TRUE, 
@@ -157,27 +194,35 @@ linkMultiple <- function(spatialData, network, lookup, field=NULL, verbose=TRUE)
     }
 }
 ####
-.makeSpatial <- function(item, fld=NULL, ...){ # TODO This should avoid loading the shape if field is missing
-    if(is.character(item)){ 
-        item <- tryCatch(raster::raster(item), error=function(e){
-            sf::st_read(item, quiet = TRUE)
-            cat('Trying as vectorial...')
+.loadSpatial <- function(item, field=NULL){ # TODO This should avoid loading the shape if field is missing
+    if(!'RasterLayer' %in% class(item)){
+        item <- tryCatch({
+                rgdal::GDALinfo(item) # throws error if not raster
+                return( raster::raster(item) )
+            }, error=function(e){
+                if(is.null(field)){
+                    stop('"field" argument missing. Using vectorial data (e.g. shapefiles) one field/column ',
+                         'for each corresponding node must be specified from the attribute table.')
+                }
+                .checkFields(item, field)
+                if('SpatialPolygonsDataFrame' %in% class(item) | 'SpatialPointsDataFrame' %in% class(item)){
+                    sf::st_as_sf(item) # transform from sp to sf
+                } else {
+                    sf::st_read(item, quiet = TRUE) # query = paste("SELECT", fld, "FROM", item)) )
+                }
         } )
-    }
-    if(!'RasterLayer' %in% class(item) & is.null(fld)){
-        stop('"field" argument missing for ',item,'. Using vectorial data (e.g. shapefiles) ',
-        'one field/column from the attribute table must be specified for each corresponding node.')
-    }
-    if('SpatialPolygonsDataFrame' %in% class(item)){
-        item <- sf::st_as_sf(item) # transform from sp to sf
     }
     return(item) 
 }
 ####
-.checkFields <- function(shp, flds){
-    shpInfo <- rgdal::ogrInfo(dirname(shp), gsub('.shp', '', basename(shp)))
-    if(!all(fields %in% shpInfoa$iteminfo$name)){
-        f <- flds[!flds %in% shpInfo$iteminfo$name]
-        stop(paste(f, collapse=','),' missing from attribute table of ', shp)
+.checkFields <- function(item, fields){
+    if(is.character(item)){
+        nms <- rgdal::ogrInfo(item)$iteminfo$name
+    } else {
+        nms <- names(item)
+    }
+    if(!all(fields %in% nms)){
+        f <- fields[!fields %in% nms]
+        stop(paste(f, collapse=','),' missing from attribute table of spatial input data')
     }
 }

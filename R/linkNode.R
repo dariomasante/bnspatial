@@ -32,7 +32,7 @@
 #' linkMultiple(spatialData, network, lookup, verbose = FALSE)
 #' 
 #' ## Method for class 'sf' or 'SpatialPolygon' etc.
-#' linkMultiple(spatialData, network, lookup, field= c('LU', 'Slope', 'Status'),verbose = FALSE)
+#' linkMultiple(spatialData, network, lookup, field= c('LU', 'Slope', 'Status'), verbose = FALSE)
 #' 
 #' @export
 linkNode <- function(layer, network, node, intervals, categorical=NULL, field=NULL, verbose=TRUE){
@@ -66,28 +66,30 @@ linkNode <- function(layer, network, node, intervals, categorical=NULL, field=NU
     if(categorical == TRUE) {
         if('RasterLayer' %in% class(layer)){
             nm <- names(layer)
-            uni <- unique(layer)
+            uni <- raster::unique(layer)
             if(!all(uni %in% intervals) ) {
                 vals = uni[!uni %in% intervals]
                 warning('Some values in the spatial data do not have an associated state in the network node.',
                         'The following values will be masked out: ', paste(vals,collapse=', '))
-                rcl <- cbind(from = vals, to=NA)
-                layer <- reclassify(layer, rcl)
-                uni <- unique(layer)
+                rcl <- cbind(from=vals, to=NA)
+                layer <- raster::reclassify(layer, rcl)
+                uni <- raster::unique(layer)
             }
-            if(is.factor(layer)) {
-                df <- levels(layer)[[1]]
-                m <- data.frame(intervals,states, stringsAsFactors = FALSE)
-                mm <- merge(m, df, by.x='intervals', by.y='ID')
-                vals <- mm[!apply(mm, 1, function(x){x[2] == x[3] }) , ]
-                if(!all(vals)){
+            if(raster::is.factor(layer)) { # Check values correspond when raster table available
+                df <- raster::levels(layer)[[1]]
+                m <- data.frame(intervals, states, stringsAsFactors = FALSE)
+                mm <- merge(df, m, by.x='ID', by.y='intervals', sort=FALSE)
+                a <- !apply(mm, 1, function(x){x[2] == x[3] }) # check unmatching
+                vals <- mm[a, ]
+                if(!all(a)){
                     stop('Some values in categorical spatial data and associated states do not match: ',
-                         'value ', vals[,1], ' corresponds to state "', vals[,2], '" in network node "', node, 
-                         '", but to "', vals[,3], '" in associated spatial data "')
+                         'value ', paste(vals[,1], collapse=', '), ' corresponds to state "', paste(vals[,2], collapse=', '), 
+                         '" in network node "', node, '", but to "', paste(vals[,3], collapse=', '), 
+                         '" in associated spatial data "', nm,'"')
                 }
             } else {
-                layer <- ratify(layer)
-                df <- data.frame(ID=levels(layer)[[1]])
+                layer <- raster::ratify(layer)
+                df <- data.frame(ID=raster::levels(layer)[[1]])
                 df$VALUE <- states[match(df$ID, intervals)]
                 levels(layer) <- df
             }

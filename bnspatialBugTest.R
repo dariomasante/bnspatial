@@ -112,20 +112,34 @@ loadNetwork(LandUseChange,'Final')
 ####
 ## linkNode ----
 # % NOTE: FIX ORDER OF NODE STATES BETWEEN CLASSIFICATION AND SPATIAL DATA
-data("ConwyData")
-
+data("ConwyData"); list2env(ConwyData, environment()); network <- LandUseChange; lookup <- LUclasses
+Conwy = sf::st_read(system.file("extdata", "Conwy.shp", package = "bnspatial"))
 ## TO FIX
 
 ## Good
-linkNode(system.file("extdata", "ConwyLU.tif", package = "bnspatial"), network=LandUseChange, node='CurrentLULC', intervals=c(2, 3, 1))
-linkMultiple(list(ConwyLU,ConwySlope,ConwyStatus), LandUseChange, LUclasses, verbose=TRUE)
-linkNode(layer=ConwyLU, network=LandUseChange, node='CurrentLULC', intervals=c(2, 3, 1))
+linkNode(layer=ConwyLU, network, node='CurrentLULC', intervals=c(2, 3, 1))
+linkNode(system.file("extdata", "ConwyLU.tif", package = "bnspatial"), network, node='CurrentLULC', intervals=c(2, 3, 1))
 
-spatialData <- c(ConwyLU,ConwySlope,ConwyStatus)
-linkMultiple(spatialData, LandUseChange, LUclasses, verbose = FALSE)
+linkNode(layer=ConwySlope, network, node='Slope', intervals=c('-Inf', 1, 7, 'Inf'))
+linkNode(system.file("extdata", "ConwySlope.tif", package = "bnspatial"), network, node='Slope', intervals=c('-Inf', 1, 7, 'Inf'))
+
+linkNode(system.file("extdata", "Conwy.shp", package = "bnspatial"), network, field='LU', node='CurrentLULC', intervals=c(2, 3, 1))
+linkNode(Conwy, network, field='LU', node='CurrentLULC', intervals=c(2, 3, 1))
+
+linkMultiple(list(ConwyLU,ConwySlope,ConwyStatus), network, LUclasses)
+linkMultiple(c(ConwyLU,ConwySlope,ConwyStatus), network, LUclasses)
+linkMultiple(c(system.file("extdata", "ConwySlope.tif", package = "bnspatial"),
+               system.file("extdata", "ConwyLU.tif", package = "bnspatial")), network, LUclasses[c(2,1)])
+linkMultiple(c(ConwyLU,ConwySlope,ConwyStatus), network, LUclasses, field=c('LU','Status','Slope')) # ignores field arg
+
+linkMultiple(system.file("extdata", "Conwy.shp", package = "bnspatial"), network, LUclasses, field=c('LU','Status','Slope'))
+!!linkMultiple(Conwy, network, LUclasses, field=c('LU','Status','Slope'))
 
 ## Bad
-
+linkNode(system.file("extdata", "Conwy.shp", package = "bnspatial"), network, node='CurrentLULC', intervals=c(2, 3, 1))
+linkNode(layer=ConwySlope, network, node='Slope', intervals=c('-Inf', 2, 7), categorical=FALSE)
+linkNode(system.file("extdata", "Conwy.shp", package = "bnspatial"), network, field='Slope', node='Slope', c('-Inf', 1, 7, 'Inf')) # must break continuous not allowed in vectorial
+linkNode(Conwy, network, node='CurrentLULC', field=c('LU','Slope'), intervals=c(2, 3, 1)) # not allowed more than 1 field
 
 ####
 ## dataDiscretize ----

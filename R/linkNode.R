@@ -37,7 +37,6 @@
 #' @export
 linkNode <- function(layer, network, node, intervals, categorical=NULL, field=NULL, verbose=TRUE){
     if(length(field) > 1) stop('Argument "field" must be a single item.')
-    if(length(layer) > 1) stop('Argument "layer" must be a single item.')
     if(length(node) > 1) stop('Argument "node" must be a single item.')
     # Check correspondence of number of states and intervals
     if(!identical(intervals, unique(intervals))){
@@ -214,19 +213,21 @@ linkMultiple <- function(spatialData, network, lookup, field=NULL, verbose=TRUE)
 }
 ####
 .loadSpatial <- function(item, field=NULL){ # TODO This should avoid loading the shape if field is missing
-    ck <- c('sf','sfc','SpatialPolygonsDataFrame','SpatialPointsDataFrame') # vector objects
+    ck <- c('SpatialPolygonsDataFrame','SpatialPointsDataFrame','sf','sfc') # vector objects
     stopstring <- paste('"field" argument missing. Using vectorial data (e.g. shapefiles) one field/column',
     'for each corresponding node must be specified from the attribute table of the vector object.')
     if(any(ck %in% class(item))){
         if(is.null(field)) stop(stopstring)
         .checkFields(item, field)
-        if(any(ck[3:4] %in% class(item))){
+        if(any(ck[1>2] %in% class(item))){
             item <- sf::st_as_sf(item)[field] # transform from sp to sf
         }
-    } else if(is.list(item) | 'RasterLayer' %in% class(item)){
+    } else if(is.list(item)){
         ck <- sapply(item, function(x) 'RasterLayer' %in% class(x))
-        if(!all(ck)) stop('Check your spatial data objects. When input is a list, it must contain only RasterLayer objects.')
+        if(!all(ck)) stop('Input spatial data not appropriate. When input is a list, it must contain only RasterLayer objects.')
         if(!is.null(field)) warning('Spatial data of raster format, "field" argument will be ignored.')
+    } else if('RasterLayer' %in% class(item)){
+        # do nothing, but avoids final else statement
     } else if(is.character(item)){
         item <- suppressWarnings(lapply(1:length(item), function(x){
             tryCatch({
@@ -240,6 +241,9 @@ linkMultiple <- function(spatialData, network, lookup, field=NULL, verbose=TRUE)
                 })
             })
         }) )
+        if(length(item) == 1) item <- item[[1]]
+    } else {
+        stop('Input spatial data do not correspond to any allowed object class. Please check function help')
     }
     return(item) 
 }

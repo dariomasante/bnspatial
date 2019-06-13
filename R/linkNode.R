@@ -4,16 +4,16 @@
 #' @description \code{linkNode} links a node of the Bayesian network to its corresponding spatial data, returning a list of objects, including the spatial data and relevant information about the node.\cr
 #' \code{linkMultiple} operates on multiple spatial layers and nodes.
 #' @aliases linkMultiple
-#' @param layer	character (path to spatial data file) or an object of class "RasterLayer", "sf" or "SpatialPolygonsDataFrame". The spatial data corresponding to the network node in argument \code{node}.
+#' @param layer	path to spatial data file as character, or an object of class "RasterLayer", "sf" or "SpatialPolygonsDataFrame". The spatial data corresponding to the network node in argument \code{node}.
 #' @inheritParams loadNetwork
 #' @param node character. A network node associated to the file in \code{layer} argument
 #' @param intervals A list of numeric vectors. For categorical variables the spatial data values associated to each state of the node, for continuous variables the boundary values dividing into the corresponding states.
-#' @param categorical logical. Is the node a categorical variable? Default is NULL.
+#' @param categorical logical. Is the node a categorical variable? Default is NULL and the program will attempt to assign a logical value automatically.
 #' @param field character. Only for vectorial data, the field/column name in the attribute table corresponding to the node, ordered accordingly.
 #' @param verbose logical. If \code{verbose = TRUE} a summary of class boundaries and associated nodes and data will be printed to screen for quick checks.
-#' @param spatialData character, or list of objects of class 'RasterLayer', or a single object of class 'sf' or 'SpatialPolygonsDataFrame'. The spatial data associated to some network node, provided as file paths or as (list of) spatial object of said classes. Must be ordered accordingly to the corresponding nodes in \code{lookup}, or provided as named list, where names correspond exactly to the corresponding node names. In case it is not a named list, but \code{lookup} contains already the optional 'layer' item, the latter will be passed to the loader function for each node.
-#' @param lookup character or a formatted list. This argument can be provided as path to a comma separated file or a formatted list (see \code{\link{setClasses}} )
-#' @return \code{linkNode} returns a list of objects, including the spatial data and summary information about each node.\cr
+#' @param spatialData character with path(s) to one or more raster file or a single vectorial file, or a list of objects of class 'RasterLayer', or a single object of class 'sf' or 'SpatialPolygonsDataFrame' (vectorial data). The spatial data associated to some network node, provided as file paths or as (list of) spatial object of said classes. Must be ordered accordingly to the corresponding nodes in \code{lookup}, or provided as named list, where names correspond exactly to the corresponding node names. In case it is not a named list, but \code{lookup} contains already the optional 'layer' item, the latter will be passed to the loader function for each node.
+#' @param lookup character (path to file) or a formatted list. This argument can be provided as path to a comma separated file or a formatted list (see \code{\link{setClasses}} )
+#' @return \code{linkNode} returns a list of objects, including the spatial data and the related node information. \cr
 #' \code{linkMultiple} returns a list of lists. Each element of the list includes the spatial data and summary information for each of the input nodes.
 #' @details In future releases, this function may be rewritten to provide an S4/S3 object.
 #' @seealso \code{\link{dataDiscretize}}; \code{\link{setClasses}}
@@ -23,16 +23,18 @@
 #' list2env(ConwyData, environment())
 #' 
 #' network <- LandUseChange
-#' lst <- linkNode(layer=ConwyLU, network, node='CurrentLULC', intervals=c(2, 3, 1))
-#' lst
+#' ln <- linkNode(layer=ConwyLU, network, node='CurrentLULC', intervals=c(2, 3, 1))
+#' ln
 #'
 #' ## Link the Bayesian network to multiple spatial data at once, using a lookup list
 #' spatialData <- c(ConwyLU, ConwySlope, ConwyStatus)
 #' lookup <- LUclasses
 #' linkMultiple(spatialData, network, lookup, verbose = FALSE)
 #' 
-#' ## Method for class 'sf' or 'SpatialPolygon' etc.
-#' linkMultiple(spatialData, network, lookup, field= c('LU', 'Slope', 'Status'), verbose = FALSE)
+#' ## Method for vectorial data (i.e. class 'sf' or 'SpatialPolygon')
+#' spatialData <- system.file("extdata", "Conwy.shp", package = "bnspatial")
+#' lst <- linkMultiple(spatialData, network, lookup, field= c('LU', 'Slope', 'Status'))
+#' lst
 #' 
 #' @export
 linkNode <- function(layer, network, node, intervals, categorical=NULL, field=NULL, verbose=TRUE){
@@ -146,23 +148,29 @@ linkMultiple <- function(spatialData, network, lookup, field=NULL, verbose=TRUE)
         }
     }
     network <- loadNetwork(network=network)
-    if(!is.null(field)){
+    # if(!is.null(field)){
         if(length(spatialData) == 1 & !'RasterLayer' %in% class(spatialData)){
-            str = spatialData
-            spatialData <- lapply(1:length(field), function(x){
-                .loadSpatial(str, field[x])
+            spatialData <- lapply(field, function(x){
+                .loadSpatial(spatialData, x)
             })
         }
         if('sf' %in% class(spatialData)){
-            str = spatialData
-            spatialData <- lapply(1:length(field), function(x){
-                .loadSpatial(str[x], field[x])
+            str <- spatialData
+            spatialData <- lapply(field, function(x){
+                .loadSpatial(str[x], x)
             })
         }
-    }
+    # }
     # Check correspondence of node and states names between lookup list and network
     # then iterate through the nodes and append to summary list
     lst <- list()
+    namedVars <- sapply(names(lookup), function(nm){
+        n <- which(names(spatialData) == nm)
+        ifelse(length(n) > 0, n, 0)
+    })
+    if(all(namedVars > 0)){
+        message('Node names and names from spatial data fully correspond, so they will be matched accordingly.')
+    }
     for(nm in names(lookup)){
         .checkStates(lookup[[nm]]$States, network$universe$levels[[nm]], nm)
         Categorical <- lookup[[nm]]$Categorical
@@ -172,24 +180,19 @@ linkMultiple <- function(spatialData, network, lookup, field=NULL, verbose=TRUE)
         } else {
             ClassBoundaries <- lookup[[nm]]$ClassBoundaries
         }
-        if(is.null(names(spatialData)) | ){ # names from this list get priority
+        if(all(namedVars > 0)){ 
+            spd <- spatialData[[ namedVars[nm] ]]
+        } else {
             if(is.null(lookup[[nm]]$layer) ){
-                n <- which(names(lookup) == nm) 
+                n <- which(names(lookup) == nm)
                 spd <- spatialData[[n]] # associate by simple order of list
             } else {
                 spd <- lookup[[nm]]$layer
             }
-        } else {
-            n <- which(names(spatialData) == nm)
-            if(length(n) == 0){
-                stop('No names in "spatialData" (or "field") matching the network node ', nm, 
-                     ' :  \n', paste(names(spatialData), collapse=' '))
-            }
-            spd <- spatialData[[n]] 
         }
         lst[nm] <- linkNode(spd, network=network, node=nm, 
                             intervals=ClassBoundaries, categorical=Categorical, 
-                            field=field[n], verbose=verbose)
+                            field=names(spd)[1], verbose=verbose)
     }
     return(lst)
 }
@@ -219,29 +222,29 @@ linkMultiple <- function(spatialData, network, lookup, field=NULL, verbose=TRUE)
     if(any(ck %in% class(item))){
         if(is.null(field)) stop(stopstring)
         .checkFields(item, field)
-        if(any(ck[1>2] %in% class(item))){
+        if(any(ck[1:2] %in% class(item))){
             item <- sf::st_as_sf(item)[field] # transform from sp to sf
         }
     } else if(is.list(item)){
         ck <- sapply(item, function(x) 'RasterLayer' %in% class(x))
         if(!all(ck)) stop('Input spatial data not appropriate. When input is a list, it must contain only RasterLayer objects.')
-        if(!is.null(field)) warning('Spatial data of raster format, "field" argument will be ignored.')
+        if(!is.null(field)) warning('Spatial data in raster format, "field" argument will be ignored.')
     } else if('RasterLayer' %in% class(item)){
         # do nothing, but avoids final else statement
     } else if(is.character(item)){
-        item <- suppressWarnings(lapply(1:length(item), function(x){
-            tryCatch({
-                rgdal::GDALinfo(item[x]) # throws error if not raster
+        tc <- tryCatch( # if not raster returns NULL
+            lapply(1:length(item), function(x){
+                suppressWarnings(rgdal::GDALinfo(item[x]))
                 raster::raster(item[x])
-            }, error=function(e){
-                if(length(item) != 1) stop('For vectorial spatial data, a single data object is required, with all the necessary attributes.')
-                if(is.null(field)) stop(stopstring)
-                sapply(field, function(i) {
-                    sf::st_read(item, quiet = TRUE)[x]
-                })
-            })
-        }) )
-        if(length(item) == 1) item <- item[[1]]
+            }), error=function(e){})
+        if(is.null(tc)){
+            if(length(item) != 1) stop('For vectorial spatial data, a single data object is required, with all the necessary attributes.')
+            if(is.null(field)) stop(stopstring)
+            p <- sf::st_read(item, quiet = TRUE)
+            tc <- lapply(field, function(f) { p[f] })
+        }
+        if(length(tc) == 1) { tc <- tc[[1]] }
+        return(tc)
     } else {
         stop('Input spatial data do not correspond to any allowed object class. Please check function help')
     }

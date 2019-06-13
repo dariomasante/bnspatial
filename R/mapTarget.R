@@ -13,9 +13,9 @@
 #' \item{\code{"expected"}} gives the expected value for the target node (see Details). Only valid for continuous target nodes. \code{midValues} argument must be provided.
 #' \item{\code{"variation"}} returns the coefficient of variation, as a measure of uncertainty.
 #' }
-#' @param msk an object of class "RasterLayer". The reference raster to be used as mask. 
-#' All model outputs will have the same resolution and same extent as this raster. All locations with no data (i.e. NA) cells 
-#' in this raster will be ignored as well.
+#' @param msk an raster object of class "RasterLayer" or a spatial vector of class "sf". The reference spatial data to be used as mask. 
+#' All model outputs will have the same resolution and same extent as this raster, or the same outline for vectors. 
+#' All locations with no data (i.e. NA) in this raster will be ignored as well.
 #' @param midvals vector of length equal to the number of states of the target node. Applies only if the target node is a continuous 
 #' variable, in which case \code{midvals} must contain the mid values for each of the intervals 
 #' @param targetState character. One or more states of interest from the target node. Applies only 
@@ -76,15 +76,68 @@ mapTarget <- function(target, statesProb, what=c("class", "entropy"), msk, midva
     } else {
         .checkStates(targetState, colnames(statesProb))
     }
+    what <- match.arg(what, c("class", "entropy", "probability", "expected", "variation"), several.ok=TRUE)
+    if('RasterLayer' %in% class(msk)){
+        .mapRaster(target, statesProb, what, msk, midvals, targetState, spatial, exportRaster, path)
+    } else if('sf' %in% class(msk)){
+        .mapVector(target, statesProb, what, msk, midvals, targetState, spatial, exportRaster, path)
+    } else {
+        stop('Please provide a valid "msk" argument (an object of class "RasterLayer" or "sf").')
+    }
+}
+
+####
+.classValue <- function(statesProb){
+    classes <- apply(statesProb, 1, function(x){
+        colnames(statesProb)[which.max(x)]
+    })
+    as.factor(classes)
+}
+####
+.expectedValue <- function(statesProb, midvals) {
+    if(length(midvals) != ncol(statesProb)){
+        stop('Argument "midvals" must be a vector with length equal to the number of states of target node')
+    }
+    apply(statesProb, 1, function(x){x %*% midvals})
+}
+####
+.variationValue <- function(statesProb, expect, midvals){
+    uncertainty <- sapply(seq_along(expect), function(x) {
+        s <- (midvals - expect[x])^2 * statesProb[x,]
+        uncertainty <- sqrt(sum(s))
+    })
+    return(uncertainty / expect)
+}
+####
+.entropyValue <- function(statesProb){
+    apply(statesProb, 1, function(x){-x %*% log(x)} )
+}
+####
+.probabilityValue <- function(statesProb, targetState){
+    lapply(targetState, function(x) {statesProb[, x]} )
+}
+####
+.writeOutputMaps <- function(rst, outFile, datatype){
+    if(raster::canProcessInMemory(rst, 2)){
+        raster::writeRaster(rst, outFile, overwrite=TRUE, datatype=datatype)
+    } else {
+        blocks <- raster::blockSize(rst, minblocks=2)
+        out <- raster::writeStart(rst, outFile, overwrite=TRUE, datatype=datatype) ## open file to write
+        for (i in 1:blocks$n){
+            blockVals <- raster::getValues(rst, row=out$row[i], nrows=out$nrows[i]) ## values from rows to be written
+            out <- raster::writeValues(out, blockVals, out$row[i]) ## populate the raster with values
+        }
+        out <- raster::writeStop(out)
+    }
+}
+####
+.mapRaster <- function(target, statesProb, what, msk, midvals, targetState, spatial, exportRaster, path){
     if(exportRaster){
         rFormat <- '.tif'
-    } else if (is.character(exportRaster)){
+    } 
+    if(is.character(exportRaster)){
         #match.arg(exportRaster, c('.asc','.sdat','.rst','.nc','.tif','.envi','.bil'))
         rFormat <- exportRaster
-    }
-    what <- match.arg(what, c("class", "entropy", "probability", "expected", "variation"), several.ok=TRUE)
-    if(class(msk) != 'RasterLayer'){
-        stop('Please provide a valid "msk" argument (an object of class "RasterLayer").')
     }
     if(spatial){
         msk_cells_ID <- msk
@@ -182,48 +235,19 @@ mapTarget <- function(target, statesProb, what=c("class", "entropy"), msk, midva
     }
     return(whatList)
 }
-####
-.classValue <- function(statesProb){
-    classes <- apply(statesProb, 1, function(x){
-        colnames(statesProb)[which.max(x)]
-    })
-    as.factor(classes)
-}
-####
-.expectedValue <- function(statesProb, midvals) {
-    if(length(midvals) != ncol(statesProb)){
-        stop('Argument "midvals" must be a vector with length equal to the number of states of target node')
-    }
-    apply(statesProb, 1, function(x){x %*% midvals})
-}
-####
-.variationValue <- function(statesProb, expect, midvals){
-    uncertainty <- sapply(seq_along(expect), function(x) {
-        s <- (midvals - expect[x])^2 * statesProb[x,]
-        uncertainty <- sqrt(sum(s))
-    })
-    return(uncertainty / expect)
-}
-####
-.entropyValue <- function(statesProb){
-    apply(statesProb, 1, function(x){-x %*% log(x)} )
-}
-####
-.probabilityValue <- function(statesProb, targetState){
-    lapply(targetState, function(x) {statesProb[, x]} )
-}
-####
-.writeOutputMaps <- function(rst, outFile, datatype){
-    if(raster::canProcessInMemory(rst, 2)){
-        raster::writeRaster(rst, outFile, overwrite=TRUE, datatype=datatype)
-    } else {
-        blocks <- raster::blockSize(rst, minblocks=2)
-        out <- raster::writeStart(rst, outFile, overwrite=TRUE, datatype=datatype) ## open file to write
-        for (i in 1:blocks$n){
-            blockVals <- raster::getValues(rst, row=out$row[i], nrows=out$nrows[i]) ## values from rows to be written
-            out <- raster::writeValues(out, blockVals, out$row[i]) ## populate the raster with values
-        }
-        out <- raster::writeStop(out)
-    }
-}
 
+####
+.mapVector <- function(target, statesProb, what, msk, midvals, targetState, spatial, exportRaster, path){
+    if(exportRaster){
+        rFormat <- "ESRI Shapefile" 
+    } 
+    if (is.character(exportRaster)){
+        rFormat <- exportRaster
+    }# rgdal::writeOGR(r, dsn=getwd(), layer=fname, driver=rFormat)
+    if(spatial == TRUE | spatial == FALSE){# TODO cut with polygon in any case?
+        # msk_cells_ID <- msk
+        # msk_cells_ID[] <- seq_along(msk_cells_ID)
+        # msk_cells_ID <- raster::getValues(msk_cells_ID)[is.finite(raster::getValues(msk))]
+        # msk[] <- NA
+    }
+}

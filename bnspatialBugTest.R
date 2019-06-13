@@ -126,14 +126,13 @@ linkNode(system.file("extdata", "ConwySlope.tif", package = "bnspatial"), networ
 linkNode(system.file("extdata", "Conwy.shp", package = "bnspatial"), network, field='LU', node='CurrentLULC', intervals=c(2, 3, 1))
 linkNode(Conwy, network, field='LU', node='CurrentLULC', intervals=c(2, 3, 1))
 
-linkMultiple(list(ConwyLU,ConwySlope,ConwyStatus), network, LUclasses)
 linkMultiple(c(ConwyLU,ConwySlope,ConwyStatus), network, LUclasses)
 linkMultiple(c(system.file("extdata", "ConwySlope.tif", package = "bnspatial"),
                system.file("extdata", "ConwyLU.tif", package = "bnspatial")), network, LUclasses[c(2,1)])
-linkMultiple(c(ConwyLU,ConwySlope,ConwyStatus), network, LUclasses, field=c('LU','Status','Slope')) # ignores field arg
+linkMultiple(c(ConwyLU,ConwySlope,ConwyStatus), network, LUclasses, field=c('LU','Slope','Status')) # ignores field arg
 
-linkMultiple(system.file("extdata", "Conwy.shp", package = "bnspatial"), network, LUclasses, field=c('LU','Status','Slope'))
-!!linkMultiple(Conwy, network, LUclasses, field=c('LU','Status','Slope'))
+linkMultiple(system.file("extdata", "Conwy.shp", package = "bnspatial"), network, LUclasses, field=c('LU','Slope','Status'))
+linkMultiple(Conwy, network, LUclasses, field=c('LU','Slope','Status'))
 
 ## Bad
 linkNode(system.file("extdata", "Conwy.shp", package = "bnspatial"), network, node='CurrentLULC', intervals=c(2, 3, 1))

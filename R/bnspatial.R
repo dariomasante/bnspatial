@@ -42,24 +42,15 @@ bnspatial <- function(network, target, spatialData, lookup, msk=NULL, what=c("cl
     network <- loadNetwork(network, target)
     
     ## Load table with class boundaries, if available (otherwise make a list with node name and associated vector of class boundaries)
-    if(is.character(lookup) & length(lookup) == 1){
-        lookup <- importClasses(classFile=lookup)
-    } else if (is.list(lookup) & length(lookup[[1]]) == 3 & is.list(lookup[[1]])){
-        lookup <- lookup
-    } else {
-        stop('Check "lookup": must be a text file or a formatted list as output from "setClasses" and "importClasses" functions')
-    }
+    lookup <- .loadLookup(lookup)
     
     ## Load input spatial data and corresponding nodes and states into a list
-    if(length(spatialData) != length(lookup)){
-        stop('Check "spatialData": must be a vector of file names or a list of "RasterLayer" or "SpatialPolygonsDataFrame" ', 
-             'objects of length equal to the number of nodes provided by lookup argument')
-    }
-    spatialDataList <- linkMultiple(spatialData=spatialData, network=network, lookup=lookup, verbose=verbose)
+    spatialDataList <- linkMultiple(spatialData=spatialData, network=network, 
+                                    lookup=lookup, verbose=verbose)
     
     ## Load or create mask
     if(is.null(msk)){
-        msk <- aoi(spatialData)
+        msk <- aoi( lapply(spatialDataList,'[[',4) ) 
     } else {
         msk <- aoi(msk)
     }
@@ -100,3 +91,13 @@ bnspatial <- function(network, target, spatialData, lookup, msk=NULL, what=c("cl
               spatial=spatial, targetState=targetState, exportRaster=exportRaster, path=path)
 }
 
+##
+.loadLookup <- function(lookup){
+    if(is.character(lookup) & length(lookup) == 1){
+        return( importClasses(classFile=lookup) )
+    } else if (is.list(lookup) & length(lookup[[1]]) == 3 & is.list(lookup[[1]])){
+        return( lookup )
+    } else {
+        stop('Check "lookup": must be a text file or a formatted list as output from "setClasses" and "importClasses" functions')
+    }
+}

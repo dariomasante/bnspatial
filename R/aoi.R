@@ -1,13 +1,13 @@
 #' @name aoi
 #' @title Build area of interest (A.O.I.)
 #'
-#' @description This function creates a raster defining the area of interest, by unioning the input rasters or using a user defined mask.
-#' When \code{msk} is specified, resolution and extent are set equal to it, otherwise
-#' to the finest resolution among input spatial data and unioning the extents of input spatial data.
-#' @param msk a character (path to raster file), a raster (object of class "RasterLayer"), or a list of rasters. 
-#' The reference raster(s) to be used as mask. All model outputs will have the same resolution and same extent as this raster(s). 
-#' All locations with no data (i.e. NA) cells in \code{msk} will be ignored as well.
-#' @param mskSub vector. The subset values from \code{msk} which should be considered to build the area of interest. All other values will be ignored and returned as NA.
+#' @description This function creates a spatial object defining the area of interest, by unioning the input spatial data or using a user defined mask.
+#' When \code{msk} is specified and is a raster, extent is set equal to it, but resolution 
+#' to the finest resolution among that and input spatial data. If not specified, it will union the extents of input spatial data.
+#' @param msk a character (path to raster/vector file), a list of rasters of class "RasterLayer", or a single object of class "sf" or "SpatialPolygonsDataFrame". 
+#' The reference data (raster or vector) to be used as mask. All model outputs will have the same extent and outline as this object. 
+#' All locations with no data (i.e. NA) cells in \code{msk} input will be ignored as well.
+#' @param mskSub vector of values. The subset values from \code{msk} which should be considered to build the area of interest. All other values will be ignored and returned as NA.
 #' @param xy logical. Should return a two column matrix of coordinates? If FALSE an object of class RasterLayer is returned.
 #' @details All model outputs will have the same resolution and same extent as inherited from \code{msk}. All locations with no data (i.e. NA) cells 
 #' from \code{msk} will be ignored as well.
@@ -36,10 +36,11 @@
 #' coord <- aoi(ConwyLU, xy=TRUE)
 #' head(coord)
 #' @export
-aoi <- function(msk, mskSub=NULL, xy=FALSE){  ## Check if aoi and extractByMask can be condensed in one or nested.
-    if(class(msk) == 'character'){
-        msk <- lapply(msk, function(x) { raster::raster(x, RAT=FALSE) }) ## Should apply this even when an input raster is provided
-    }
+aoi <- function(msk, mskSub=NULL, xy=FALSE, ext=NULL){  ## Check if aoi and extractByMask can be condensed in one or nested.
+    msk <- .loadSpatial(msk, checkfld=FALSE)
+    # if(class(msk) == 'character'){
+    #     msk <- lapply(msk, function(x) { raster::raster(x, RAT=FALSE) }) ## Should apply this even when an input raster is provided
+    # }
     if(is.list(msk)){ 
         r <- msk[[1]]
         sr <- raster::crs(r)
@@ -78,4 +79,14 @@ aoi <- function(msk, mskSub=NULL, xy=FALSE){  ## Check if aoi and extractByMask 
             return( msk )
         }
     }
+}
+
+##
+.aoiRaster <- function(msk, mskSub, xy, ext){
+    
+}
+
+##
+.aoiVector <- function(msk, mskSub, xy, ext){ # use xy to return id?
+    
 }

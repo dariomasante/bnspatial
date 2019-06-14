@@ -11,7 +11,9 @@
 #' @param categorical logical. Is the node a categorical variable? Default is NULL and the program will attempt to assign a logical value automatically.
 #' @param field character. Only for vectorial data, the field/column name in the attribute table corresponding to the node, ordered accordingly.
 #' @param verbose logical. If \code{verbose = TRUE} a summary of class boundaries and associated nodes and data will be printed to screen for quick checks.
-#' @param spatialData character with path(s) to one or more raster file or a single vectorial file, or a list of objects of class 'RasterLayer', or a single object of class 'sf' or 'SpatialPolygonsDataFrame' (vectorial data). The spatial data associated to some network node, provided as file paths or as (list of) spatial object of said classes. Must be ordered accordingly to the corresponding nodes in \code{lookup}, or provided as named list, where names correspond exactly to the corresponding node names. In case it is not a named list, but \code{lookup} contains already the optional 'layer' item, the latter will be passed to the loader function for each node.
+#' @param spatialData character with path to one or more raster files or to a single vectorial file, or a list of objects of class 'RasterLayer', or a single object of class 'sf' or 'SpatialPolygonsDataFrame' (vectorial data). 
+#' The spatial data associated to some network node, provided as file paths or as (list of) spatial object of said classes. Must be ordered accordingly to the corresponding nodes in \code{lookup}, 
+#' or provided as named list, where names correspond exactly to the corresponding node names. In case it is not a named list, but \code{lookup} contains already the optional 'layer' item, the latter will be passed to the loader function for each node.
 #' @param lookup character (path to file) or a formatted list. This argument can be provided as path to a comma separated file or a formatted list (see \code{\link{setClasses}} )
 #' @return \code{linkNode} returns a list of objects, including the spatial data and the related node information. \cr
 #' \code{linkMultiple} returns a list of lists. Each element of the list includes the spatial data and summary information for each of the input nodes.
@@ -101,8 +103,8 @@ linkNode <- function(layer, network, node, intervals, categorical=NULL, field=NU
             uni <- unique(v[!is.na(v)])
             if(!all(uni %in% intervals) ) {
                 vals <- uni[!uni %in% intervals]
-                warning('Some values in the spatial data do not have an associated state in the network node. ',
-                        'The following values will be masked out: ', paste(vals,collapse=', '))
+                warning('Some values in the spatial data do not have an associated state in the network node.\n',
+                        'The following values of "',field,'" will be masked out: ', paste(vals,collapse=', '))
                 layer[[field]][v %in% vals] <- NA
                 # uni <- uni[!uni %in% vals]
             }
@@ -138,29 +140,28 @@ linkNode <- function(layer, network, node, intervals, categorical=NULL, field=NU
 #' @rdname linkNode
 #' @export
 linkMultiple <- function(spatialData, network, lookup, field=NULL, verbose=TRUE){
-    if(is.character(lookup) & length(lookup) == 1){
-        lookup <- importClasses(lookup)
-    }
+    lookup <- .loadLookup(lookup)
     if(length(spatialData) != length(lookup)){ 
         if(is.null(field) | length(field) != length(lookup)) {
-            stop('Spatial data do not match the number of nodes provided in the look up list. ',
-                 'For vectorial data (e.g. shapefile) you must provide "field" argument.')
+            stop('Spatial data do not match the number of nodes provided in the look up list.\n',
+                 'Argument "spatialData" may be a vector of file names, a list of "RasterLayer", ',
+                 'or one object of class "sf" or "SpatialPolygonsDataFrame.\n', 
+                 'For vectorial data (e.g. shapefile) you must provide a single object, ',
+                 'plus "field" argument.')
         }
     }
     network <- loadNetwork(network=network)
-    # if(!is.null(field)){
-        if(length(spatialData) == 1 & !'RasterLayer' %in% class(spatialData)){
-            spatialData <- lapply(field, function(x){
-                .loadSpatial(spatialData, x)
-            })
-        }
-        if('sf' %in% class(spatialData)){
-            str <- spatialData
-            spatialData <- lapply(field, function(x){
-                .loadSpatial(str[x], x)
-            })
-        }
-    # }
+    if(length(spatialData) == 1 & !'RasterLayer' %in% class(spatialData)){
+        spatialData <- lapply(field, function(x){
+            .loadSpatial(spatialData, x)
+        })
+    }
+    if('sf' %in% class(spatialData)){
+        str <- spatialData
+        spatialData <- lapply(field, function(x){
+            .loadSpatial(str[x], x)
+        })
+    }
     # Check correspondence of node and states names between lookup list and network
     # then iterate through the nodes and append to summary list
     lst <- list()
@@ -215,13 +216,16 @@ linkMultiple <- function(spatialData, network, lookup, field=NULL, verbose=TRUE)
     }
 }
 ####
-.loadSpatial <- function(item, field=NULL){ # TODO This should avoid loading the shape if field is missing
+.loadSpatial <- function(item, field=NULL, checkfld=TRUE){ # TODO This should avoid loading the shape if field is missing
     ck <- c('SpatialPolygonsDataFrame','SpatialPointsDataFrame','sf','sfc') # vector objects
     stopstring <- paste('"field" argument missing. Using vectorial data (e.g. shapefiles) one field/column',
     'for each corresponding node must be specified from the attribute table of the vector object.')
+    if(!checkfld) field <- 1 # this is for "aoi" function
     if(any(ck %in% class(item))){
-        if(is.null(field)) stop(stopstring)
-        .checkFields(item, field)
+        if(checkfld){
+            if(is.null(field)) stop(stopstring)
+            .checkFields(item, field)
+        }
         if(any(ck[1:2] %in% class(item))){
             item <- sf::st_as_sf(item)[field] # transform from sp to sf
         }
@@ -239,7 +243,7 @@ linkMultiple <- function(spatialData, network, lookup, field=NULL, verbose=TRUE)
             }), error=function(e){})
         if(is.null(tc)){
             if(length(item) != 1) stop('For vectorial spatial data, a single data object is required, with all the necessary attributes.')
-            if(is.null(field)) stop(stopstring)
+            if(checkfld & is.null(field)) stop(stopstring)
             p <- sf::st_read(item, quiet = TRUE)
             tc <- lapply(field, function(f) { p[f] })
         }

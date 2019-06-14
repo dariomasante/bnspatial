@@ -130,6 +130,7 @@ linkMultiple(c(ConwyLU,ConwySlope,ConwyStatus), network, LUclasses)
 linkMultiple(c(system.file("extdata", "ConwySlope.tif", package = "bnspatial"),
                system.file("extdata", "ConwyLU.tif", package = "bnspatial")), network, LUclasses[c(2,1)])
 linkMultiple(c(ConwyLU,ConwySlope,ConwyStatus), network, LUclasses, field=c('LU','Slope','Status')) # ignores field arg
+linkMultiple(Conwy, network, LUclasses[1], field='LU') 
 
 linkMultiple(system.file("extdata", "Conwy.shp", package = "bnspatial"), network, LUclasses, field=c('LU','Slope','Status'))
 linkMultiple(Conwy, network, LUclasses, field=c('LU','Slope','Status'))
@@ -139,6 +140,7 @@ linkNode(system.file("extdata", "Conwy.shp", package = "bnspatial"), network, no
 linkNode(layer=ConwySlope, network, node='Slope', intervals=c('-Inf', 2, 7), categorical=FALSE)
 linkNode(system.file("extdata", "Conwy.shp", package = "bnspatial"), network, field='Slope', node='Slope', c('-Inf', 1, 7, 'Inf')) # must break continuous not allowed in vectorial
 linkNode(Conwy, network, node='CurrentLULC', field=c('LU','Slope'), intervals=c(2, 3, 1)) # not allowed more than 1 field
+# add more casesk
 
 ####
 ## dataDiscretize ----

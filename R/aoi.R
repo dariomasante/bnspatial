@@ -8,8 +8,10 @@
 #' @param msk a character (path to raster/vector file), or the bounding box as numeric (xmin xmax ymin ymax), or one or more (a list of) rasters of class "RasterLayer", or a single object of class "sf" or "SpatialPolygonsDataFrame". 
 #' The reference data (raster or vector) to be used as mask. All model outputs will have the same extent and outline as this object. 
 #' All locations with no data (i.e. NA) cells in \code{msk} input will be ignored as well.
-#' @param mskSub vector of values. The subset values from \code{msk} which should be considered to build the area of interest. All other values will be ignored and returned as NA.
-#' @param xy logical. Should return a two column matrix of coordinates? If FALSE an object of class RasterLayer is returned.
+#' @param mskSub vector of values, for raster data only. The subset values from \code{msk} which should be considered to build the area 
+#' of interest. All other values will be ignored and set as NA.
+#' @param xy logical. Should return a two column matrix of x and y coordinates of cells centre? 
+#' Only for raster data. Defaults to FALSE, returning an object of class RasterLayer.
 #' @details All model outputs will have the same resolution and same extent as inherited from \code{msk}. All locations with no data (i.e. NA) cells 
 #' from \code{msk} will be ignored as well.
 #' @return An object of class RasterLayer (default), or a matrix of coordinates of mask cells. In the former case, valid cells (i.e. the area of interest) will have value 1, \code{NA} otherwise.
@@ -36,6 +38,10 @@
 #' ## Return coordinates of valid mask locations
 #' coord <- aoi(ConwyLU, xy=TRUE)
 #' head(coord)
+#' 
+#' ## For vectorial spatial data
+#' 
+#' 
 #' @export
 aoi <- function(msk, mskSub=NULL, xy=FALSE){  ## Check if aoi and extractByMask can be condensed in one or nested.
     if(is.numeric(msk)){
@@ -95,6 +101,6 @@ aoi <- function(msk, mskSub=NULL, xy=FALSE){  ## Check if aoi and extractByMask 
 }
 
 ##
-.aoiVector <- function(msk, mskSub, xy){ # use xy to return id?
+.aoiVector <- function(msk){ # use xy to return id?
     
 }

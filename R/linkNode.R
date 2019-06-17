@@ -233,6 +233,7 @@ linkMultiple <- function(spatialData, network, lookup, field=NULL, verbose=TRUE)
         ck <- sapply(item, function(x) 'RasterLayer' %in% class(x))
         if(!all(ck)) stop('Input spatial data not appropriate. When input is a list, it must contain only RasterLayer objects.')
         if(!is.null(field)) warning('Spatial data in raster format, "field" argument will be ignored.')
+        .checkSR(item)
     } else if('RasterLayer' %in% class(item)){
         # do nothing, but avoids final else statement
     } else if(is.character(item)){
@@ -241,6 +242,7 @@ linkMultiple <- function(spatialData, network, lookup, field=NULL, verbose=TRUE)
                 suppressWarnings(rgdal::GDALinfo(item[x]))
                 raster::raster(item[x])
             }), error=function(e){})
+        .checkSR(tc)
         if(is.null(tc)){
             if(length(item) != 1) stop('For vectorial spatial data, a single data object is required, with all the necessary attributes.')
             if(checkfld & is.null(field)) stop(stopstring)
@@ -250,7 +252,7 @@ linkMultiple <- function(spatialData, network, lookup, field=NULL, verbose=TRUE)
         if(length(tc) == 1) { tc <- tc[[1]] }
         return(tc)
     } else {
-        stop('Input spatial data do not correspond to any allowed object class. Please check function help')
+        stop('Input spatial data do not correspond to any allowed object classes. Please check function help')
     }
     return(item) 
 }
@@ -265,5 +267,14 @@ linkMultiple <- function(spatialData, network, lookup, field=NULL, verbose=TRUE)
     if(!all(fields %in% nms)){
         f <- fields[!fields %in% nms]
         stop(paste(f, collapse=', '),' missing from attribute table of spatial input data.')
+    }
+}
+####
+.checkSR <- function(rastList){
+    if(length(rastList) > 1){
+        sr <- raster::crs(rastList[[1]])
+        sapply(rastList, function(x) {
+            if(!raster::compareCRS(raster::crs(x), sr)){ stop('Multiple reference systems found. Please convert all data to a single one.') }
+        })
     }
 }

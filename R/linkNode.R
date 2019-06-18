@@ -232,7 +232,7 @@ linkMultiple <- function(spatialData, network, lookup, field=NULL, verbose=TRUE)
     } else if(is.list(item)){
         ck <- sapply(item, function(x) 'RasterLayer' %in% class(x))
         if(!all(ck)) stop('Input spatial data not appropriate. When input is a list, it must contain only RasterLayer objects.')
-        if(!is.null(field)) warning('Spatial data in raster format, "field" argument will be ignored.')
+        if(!is.null(field) & checkfld) warning('Spatial data in raster format, "field" argument will be ignored.')
         .checkSR(item)
     } else if('RasterLayer' %in% class(item)){
         # do nothing, but avoids final else statement

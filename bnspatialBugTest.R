@@ -198,7 +198,12 @@ dataDiscretize(s, classBoundaries=c(0.5, 0.5))
 ## TO FIX
 
 ## Good
+aoi(list(raster(res=1, xmn=0, xmx=10), raster(res=1,xmn=0, xmx=10, ymn=0, ymx=10, vals=1)), NULL, FALSE)
+aoi(raster(res=1, xmn=0, xmx=10), NULL, FALSE)
+aoi(c(2, -4, 20, 44.5, 56), NULL, FALSE)
 
+## Bad
+aoi(list(raster(res=1, xmn=0, xmx=10, vals=1, crs=NA), raster(res=1,xmn=0, xmx=10, ymn=0, ymx=10, vals=1)), NULL, FALSE)
 
 ####
 ### Use testthat ----

@@ -3,12 +3,14 @@
 #'
 #' @description This function creates a spatial object defining the area of interest, by taking a bounding box or 
 #' a spatial object, or unioning the input spatial objects if more than one are provided.
-#' When \code{msk} is a list of rasters, extent is set equal to their combined extent (union), resolution 
+#' When \code{msk} is a list of rasters, extent is set equal to their combined extent (union) and resolution 
 #' to the finest resolution among them. 
-#' @param msk a character (path to raster/vector file), or the bounding box as numeric (xmin xmax ymin ymax), or one or more (a list of) rasters of class "RasterLayer", or a single object of class "sf" or "SpatialPolygonsDataFrame". 
+#' @param msk a character (path to raster/vector file), or the resolution plus bounding box as numeric (res xmin xmax ymin ymax), 
+#' or one or more (a list of) rasters of class "RasterLayer", or a single object of class "sf" or "SpatialPolygonsDataFrame". 
 #' The reference data (raster or vector) to be used as mask. All model outputs will have the same extent and outline as this object. 
 #' All locations with no data (i.e. NA) cells in \code{msk} input will be ignored as well.
-#' @param mskSub vector of values. The subset values from \code{msk} which should be considered to build the area of interest. All other values will be ignored and returned as NA.
+#' @param mskSub vector of values. The subset values from \code{msk} which should be considered to build the area of interest. All other 
+#' values will be ignored and returned as NA.
 #' @param xy logical. Should return a two column matrix of coordinates? If FALSE an object of class RasterLayer is returned.
 #' @details All model outputs will have the same resolution and same extent as inherited from \code{msk}. All locations with no data (i.e. NA) cells 
 #' from \code{msk} will be ignored as well.
@@ -39,7 +41,12 @@
 #' @export
 aoi <- function(msk, mskSub=NULL, xy=FALSE){  ## Check if aoi and extractByMask can be condensed in one or nested.
     if(is.numeric(msk)){
-        bb <- raster::extent(msk)
+        if(lenght(msk) != 5) stop('When bounding box is provided, it must be a numeric of length 5 (i.e resolution, xmin, xmax, ymin, ymax)')
+        msk <- raster::raster(res=msk[1], xmn=msk[2], xmx=msk[3], ymn=msk[4], ymx=msk[5], vals = 1, crs=NA)
+        if(!is.null(mskSub)){
+            mskSub <- NULL # force to null in case is set
+            warning('Bounding box provided, "mskSub" will be ignored')
+        }
     }
     msk <- .loadSpatial(msk, checkfld=FALSE)
     if('RasterLayer' %in% class(msk)){

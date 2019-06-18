@@ -274,7 +274,9 @@ linkMultiple <- function(spatialData, network, lookup, field=NULL, verbose=TRUE)
     if(length(rastList) > 1){
         sr <- raster::crs(rastList[[1]])
         sapply(rastList, function(x) {
-            if(!raster::compareCRS(raster::crs(x), sr)){ stop('Multiple reference systems found. Please convert all data to a single one.') }
+            if(!raster::compareCRS(raster::crs(x), sr)){ 
+                stop('Multiple reference systems found, or some missing. Please convert/set all input spatial data to a single reference system.') 
+            }
         })
     }
 }

@@ -194,16 +194,22 @@ dataDiscretize(s, classBoundaries=c(0.5, 0.5))
 ####
 ## aoi ----
 # % FIX: make RAT=FALSE in `msk <- raster::raster(msk, RAT=FALSE)` even when an input layer is provided
-
 ## TO FIX
 
 ## Good
-aoi(list(raster(res=1, xmn=0, xmx=10), raster(res=1,xmn=0, xmx=10, ymn=0, ymx=10, vals=1)), NULL, FALSE)
-aoi(raster(res=1, xmn=0, xmx=10), NULL, FALSE)
-aoi(c(2, -4, 20, 44.5, 56), NULL, FALSE)
+Conwy = sf::st_read(system.file("extdata", "Conwy.shp", package = "bnspatial"))
+r = raster(res=1, xmn=0, xmx=10)
+aoi(list(r, raster(res=1,xmn=0, xmx=10, ymn=0, ymx=10, vals=1)), NULL, FALSE)
+aoi(r, mskSub=NULL, xy=FALSE)
+aoi(r, NULL, FALSE, bbox=c(-4, 20, 44.5, 56))
+aoi(Conwy, NULL )
+aoi(Conwy, NULL, xy=TRUE )
+aoi(Conwy, NULL, xy=TRUE, bbox = c(263850,300000,335000,361000))
+aoi(Conwy, NULL, bbox = c(263850,300000,335000,361000))
 
 ## Bad
 aoi(list(raster(res=1, xmn=0, xmx=10, vals=1, crs=NA), raster(res=1,xmn=0, xmx=10, ymn=0, ymx=10, vals=1)), NULL, FALSE)
+aoi(Conwy, 3 )
 
 ####
 ### Use testthat ----

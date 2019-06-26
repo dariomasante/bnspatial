@@ -21,19 +21,22 @@
 #' plot( extractByMask(ConwySlope, msk=m, spatial=TRUE) )
 #' @export
 extractByMask <- function(rast, msk, spatial=FALSE){
-    if(class(rast) != 'RasterLayer'){
+    if(!any(c('RasterLayer', 'sf') %in% class(rast))){
         stop('"rast" argument must be an object of class "RasterLayer".')
     }
-    if(class(msk) == 'RasterLayer'){
+    if('RasterLayer' %in% class(msk)){
         id <- .whichValidCells(msk)
         xy <- raster::xyFromCell(msk, id)
         cells <- raster::cellFromXY(rast, xy[, 1:2])
+    } else if ('sf' %in% class(msk)){
+        
     } else if (is.matrix(msk)){
         cells <- id <- raster::cellFromXY(rast, msk[, 1:2])
         msk <- rast
         msk[] <- NA
     } else {
-        stop('"msk" argument must be either an object of class RasterLayer or a two column matrix of x and y coordinates')
+        stop('"msk" argument must be either an object of class RasterLayer ',
+             'or a two column matrix of x and y coordinates')
     }
     vals <- raster::getValues(rast)[cells]
     if(spatial == TRUE){

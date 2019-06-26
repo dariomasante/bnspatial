@@ -5,17 +5,17 @@
 #' a spatial object, or unioning the input spatial objects if more than one are provided.
 #' When \code{msk} is a list of rasters, extent is set equal to their combined extent (union) and resolution 
 #' to the finest resolution among them. 
-#' @param msk a character (path to raster/vector file), or the resolution plus bounding box as numeric (res xmin xmax ymin ymax), 
+#' @param msk a character (path to raster/vector file), or the bounding box as numeric (xmin xmax ymin ymax), 
 #' or one or more (a list of) rasters of class "RasterLayer", or a single object of class "sf" or "SpatialPolygonsDataFrame". 
 #' The reference data (raster or vector) to be used as mask. All model outputs will have the same extent and outline as this object. 
 #' All locations with no data (i.e. NA) cells in \code{msk} input will be ignored as well.
 #' @param mskSub vector of values, for raster data only. The subset values from \code{msk} which should be considered to build the area 
 #' of interest. All other values will be ignored and set as NA.
-#' @param xy logical. Should return a two column matrix of x and y coordinates of cells centre? 
-#' Only for raster data. Defaults to FALSE, returning an object of class RasterLayer.
+#' @param xy logical. Should return a two column matrix of x and y coordinates of cells centre (raster data) or
+#' the IDs of features? Defaults to FALSE, returning an object of class RasterLayer or sf.
 #' @details If rasters are used, all model outputs will have the same resolution and same extent as inherited from \code{msk}. 
 #' All locations with no data (i.e. NA) cells from \code{msk} will be ignored as well.
-#' @return An object of class RasterLayer (default), or a matrix of coordinates of mask cells. In the former case, valid cells 
+#' @return An object of class RasterLayer  or sf, or a matrix of coordinates of mask cells (raster only). In the former case, valid cells 
 #' (i.e. the area of interest) will have value 1, \code{NA} otherwise.
 #' @seealso \code{\link{extractByMask}}
 #' @examples
@@ -42,29 +42,37 @@
 #' head(coord)
 #' 
 #' ## Using a bounding box
-#' aoi(c(res=200, 270000, 284950, 347000, 365000))
+#' aoi(ConwyLU, bbox=c(270000, 284950, 347000, 365000))
 #' 
-#' ## For vectorial spatial data
-#' 
+#' ## For vectorial spatial data. Note xy=TRUE shall return features IDs
+#' Conwy = sf::st_read(system.file("extdata", "Conwy.shp", package = "bnspatial")
+#' aoi(Conwy, bbox=c(270000, 284950, 347000, 365000))
 #' 
 #' @export
-aoi <- function(msk, mskSub=NULL, xy=FALSE){  ## Check if aoi and extractByMask can be condensed in one or nested.
-    if(is.numeric(msk)){
-        if(length(msk) != 5) stop('When bounding box is provided, it must be a numeric of length 5 (i.e resolution, xmin, xmax, ymin, ymax)')
-        msk <- raster::raster(res=msk[1], xmn=msk[2], xmx=msk[3], ymn=msk[4], ymx=msk[5], vals = 1, crs=NA)
-        if(!is.null(mskSub)){
-            mskSub <- NULL # force to null in case is set
-            warning('Bounding box provided, "mskSub" will be ignored')
-        }
-    }
+aoi <- function(msk, mskSub=NULL, xy=FALSE, bbox=NULL){  ## Check if aoi and extractByMask can be condensed in one or nested.
     msk <- .loadSpatial(msk, checkfld=FALSE)
+    msk <- .bbox(bbox, msk)
     if('RasterLayer' %in% class(msk[[1]])){
         .aoiRaster(msk, mskSub, xy)
     } else {
-        .aoiVector(msk) # use xy to return id?
+        if(!is.null(mskSub)) warning('mskSub argument ignored for vectorial spatial data')
+        .aoiVector(msk, xy) 
     }
 }
 
+##
+.bbox <- function(bbox, msk){
+    if(!is.null(bbox)){
+        if(!is.numeric(bbox) | length(bbox) != 4) stop('Bounding box must be a numeric vector of length 4 (i.e xmin, xmax, ymin, ymax)')
+        if('RasterLayer' %in% class(msk[[1]])){
+            msk <- raster::crop(msk, bbox)
+        } else {
+            msk <- sf::st_crop(sf::st_buffer(msk, dist = 0), 
+                                xmin=bbox[1],xmax=bbox[2],ymin=bbox[3],ymax=bbox[4])
+        }
+    }
+    return(msk)
+}
 ##
 .aoiRaster <- function(msk, mskSub, xy){
     # if(class(msk) == 'character'){
@@ -111,6 +119,13 @@ aoi <- function(msk, mskSub=NULL, xy=FALSE){  ## Check if aoi and extractByMask 
 }
 
 ##
-.aoiVector <- function(msk){ # use xy to return id?
-    
+.aoiVector <- function(msk, xy=FALSE){ # use xy to return id?
+    if(!'FID' %in% names(msk)) stop('In order to get IDs of features, ', 
+                                    'you must add a column named FID to the table ',
+                                    ' of attributes, with unique integers for each feature')
+    if(xy){
+        return(as.matrix(msk[['FID']]))
+    } else {
+        return(msk['FID'])
+    }
 }

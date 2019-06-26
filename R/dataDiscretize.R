@@ -5,7 +5,7 @@
 #' by the user or, if the user provides the number of expected classes, calculated 
 #' from quantiles (default option) or by equal intervals.\cr
 #' \code{dataDiscretize} processes a single variable at a time, provided as vector.
-#' \code{bulkDiscretize} discretizes multiple input rasters, by using parallel processing.
+#' \code{bulkDiscretize} discretizes multiple input rasters, optionally by using parallel processing.
 #' @rdname dataDiscretize
 #' @aliases bulkDiscretize
 #' @param data numeric vector. The continuous data to be discretized.

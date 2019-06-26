@@ -246,7 +246,7 @@ linkMultiple <- function(spatialData, network, lookup, field=NULL, verbose=TRUE)
         if(is.null(tc)){
             if(length(item) != 1) stop('For vectorial spatial data, a single data object is required, with all the necessary attributes.')
             if(checkfld & is.null(field)) stop(stopstring)
-            p <- sf::st_read(item, quiet = TRUE)
+            p <- sf::st_read(item, quiet = TRUE, fid_column_name='FID')
             tc <- lapply(field, function(f) { p[f] })
         }
         if(length(tc) == 1) { tc <- tc[[1]] }

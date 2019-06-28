@@ -67,27 +67,13 @@ queryNet <- function(network, target, evidence, ...){
         wrong = paste(inputNodes[!inputNodes %in% nodesName], collapse=', ')
         stop(paste('One or more nodes not found in the network, please check names:', wrong))
     }
-    # Create single codes to identify all existing combinations of variables state
-    # Codes are preferred as character type instead of numeric, although performance may be slightly affected
-    singleCodes <- apply(evidence, 1, function(x) {paste(x, collapse="_")})
+    # Create single codes to identify all existing combinations of variables state (chars still preferred to int)
+    singleCodes <- apply(evidence, 1, function(x) {paste(x, collapse="^")})
     uniCodes <- unique(singleCodes)
-    # Query the network only once for each identified combinations, then append results to all corresponding cases
+    # Query the network only once for each combination
     evidenceSingle <- as.matrix(evidence[match(uniCodes, singleCodes), ])
-    probs <- apply(evidenceSingle, 1, function(x){
-        if(all(is.na(x))){
-            out <- as.numeric(gRain::querygrain(network, target)[[1]] )
-        } else {
-            out <- as.numeric(gRain::querygrain(gRain::setEvidence(network, inputNodes, x), target)[[1]] )
-        }
-        if(any(is.nan(out) | is.infinite(out))){ # Extra check to cope with 
-            stop('Impossible values have been set in the input network, ',
-                 'e.g. zero as prior probability for an existing class.')
-        }
-        return(out)
-    })
-    probs <- t(probs)[match(singleCodes, uniCodes), ]
-    colnames(probs) <- network$universe$levels[[target]]
-    return(probs)
+    probs <- predict.grain(network, target, inputNodes, as.data.frame(evidenceSingle),'distribution')$pred[[target]]
+    probs[match(singleCodes, uniCodes), ]
 }
 
 #' @rdname queryNet
@@ -155,12 +141,6 @@ queryNetParallel <- function(network, target, evidence, inparallel=TRUE, ...){
         if(any(vals < 0 | vals > 1) | sum(vvals) > length(vvals)){
             stop('Impossible probability values have been set in the input network for node: ', nm)
         }
-        # if(any(vals == 0)){
-        #     wrong <- names(vals)[vals == 0]
-        #     if(any(evidence[ ,nm] == wrong)){
-        #         stop('Cannot have zero prior probability for an existing class in the spatial data, nor for a fixed evidence state.\n  Check state "', wrong, '" of node "', nm, '"')
-        #     }
-        # }
     }
 }
 

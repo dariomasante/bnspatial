@@ -56,13 +56,16 @@ bnspatial <- function(network, target, spatialData, lookup, msk=NULL, what=c("cl
     }
     xyMsk <- aoi(msk, xy=TRUE)
     
-    #	## Remove spatial data that was set as evidence in the ellipsis (...) or is the target (currently done by queryNet, but rather inefficient)
-    #	if(length(list(...)) > 0){
-    #	ls() 
-    #		if(ls()... %in% names(spatialDataList)){
-    #			spatialDataList = spatialDataList[-which(... %in% names(spatialDataList))]
-    #		}
-    #	}
+    ## Remove spatial data that was set as evidence in the ellipsis (...) or is the target (currently done by queryNet, but rather inefficient)
+    if(length(list(...)) > 0){
+        l <- list(...)
+        rnm <- names(l)
+        itsct <- intersect(names(spatialDataList), rnm)
+        sapply(itsct, function(x){
+            .checkStates(l[[x]], network$universe$levels[[x]], node=x)
+        })
+        spatialDataList <- spatialDataList[!names(spatialDataList) %in% itsct]
+    }
     
     ## Extract data from locations, discretize and query Bayesian network
     if(inparallel != FALSE){ ## Leave != FALSE to avoid confusion between '== 1' and '== TRUE'

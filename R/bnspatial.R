@@ -48,6 +48,10 @@ bnspatial <- function(network, target, spatialData, lookup, msk=NULL, what=c("cl
     spatialDataList <- linkMultiple(spatialData=spatialData, network=network, 
                                     lookup=lookup, verbose=verbose)
     
+    ## Remove spatial data that was set as evidence in the ellipsis (...) or is the target
+    spatialDataList <- .removeEllipsis(spatialDataList, network, target, ...)
+    lookup <- lapply(spatialDataList, function(x) x[!names(x) %in% "SpatialData"])
+    
     ## Load or create mask
     if(is.null(msk)){
         msk <- aoi( lapply(spatialDataList,'[[',4) ) 
@@ -55,17 +59,6 @@ bnspatial <- function(network, target, spatialData, lookup, msk=NULL, what=c("cl
         msk <- aoi(msk)
     }
     xyMsk <- aoi(msk, xy=TRUE)
-    
-    ## Remove spatial data that was set as evidence in the ellipsis (...) or is the target (currently done by queryNet, but rather inefficient)
-    if(length(list(...)) > 0){
-        l <- list(...)
-        rnm <- names(l)
-        itsct <- intersect(names(spatialDataList), rnm)
-        sapply(itsct, function(x){
-            .checkStates(l[[x]], network$universe$levels[[x]], node=x)
-        })
-        spatialDataList <- spatialDataList[!names(spatialDataList) %in% itsct]
-    }
     
     ## Extract data from locations, discretize and query Bayesian network
     if(inparallel != FALSE){ ## Leave != FALSE to avoid confusion between '== 1' and '== TRUE'
@@ -103,4 +96,18 @@ bnspatial <- function(network, target, spatialData, lookup, msk=NULL, what=c("cl
     } else {
         stop('Check "lookup": must be a text file or a formatted list as output from "setClasses" and "importClasses" functions')
     }
+}
+
+##
+.removeEllipsis <- function(spdl, network, target, ...){
+    if(length(list(...)) > 0){
+        l <- list(...)
+        rnm <- c(names(l), target)
+        itsct <- intersect(names(spdl), rnm)
+        sapply(itsct, function(x){
+            .checkStates(l[[x]], network$universe$levels[[x]], node=x)
+        })
+        spdl <- spdl[!names(spdl) %in% itsct]
+    }
+    return(spdl)
 }

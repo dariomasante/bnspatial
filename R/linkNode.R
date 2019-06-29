@@ -216,7 +216,7 @@ linkMultiple <- function(spatialData, network, lookup, field=NULL, verbose=TRUE)
     }
 }
 ####
-.loadSpatial <- function(item, field=NULL, checkfld=TRUE){ # TODO This should avoid loading the shape if field is missing
+.loadSpatial <- function(item, field=NULL, checkfld=TRUE){
     ck <- c('SpatialPolygonsDataFrame','SpatialPointsDataFrame','sf','sfc') # vector objects
     stopstring <- paste('"field" argument missing. Using vectorial data (e.g. shapefiles) one field/column',
     'for each corresponding node must be specified from the attribute table of the vector object.')

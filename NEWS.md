@@ -2,9 +2,10 @@ bnspatial v1.1 (Release date: ...........................)
 -----------------------------------------------
 CHANGES:
 
-* Vectorial spatial data now allowed from packages sf and sp (all functions handling spatial objects changed accordingly, as well as help)
+* Vectorial spatial data now allowed from packages sf and sp (all functions changed accordingly)
 * Removed some redundancy in internal code, plus some cosmetics and minor edits in flow control, thanks to new hidden internal functions
 * Added a shapefile to the example dataset, and changed some features in example rasters
+* Slight performance improvements
 [TODO] Updated vignette to include example with vectorial data
 
 

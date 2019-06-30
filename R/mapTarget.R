@@ -80,7 +80,7 @@ mapTarget <- function(target, statesProb, what=c("class", "entropy"), msk, midva
     if('RasterLayer' %in% class(msk)){
         .mapRaster(target, statesProb, what, msk, midvals, targetState, spatial, exportRaster, path)
     } else if('sf' %in% class(msk)){
-        .mapVector(target, statesProb, what, msk, midvals, targetState, spatial, exportRaster, path)
+        .mapVector(tab, target, msk, spatial, exportRaster, path)
     } else {
         stop('Please provide a valid "msk" argument (an object of class "RasterLayer" or "sf").')
     }
@@ -131,7 +131,7 @@ mapTarget <- function(target, statesProb, what=c("class", "entropy"), msk, midva
     }
 }
 ####
-.mapRaster <- function(target, statesProb, what, msk, midvals, targetState, spatial, exportRaster, path){
+.mapRaster <- function(whatDf, target, what, msk, spatial, exportRaster, path){
     if(exportRaster){
         rFormat <- '.tif'
     } 
@@ -157,11 +157,11 @@ mapTarget <- function(target, statesProb, what=c("class", "entropy"), msk, midva
             keyLegend <- data.frame(colnames(statesProb), seq_along(colnames(statesProb)))
             names(keyLegend) <- c(target, 'cell_ID')
             if(exportRaster){
-                .writeOutputMaps(msk, paste(path, '/', target, '_Class', rFormat, sep=''), 'INT2S')
-                utils::write.csv(keyLegend, paste(path, target, '_ClassKey.csv', sep=''), row.names = FALSE)
+                .writeOutputMaps(msk, paste0(path, '/', target, '_Class', rFormat), 'INT2S')
+                utils::write.csv(keyLegend, paste0(path, target, '_ClassKey.csv'), row.names = FALSE)
             } else {
-                writeLines(paste('Lookup table to interpret "', target, '" values:', sep=''))
-                print(keyLegend)
+                writeLines(paste0('Lookup table to interpret "', target, '" values:'))
+                cat(keyLegend)
             }
             Class <- msk
         }
@@ -178,7 +178,7 @@ mapTarget <- function(target, statesProb, what=c("class", "entropy"), msk, midva
                 if(spatial){ 
                     msk[msk_cells_ID] <- Variation
                     if(exportRaster){
-                        .writeOutputMaps(msk, paste(path, '/', target, '_CoeffVariation', rFormat, sep=''), 'FLT4S')
+                        .writeOutputMaps(msk, paste0(path, '/', target, '_CoeffVariation', rFormat), 'FLT4S')
                     } else {
                         Variation <- msk
                     }
@@ -189,7 +189,7 @@ mapTarget <- function(target, statesProb, what=c("class", "entropy"), msk, midva
                 if(spatial){ 
                     msk[msk_cells_ID] <- Expected
                     if(exportRaster){
-                        raster::writeRaster(Expected, paste(path, '/', target, '_ExpectedValue', rFormat, sep=''), 
+                        raster::writeRaster(Expected, paste0(path, '/', target, '_ExpectedValue', rFormat), 
                                             datatype='FLT4S', overwrite=TRUE)
                     } else{
                         Expected <- msk
@@ -205,7 +205,7 @@ mapTarget <- function(target, statesProb, what=c("class", "entropy"), msk, midva
             msk[msk_cells_ID] <- Entropy
             Entropy <- msk
             if(exportRaster){
-                raster::writeRaster(Entropy, paste(path, '/', target, '_ShanEntropy', rFormat, sep=''), 
+                raster::writeRaster(Entropy, paste0(path, '/', target, '_ShanEntropy', rFormat), 
                                     datatype='FLT4S', overwrite=TRUE)
             }
         }
@@ -223,8 +223,8 @@ mapTarget <- function(target, statesProb, what=c("class", "entropy"), msk, midva
         whatList$Probability <- Probability
         if(spatial & exportRaster){
             lapply(seq_along(Probability), function(x) {
-                raster::writeRaster(Probability[[x]], paste(path, '/', target, '_Probability_', 
-                                                            targetState[x], rFormat, sep=''), 
+                raster::writeRaster(Probability[[x]], paste0(path, '/', target, '_Probability_', 
+                                                            targetState[x], rFormat), 
                                     datatype='FLT4S', overwrite=TRUE)
             })
         }
@@ -237,17 +237,54 @@ mapTarget <- function(target, statesProb, what=c("class", "entropy"), msk, midva
 }
 
 ####
+.mapTab <- function(statesProb, what, midvals, targetState){
+    whatList <- list()
+    if('class' %in% what){
+        Class <- .classValue(statesProb)
+        whatList$Class <- Class
+    }
+    if('expected' %in% what | 'variation' %in% what){
+        if(is.null(midvals)){
+            warning('Could not calculate the expected value (nor coefficient of variation) as either target ',
+                    'node seems to be categorical or mid-values for each states of target node were not provided.')
+        } else {
+            Expected <- .expectedValue(statesProb, midvals)
+            if('variation' %in% what){
+                Variation <- .variationValue(statesProb, Expected, midvals)
+                whatList$CoeffVariation <- Variation			
+            }
+            if('expected' %in% what){
+                whatList$ExpectedValue <- Expected
+            }
+        }
+    }
+    if('entropy' %in% what){
+        Entropy <- .entropyValue(statesProb)
+        whatList$Entropy <- Entropy
+    }	
+    if('probability' %in% what){
+        Probability <- .probabilityValue(statesProb, targetState)
+        names(Probability) <- targetState
+        whatList$Probability <- Probability
+    }
+    return(as.data.frame(whatList))    
+}
+####
 .mapVector <- function(target, statesProb, what, msk, midvals, targetState, spatial, exportRaster, path){
+    tab <- .mapTab(statesProb, what, midvals, targetState)
     if(exportRaster){
         rFormat <- "ESRI Shapefile" 
     } 
     if (is.character(exportRaster)){
         rFormat <- exportRaster
-    }# rgdal::writeOGR(r, dsn=getwd(), layer=fname, driver=rFormat)
-    if(spatial == TRUE | spatial == FALSE){# TODO cut with polygon in any case?
-        # msk_cells_ID <- msk
-        # msk_cells_ID[] <- seq_along(msk_cells_ID)
-        # msk_cells_ID <- raster::getValues(msk_cells_ID)[is.finite(raster::getValues(msk))]
-        # msk[] <- NA
     }
+    if(spatial){
+        tab <- cbind(msk, tab) 
+        if(exportRaster) {
+            # TODO rgdal::writeOGR(tab, dsn=paste0(path, '/', target, rFormat), driver=rFormat)
+        }
+    } else {
+        tab <- as.data.frame(tab)[, -which(names(conwy)=='geometry')]
+    }
+    return(tab)
 }

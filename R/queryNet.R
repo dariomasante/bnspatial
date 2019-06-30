@@ -72,7 +72,8 @@ queryNet <- function(network, target, evidence, ...){
     uniCodes <- unique(singleCodes)
     # Query the network only once for each combination
     evidenceSingle <- as.matrix(evidence[match(uniCodes, singleCodes), ])
-    probs <- predict.grain(network, target, inputNodes, as.data.frame(evidenceSingle),'distribution')$pred[[target]]
+    probs <- predict.grain(network, target, inputNodes, 
+                           as.data.frame(evidenceSingle),'distribution')$pred[[target]]
     probs[match(singleCodes, uniCodes), ]
 }
 

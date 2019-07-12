@@ -68,7 +68,7 @@ linkNode <- function(layer, network, node, intervals, categorical=NULL, field=NU
         stop('"intervals" must be sorted from lowest to highest.')
     }
     layer <- .loadSpatial(layer, field)
-    nm <- names(layer)[1] # add [1] to remove 'geometry' print with vectorial data
+    nm <- setdiff(colnames(layer), 'geometry') 
     if(categorical) {
         if('RasterLayer' %in% class(layer)){
             uni <- raster::unique(layer)
@@ -141,27 +141,53 @@ linkNode <- function(layer, network, node, intervals, categorical=NULL, field=NU
 #' @export
 linkMultiple <- function(spatialData, network, lookup, field=NULL, verbose=TRUE){
     lookup <- .loadLookup(lookup)
-    if(length(spatialData) != length(lookup)){ 
-        if(is.null(field) | length(field) != length(lookup)) {
-            stop('Spatial data do not match the number of nodes provided in the look up list.\n',
-                 'Argument "spatialData" may be a vector of file names, a list of "RasterLayer", ',
-                 'or one object of class "sf" or "SpatialPolygonsDataFrame.\n', 
-                 'For vectorial data (e.g. shapefile) you must provide a single object, ',
-                 'plus "field" argument.')
-        }
-    }
-    network <- loadNetwork(network=network)
-    if(length(spatialData) == 1 & !'RasterLayer' %in% class(spatialData)){
-        spatialData <- lapply(field, function(x){
-            .loadSpatial(spatialData, x)
-        })
+    # test
+    if(is.character(spatialData)){
+        spatialData <- .loadSpatial(spatialData, field)
     }
     if('sf' %in% class(spatialData)){
-        str <- spatialData
-        spatialData <- lapply(field, function(x){
-            .loadSpatial(str[x], x)
-        })
+        nms <- names(lookup)
+        lookup$SpatialData <- spatialData[ ,field]
+        names(lookup$SpatialData) <- c(nms, 'geometry')
+        return(lookup)
     }
+    ## changed
+    # if('RasterLayer' %in% class(spatialData[[1]])){
+    #     if((is.list(spatialData) & length(spatialData) != length(lookup)) | (!is.list(spatialData) & length(lookup) > 1)){
+    #         stop('Raster provided as input spatialData do not match the number of nodes listed in the look up list.\n')
+    #     }
+    # }
+    # if(length(spatialData) == 1 & !'RasterLayer' %in% class(spatialData)){
+    #     spatialData <- lapply(field, function(x){
+    #         .loadSpatial(spatialData, x)
+    #     })
+    # }
+    # if('sf' %in% class(spatialData)){
+    #     str <- spatialData
+    #     spatialData <- lapply(field, function(x){
+    #         .loadSpatial(str[x], x)
+    #     })
+    # }
+    ## original
+    # if(length(spatialData) != length(lookup)){
+    #     if(is.null(field) | length(field) != length(lookup)) {
+    #         stop('Spatial data do not match the number of nodes listed in the look up list.\n',
+    #              'Argument "spatialData" may be a vector of file paths to raster files, or a list of "RasterLayer", ',
+    #              'or a path to a single spatial vector file (e.g. shapefile), or one single object of class "sf" or "SpatialPolygonsDataFrame.\n',
+    #              'For vectorial data (e.g. shapefile) you must provide the "field" argument, sorted according to the look up list.')
+    #     }
+    # }
+    # if(length(spatialData) == 1 & !'RasterLayer' %in% class(spatialData)){
+    #     spatialData <- lapply(field, function(x){
+    #         .loadSpatial(spatialData, x)
+    #     })
+    # }
+    # if('sf' %in% class(spatialData)){
+    #     str <- spatialData
+    #     spatialData <- lapply(field, function(x){
+    #         .loadSpatial(str[x], x)
+    #     })
+    # }
     # Check correspondence of node and states names between lookup list and network
     # then iterate through the nodes and append to summary list
     lst <- list()
@@ -172,6 +198,7 @@ linkMultiple <- function(spatialData, network, lookup, field=NULL, verbose=TRUE)
     if(all(namedVars > 0)){
         message('Node names and names from spatial data fully correspond, so they will be matched accordingly.')
     }
+    network <- loadNetwork(network)
     for(nm in names(lookup)){
         .checkStates(lookup[[nm]]$States, network$universe$levels[[nm]], nm)
         Categorical <- lookup[[nm]]$Categorical
@@ -219,7 +246,7 @@ linkMultiple <- function(spatialData, network, lookup, field=NULL, verbose=TRUE)
 .loadSpatial <- function(item, field=NULL, checkfld=TRUE){
     ck <- c('SpatialPolygonsDataFrame','SpatialPointsDataFrame','sf','sfc') # vector objects
     stopstring <- paste('"field" argument missing. Using vectorial data (e.g. shapefiles) one field/column',
-    'for each corresponding node must be specified from the attribute table of the vector object.')
+    'from the attribute table must be specified for each corresponding node, sorted.')
     if(!checkfld) field <- 1 # this is for "aoi" function
     if(any(ck %in% class(item))){
         if(checkfld){
@@ -247,12 +274,13 @@ linkMultiple <- function(spatialData, network, lookup, field=NULL, verbose=TRUE)
             if(length(item) != 1) stop('For vectorial spatial data, a single data object is required, with all the necessary attributes.')
             if(checkfld & is.null(field)) stop(stopstring)
             p <- sf::st_read(item, quiet = TRUE, fid_column_name='FID')
-            tc <- lapply(field, function(f) { p[f] })
+            tc <- p[field] # tc <- lapply(field, function(f) { p[f] })
         }
         if(length(tc) == 1) { tc <- tc[[1]] }
         return(tc)
     } else {
-        stop('Input spatial data do not correspond to any allowed object classes. Please check function help')
+        stop('Input spatial data do not correspond to any allowed object classes (character, sf, RasterLayer, ',
+             'SpatialPolygonsDataFrame, SpatialPointsDataFrame). Please check function help.')
     }
     return(item) 
 }

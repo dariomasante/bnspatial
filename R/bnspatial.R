@@ -38,7 +38,7 @@
 #' @export
 bnspatial <- function(network, target, spatialData, lookup, msk=NULL, what=c("class", "entropy"), 
                       midvals=NULL, targetState=NULL, spatial=TRUE, inparallel=FALSE, 
-                      exportRaster=FALSE, path=NULL, field=NULL, verbose=TRUE, ...){
+                      export=FALSE, path=NULL, field=NULL, verbose=TRUE, ..., exportRaster=FALSE){
     network <- loadNetwork(network, target)
     
     ## Load table with class boundaries, if available (otherwise make a list with node name and associated vector of class boundaries)
@@ -73,8 +73,8 @@ bnspatial <- function(network, target, spatialData, lookup, msk=NULL, what=c("cl
         tab <- matrix(nrow=nrow(xyMsk), ncol=length(spatialDataList))
         colnames(tab) <- names(spatialDataList)
         for(nm in colnames(tab)) {
-            rst <- spatialDataList[[nm]]$SpatialData
-            ex <- extractByMask(rst, msk=xyMsk)
+            layer <- spatialDataList[[nm]]$SpatialData
+            ex <- extractByMask(layer, msk=xyMsk)
             if(spatialDataList[[nm]]$Categorical == TRUE){
                 tab[, nm] <- spatialDataList[[nm]]$States[match(ex, spatialDataList[[nm]]$ClassBoundaries)]
             } else {
@@ -84,7 +84,7 @@ bnspatial <- function(network, target, spatialData, lookup, msk=NULL, what=c("cl
         probs <- queryNet(network=network, target=target, evidence=tab, ...)
     }
     mapTarget(target=target, statesProb=probs, what=what, msk=msk, midvals=midvals, 
-              spatial=spatial, targetState=targetState, exportRaster=exportRaster, path=path)
+              spatial=spatial, targetState=targetState, export=exportRaster, path=path)
 }
 
 ##

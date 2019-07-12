@@ -20,7 +20,7 @@
 #' library(raster)
 #' plot( extractByMask(ConwySlope, msk=m, spatial=TRUE) )
 #' @export
-extractByMask <- function(layer, msk, spatial=FALSE, rast=layer){
+extractByMask <- function(layer, msk, spatial=FALSE, rast=NULL){
     if (!missing('rast')) {
         warning('argument "rast" is deprecated; please use "layer" instead.', call. = FALSE)
         layer <- rast
@@ -49,7 +49,7 @@ extractByMask <- function(layer, msk, spatial=FALSE, rast=layer){
         xy <- raster::xyFromCell(msk, id)
         cells <- raster::cellFromXY(rast, xy[, 1:2])
     }
-    vals <- raster::getValues(layer)[lst$cells]
+    vals <- raster::getValues(rast)[cells]
     if(spatial == TRUE){
         msk[id] <- vals
         return(msk)
@@ -65,7 +65,7 @@ extractByMask <- function(layer, msk, spatial=FALSE, rast=layer){
         vct <- sf::st_intersection(vct, msk)
     }
     if(spatial != TRUE){
-        vct <- as.data.frame(vct)[ ,-grep('geometry', names(vct))]
+        vct <- as.data.frame(vct)[ ,setdiff(colnames(vct), 'geometry')]
     }
     return(vct)
 }

@@ -11,17 +11,19 @@ library(testthat)
 data(ConwyData)
 list2env(ConwyData, environment())
 network <- LandUseChange
-spatialData <- c(ConwyLU, ConwySlope, ConwyStatus)
 lookup <- LUclasses
+spatialData <- c(ConwyLU, ConwySlope, ConwyStatus)
+Conwy = sf::st_read(system.file("extdata", "Conwy.shp", package = "bnspatial"))
+spatialData <- Conwy
 
 # GOOD
-bnspatial(network, 'FinalLULC', spatialData, lookup, what='probability')
+bnspatial(network, 'FinalLULC', spatialData, lookup, what='probability', field=c('LU','Slope','Status'))
 bnspatial(network, 'FinalLULC', spatialData, lookup, what=c('probability','entropy','class','expected'), msk=ConwySlope)
-bnspatial(network, 'FinalLULC', spatialData, lookup, what=c('probability','entropy','class','expected'), msk=ConwySlope, spatial=FALSE)
-bnspatial(network, 'FinalLULC', spatialData, lookup, what=c('probability','entropy','class','expected'), msk=ConwySlope, spatial=FALSE, inparallel=TRUE)
-bnspatial(network, 'FinalLULC', spatialData, lookup, what=c('probability','entropy','class','expected'), msk=ConwySlope, inparallel=TRUE)
+head(bnspatial(network, 'FinalLULC', spatialData, lookup, what=c('probability','entropy','class','expected'), msk=ConwySlope, spatial=FALSE) )
+head(bnspatial(network, 'FinalLULC', spatialData, lookup, what=c('probability','entropy','class','expected'), msk=ConwySlope, spatial=FALSE, inparallel=TRUE) )
+!!bnspatial(network, 'FinalLULC', spatialData, lookup, what=c('probability','entropy','class','expected'), msk=ConwySlope, inparallel=TRUE)
 bnspatial(network, 'FinalLULC', spatialData, lookup, what=c('probability','entropy','variation','class','expected'), msk=list(ConwySlope,ConwyLU), inparallel=TRUE)
-bnspatial(network, 'CarbonStorage', spatialData, lookup, what=c('probability','variation','entropy','class','expected'), msk=list(ConwySlope,ConwyLU))
+bnspatial(network, 'CarbonStock', spatialData, lookup, what=c('probability','variation','entropy','class','expected'), msk=list(ConwySlope,ConwyLU))
 bnspatial(network, 'CarbonStock', spatialData, lookup, what=c('probability','entropy','class','expected'), msk=list(ConwySlope,ConwyLU))
 bnspatial(network, 'Scenarios', spatialData, lookup, what=c('probability','entropy','class','expected'), msk=list(ConwySlope,ConwyLU))
 bnspatial(network, 'Scenarios', spatialData, lookup, what=c('probability','variation','entropy','class','expected'), msk=list(ConwySlope,ConwyLU))
@@ -36,6 +38,9 @@ bnspatial(network, 'CarbonStock', spatialData, lookup, what=c('probability','var
 ####
 ## extractByMask ----
 # % FIX CHECK FOR MISSING NA
+m <- aoi(msk=ConwyLU, mskSub=c(2,3))
+head(extractByMask(ConwySlope, msk=m), 20)
+plot(extractByMask(ConwySlope, msk=m, spatial=TRUE))
  
 ####
 ## queryNet ----
@@ -148,21 +153,29 @@ linkNode(system.file("extdata", "ConwySlope.tif", package = "bnspatial"), networ
 linkNode(system.file("extdata", "Conwy.shp", package = "bnspatial"), network, field='LU', node='CurrentLULC', intervals=c(2, 3, 1))
 linkNode(Conwy, network, field='LU', node='CurrentLULC', intervals=c(2, 3, 1))
 
-linkMultiple(c(ConwyLU,ConwySlope,ConwyStatus), network, LUclasses)
-linkMultiple(c(system.file("extdata", "ConwySlope.tif", package = "bnspatial"),
+linkMultiple(c(ConwyLU,ConwySlope,ConwyStatus), network, LUclasses) # list of rasters
+linkMultiple(ConwyLU, network, LUclasses[1]) # single raster
+linkMultiple(c(system.file("extdata", "ConwySlope.tif", package = "bnspatial"), # vector of raster path files 
                system.file("extdata", "ConwyLU.tif", package = "bnspatial")), network, LUclasses[c(2,1)])
+!! linkMultiple( system.file("extdata", "ConwyLU.tif", package = "bnspatial"), network, LUclasses[1]) # single path to raster file
 linkMultiple(c(ConwyLU,ConwySlope,ConwyStatus), network, LUclasses, field=c('LU','Slope','Status')) # ignores field arg
-linkMultiple(Conwy, network, LUclasses[1], field='LU') 
 
-linkMultiple(system.file("extdata", "Conwy.shp", package = "bnspatial"), network, LUclasses, field=c('LU','Slope','Status'))
-linkMultiple(Conwy, network, LUclasses, field=c('LU','Slope','Status'))
+linkMultiple(system.file("extdata", "Conwy.shp", package = "bnspatial"), network, LUclasses, field=c('LU','Slope','Status')) # path to vect file
+linkMultiple(Conwy, network, LUclasses[1], field='LU') # single layer sf
+linkMultiple(Conwy, network, LUclasses, field=c('LU','Slope','Status')) # multi layer sf
 
 ## Bad
 linkNode(system.file("extdata", "Conwy.shp", package = "bnspatial"), network, node='CurrentLULC', intervals=c(2, 3, 1))
 linkNode(layer=ConwySlope, network, node='Slope', intervals=c('-Inf', 2, 7), categorical=FALSE)
-linkNode(system.file("extdata", "Conwy.shp", package = "bnspatial"), network, field='Slope', node='Slope', c('-Inf', 1, 7, 'Inf')) # must break continuous not allowed in vectorial
+!! linkNode(system.file("extdata", "Conwy.shp", package = "bnspatial"), network, field='Slope', node='Slope', c('-Inf', 1, 7, 'Inf')) # must break continuous not allowed in vectorial
 linkNode(Conwy, network, node='CurrentLULC', field=c('LU','Slope'), intervals=c(2, 3, 1)) # not allowed more than 1 field
-# add more casesk
+
+linkMultiple(c(ConwyLU,ConwySlope,ConwyStatus), network, LUclasses[-1]) # list of rasters
+linkMultiple(ConwyLU, network, LUclasses) # single raster
+!! linkMultiple(c(system.file("extdata", "ConwySlope.tif", package = "bnspatial"), # vector of raster path files 
+               system.file("extdata", "ConwyLU.tif", package = "bnspatial")), network, LUclasses[1])
+linkMultiple( system.file("extdata", "ConwyLU.tif", package = "bnspatial"), network, LUclasses) # single path to raster file
+linkMultiple(system.file("extdata", "Conwy.shp", package = "bnspatial"), network, LUclasses, field=c('Slope','Status')) # path to vect file
 
 ####
 ## dataDiscretize ----

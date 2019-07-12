@@ -153,8 +153,8 @@ bulkDiscretize <- function(formattedLst, xy, inparallel=FALSE){
     inparallel <- .inParallel(inparallel)
     if(inparallel == 1){
         lst <- lapply(names(formattedLst), function(x){
-            rst <- formattedLst[[x]]$Raster
-            ex <- extractByMask(rast=rst, msk=xy)
+            layer <- formattedLst[[x]]$SpatialData
+            ex <- extractByMask(layer, msk=xy)
             if(formattedLst[[x]]$Categorical == TRUE){
                 formattedLst[[x]]$States[match(ex, formattedLst[[x]]$ClassBoundaries)]
             } else {
@@ -168,13 +168,12 @@ bulkDiscretize <- function(formattedLst, xy, inparallel=FALSE){
             clst <- parallel::makeCluster(inparallel)
             doParallel::registerDoParallel(clst)
         }
-        i <- NULL # To remove NOTE from R package release check 
-        #df <- foreach::foreach(i = seq_along(splittedData), .combine=rbind, .packages="raster") %dopar% {
+        i <- NULL # Trick to remove NOTE from R package release check 
         o <- foreach::foreach(i = seq_along(splittedData), .combine=rbind, .packages="raster")
         df <- foreach::"%dopar%"(o, {
             lst <- lapply(names(formattedLst), function(x){
-                rst <- formattedLst[[x]]$Raster
-                ex <- extractByMask(rast=rst, msk=as.matrix(splittedData[[i]]))
+                layer <- formattedLst[[x]]$SpatialData
+                ex <- extractByMask(layer, msk=as.matrix(splittedData[[i]]))
                 if(formattedLst[[x]]$Categorical == TRUE){
                     formattedLst[[x]]$States[match(ex, formattedLst[[x]]$ClassBoundaries)]
                 } else {

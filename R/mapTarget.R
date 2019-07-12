@@ -296,7 +296,7 @@ mapTarget <- function(target, statesProb, what=c("class", "entropy"), msk, midva
         }
     } else {
         tab <- as.data.frame(tab)
-        tab <- tab[ ,-grep('geometry', names(tab))]
+        tab <- tab[ , setdiff(colnames(tab), 'geometry')]
     }
     return(tab)
 }

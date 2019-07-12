@@ -13,8 +13,9 @@ list2env(ConwyData, environment())
 network <- LandUseChange
 spatialData <- c(ConwyLU, ConwySlope, ConwyStatus)
 lookup <- LUclasses
+
+# GOOD
 bnspatial(network, 'FinalLULC', spatialData, lookup, what='probability')
-bnspatial(network,  spatialData, lookup, what='probability', msk=ConwySlope)
 bnspatial(network, 'FinalLULC', spatialData, lookup, what=c('probability','entropy','class','expected'), msk=ConwySlope)
 bnspatial(network, 'FinalLULC', spatialData, lookup, what=c('probability','entropy','class','expected'), msk=ConwySlope, spatial=FALSE)
 bnspatial(network, 'FinalLULC', spatialData, lookup, what=c('probability','entropy','class','expected'), msk=ConwySlope, spatial=FALSE, inparallel=TRUE)
@@ -25,10 +26,12 @@ bnspatial(network, 'CarbonStock', spatialData, lookup, what=c('probability','ent
 bnspatial(network, 'Scenarios', spatialData, lookup, what=c('probability','entropy','class','expected'), msk=list(ConwySlope,ConwyLU))
 bnspatial(network, 'Scenarios', spatialData, lookup, what=c('probability','variation','entropy','class','expected'), msk=list(ConwySlope,ConwyLU))
 bnspatial(network, 'CarbonStock', spatialData, lookup, what=c('probability','variation','entropy','class','expected'), msk=list(ConwySlope,ConwyLU))
-bnspatial(network, 'CarbonStock', spatialData, lookup, what=c('probability','variation','entropy','class','expected'), msk=list(ConwySlope,ConwyLU), midvals = c(0,1,4,20))
 bnspatial(network, 'CarbonStock', spatialData, lookup, what=c('probability','variation','entropy','class','expected'), msk=list(ConwySlope,ConwyLU), midvals = c(0,1,4))
 bnspatial(network, 'CarbonStock', spatialData, lookup, what=c('probability','variation','entropy','class','expected'), msk=list(ConwySlope,ConwyLU), midvals = c(0,1,4), Scenarios='intensification')
 
+# BAD
+bnspatial(network,  target=NA, spatialData, lookup, what='probability', msk=ConwySlope)
+bnspatial(network, 'CarbonStock', spatialData, lookup, what=c('probability','variation','entropy','class','expected'), msk=list(ConwySlope,ConwyLU), midvals = c(0,1,4,20))
 
 ####
 ## extractByMask ----
@@ -59,28 +62,47 @@ head(queryNet(network, 'FinalLULC', evidence, Stakeholders = 'farmers', Scrios='
 # % ADD UTILITY VALUE
 # % ADD AN EXAMPLE USING MIDVALUES
 # % ADD Output algoritms now hidden (e.g. expected value) to exportable functions
-data(ConwyData)
+data("ConwyData")
 network <- LandUseChange
 target <- 'FinalLULC'
 statesProb <- queryNet(network, target, evidence)
+list2env(ConwyData, environment())
+Conwy = sf::st_read(system.file("extdata", "Conwy.shp", package = "bnspatial"))
 
 ## Good
 mapTarget(target, statesProb, msk=ConwyLU)
 mapTarget(target, statesProb, msk=ConwyLU, what = c("class", "entropy", "probability"))
-mapTarget(target, statesProb, msk=ConwyLU, what = c("class", "entropy", "probability"))
+mapTarget(target, statesProb, msk=ConwyLU, what = c("class", "entropy", "probability"), targetState='other')
 head(mapTarget(target, statesProb, msk=ConwyLU, spatial=FALSE))
 mapTarget(target, statesProb, msk=ConwyLU, what = c("clss", "entropy"))
 mp <- mapTarget('FinalLULC', statesProb, what='probability', targetState='forest', msk=ConwyLU); plot(mp$Probability$forest)
-mp <- mapTarget('FinalLULC', statesProb, targetState='forest', msk=ConwyLU); plot(mp$Probability$forest)
+mp <- mapTarget('FinalLULC', statesProb, targetState='forest'); plot(mp$Probability$forest)
 mapTarget('FinalLULC', statesProb, what='probability', targetState=c('forest','other'), msk=ConwyLU)
-s = statesProb[,1:2]; mapTarget('FinalLULC', s, targetState='forest', msk=ConwyLU)
+s = statesProb[,1:2]; mapTarget('FinalLULC', s, what='probability', targetState='forest', msk=ConwyLU)
+mapTarget('FinalLULC', statesProb, targetState='forest', msk=ConwyLU)
+mapTarget('FinalLULC', statesProb, what=c("class", "entropy", "probability",'variation','expected'),midvals=c(0,1,4), colnames(statesProb))
+#
+spatialDataList <- linkMultiple(Conwy, network, lookup, names(Conwy)[c(2,3,1)])
+xyMsk <- aoi(Conwy, xy=TRUE)
+tab <- matrix(nrow=ifelse(is.matrix(xyMsk), nrow(xyMsk), length(xyMsk)), ncol=length(spatialDataList))
+colnames(tab) <- names(spatialDataList)
+for(nm in colnames(tab)) {
+    rst <- spatialDataList[[nm]]$SpatialData
+    ex <- extractByMask(rst, msk=xyMsk)
+    if(spatialDataList[[nm]]$Categorical == TRUE){
+        tab[, nm] <- spatialDataList[[nm]]$States[match(ex, spatialDataList[[nm]]$ClassBoundaries)]
+    } else {
+        tab[, nm] <- dataDiscretize(ex, spatialDataList[[nm]]$ClassBoundaries, spatialDataList[[nm]]$States)[[1]]
+    }
+}
+statesProb <- queryNet(network, target, tab)
+mapTarget(target, statesProb, msk=Conwy)
 
 ## Bad
 mp <- mapTarget('FinalLULC', statesProb, what='pbabity', targetState='forest', msk=ConwyLU); plot(mp$Probability$forest)
 mp <- mapTarget('FinalLULC', statesProb, what='probability', targetState='fest', msk=ConwyLU); plot(mp$Probability$forest)
-mapTarget('FinalLULC', statesProb, targetState=c('forest','xy'), msk=ConwyLU)
+mapTarget('FinalLULC', statesProb, what='probability', targetState=c('forest','xy'), msk=ConwyLU)
 s = statesProb[,1:2]; plot(mapTarget('FinalLULC', s, msk=ConwyLU))
-mapTarget(target, statesProb, msk=ConwyLU)
 
 mapTarget(target, statesProb, what = c("class", "entropy"), msk,
           midvals = NULL, targetState = colnames(statesProb), spatial = TRUE,

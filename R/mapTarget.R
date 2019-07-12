@@ -23,9 +23,9 @@
 #' @param spatial logical. Should the output be spatially explicit -i.e. a georeferenced raster? 
 #' Default is TRUE, returning an object of class "RasterLayer". If FALSE, returns a data.frame 
 #' with one row for each non NA cell in \code{msk} raster and in columns the output required by \code{mask} argument.
-#' @param exportRaster Logical or character. Should the spatial output be exported to a raster file? 
-#' Applies only if argument \code{spatial=TRUE}. When \code{exportRaster=TRUE}, rasters will be 
-#' exported in .tif format. A character specifying another extension can be provided, in which case the 
+#' @param exportRaster Logical or character. Should the spatial output be exported to file? 
+#' Applies only if argument \code{spatial=TRUE}. When \code{exportRaster=TRUE}, output will be 
+#' exported in .tif (raster) or .shp (vector) format. For rasters, a character specifying another extension can be provided, in which case the 
 #' raster will be exported in that format. Only formats listed by \link[raster]{writeFormats} are valid. 
 #' @param path The directory to store the output files, when \code{exportRaster} is not FALSE. 
 #' Default is the working directory (\code{getwd()}). File names are set by a default naming convention, see Details.
@@ -70,17 +70,25 @@
 #' 
 #' @export
 mapTarget <- function(target, statesProb, what=c("class", "entropy"), msk, midvals=NULL,
-                      targetState=NULL, spatial=TRUE, exportRaster=FALSE, path=getwd()){
+                      targetState=NULL, spatial=TRUE, export=FALSE, path=getwd(), exportRaster=export){
+    what <- match.arg(what, c("class", "entropy", "probability", "expected", "variation"), several.ok=TRUE)
+    if (!missing('exportRaster')) {
+        warning('argument "exportRaster" is deprecated; please use "export" instead.', call. = FALSE)
+        export <- exportRaster
+    }
     if(is.null(targetState)){
         targetState <- colnames(statesProb)
     } else {
-        .checkStates(targetState, colnames(statesProb))
+        if("probability" %in% what){
+            .checkStates(targetState, colnames(statesProb))
+        } else {
+            warning('Argument "targetState" will be ignored, as only useful when "probability" is required by "what" argument.')
+        }
     }
-    what <- match.arg(what, c("class", "entropy", "probability", "expected", "variation"), several.ok=TRUE)
     if('RasterLayer' %in% class(msk)){
-        .mapRaster(target, statesProb, what, msk, midvals, targetState, spatial, exportRaster, path)
+        return( .mapRaster(target, statesProb, what, msk, midvals, targetState, spatial, export, path) )
     } else if('sf' %in% class(msk)){
-        .mapVector(tab, target, msk, spatial, exportRaster, path)
+        return( .mapVector(target, statesProb, what, msk, midvals, targetState, spatial, export, path) )
     } else {
         stop('Please provide a valid "msk" argument (an object of class "RasterLayer" or "sf").')
     }
@@ -130,14 +138,16 @@ mapTarget <- function(target, statesProb, what=c("class", "entropy"), msk, midva
         out <- raster::writeStop(out)
     }
 }
-####
-.mapRaster <- function(whatDf, target, what, msk, spatial, exportRaster, path){
-    if(exportRaster){
+
+####           
+.mapRaster <- function(target, statesProb, what, msk, midvals, targetState, spatial, exportRaster, path){
+    if(exportRaster == TRUE){ # Leave like this, might be a character
         rFormat <- '.tif'
     } 
     if(is.character(exportRaster)){
         #match.arg(exportRaster, c('.asc','.sdat','.rst','.nc','.tif','.envi','.bil'))
         rFormat <- exportRaster
+        exportRaster <- TRUE
     }
     if(spatial){
         msk_cells_ID <- msk
@@ -161,7 +171,8 @@ mapTarget <- function(target, statesProb, what=c("class", "entropy"), msk, midva
                 utils::write.csv(keyLegend, paste0(path, target, '_ClassKey.csv'), row.names = FALSE)
             } else {
                 writeLines(paste0('Lookup table to interpret "', target, '" values:'))
-                cat(keyLegend)
+                message(paste0(capture.output(keyLegend), collapse = "\n"))
+                whatList$classLegend <- keyLegend
             }
             Class <- msk
         }
@@ -170,7 +181,7 @@ mapTarget <- function(target, statesProb, what=c("class", "entropy"), msk, midva
     if('expected' %in% what | 'variation' %in% what){
         if(is.null(midvals)){
             warning('Could not calculate the expected value (nor coefficient of variation) as either target ',
-                    ' node seems to be categorical or mid-values for each states of target node were not provided.')
+                    'node seems to be categorical or mid-values for each states of target node were not provided.')
         } else {
             Expected <- .expectedValue(statesProb, midvals)
             if('variation' %in% what){
@@ -269,22 +280,23 @@ mapTarget <- function(target, statesProb, what=c("class", "entropy"), msk, midva
     }
     return(as.data.frame(whatList))    
 }
+
 ####
-.mapVector <- function(target, statesProb, what, msk, midvals, targetState, spatial, exportRaster, path){
+.mapVector <- function(target, statesProb, what, msk, midvals, targetState, spatial, exportShape, path){
     tab <- .mapTab(statesProb, what, midvals, targetState)
-    if(exportRaster){
-        rFormat <- "ESRI Shapefile" 
-    } 
-    if (is.character(exportRaster)){
-        rFormat <- exportRaster
+    if(!is.logical(exportShape)){ # Leave like this, might be character
+        warning('Only ESRI shapefile are allowed as output format for vector data. "export" will be set to shapefile (.shp).')
+        exportShape <- TRUE
     }
+    rFormat <- "ESRI Shapefile" 
     if(spatial){
         tab <- cbind(msk, tab) 
-        if(exportRaster) {
-            # TODO rgdal::writeOGR(tab, dsn=paste0(path, '/', target, rFormat), driver=rFormat)
+        if(exportShape) {
+            rgdal::writeOGR(tab, dsn=paste0(path, '/', target, rFormat), driver=rFormat)
         }
     } else {
-        tab <- as.data.frame(tab)[, -which(names(conwy)=='geometry')]
+        tab <- as.data.frame(tab)
+        tab <- tab[ ,-grep('geometry', names(tab))]
     }
     return(tab)
 }

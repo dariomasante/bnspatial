@@ -120,11 +120,14 @@ aoi <- function(msk, mskSub=NULL, xy=FALSE, bbox=NULL){  ## Check if aoi and ext
 
 ##
 .aoiVector <- function(msk, xy=FALSE){ # use xy to return id?
+    if(!'FID' %in% names(msk)) {
+        # warning('No features ID found in attributes of "msk" (FID column); ', 
+        #         'a column named "FID" will be guessed from ',
+        #         'attributes table, with unique integers for each feature.')
+        msk["FID"] <- 1:nrow(msk)
+    }
     if(xy){
-        if(!'FID' %in% names(msk)) stop('In order to get IDs of features, ', 
-                                        'you must add a column named "FID" to the table ',
-                                        'of attributes, with unique integers for each feature')
-        return(as.matrix(msk[['FID']]))
+        return(msk[['FID']])
     } else {
         return(msk['FID'])
     }

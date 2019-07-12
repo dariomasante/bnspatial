@@ -38,7 +38,7 @@
 #' @export
 bnspatial <- function(network, target, spatialData, lookup, msk=NULL, what=c("class", "entropy"), 
                       midvals=NULL, targetState=NULL, spatial=TRUE, inparallel=FALSE, 
-                      exportRaster=FALSE, path=NULL, verbose=TRUE, ...){
+                      exportRaster=FALSE, path=NULL, field=NULL, verbose=TRUE, ...){
     network <- loadNetwork(network, target)
     
     ## Load table with class boundaries, if available (otherwise make a list with node name and associated vector of class boundaries)
@@ -46,7 +46,7 @@ bnspatial <- function(network, target, spatialData, lookup, msk=NULL, what=c("cl
     
     ## Load input spatial data and corresponding nodes and states into a list
     spatialDataList <- linkMultiple(spatialData=spatialData, network=network, 
-                                    lookup=lookup, verbose=verbose)
+                                    field=field, lookup=lookup, verbose=verbose)
     
     ## Remove spatial data that was set as evidence in the ellipsis (...) or is the target
     spatialDataList <- .removeEllipsis(spatialDataList, network, target, ...)
@@ -73,8 +73,8 @@ bnspatial <- function(network, target, spatialData, lookup, msk=NULL, what=c("cl
         tab <- matrix(nrow=nrow(xyMsk), ncol=length(spatialDataList))
         colnames(tab) <- names(spatialDataList)
         for(nm in colnames(tab)) {
-            rst <- spatialDataList[[nm]]$Raster
-            ex <- extractByMask(rast=rst, msk=xyMsk)
+            rst <- spatialDataList[[nm]]$SpatialData
+            ex <- extractByMask(rst, msk=xyMsk)
             if(spatialDataList[[nm]]$Categorical == TRUE){
                 tab[, nm] <- spatialDataList[[nm]]$States[match(ex, spatialDataList[[nm]]$ClassBoundaries)]
             } else {

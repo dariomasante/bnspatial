@@ -209,8 +209,8 @@ linkMultiple <- function(spatialData, network, lookup, field=NULL, verbose=TRUE)
 ####
 .checkStates <- function(inputStates, nodeStateNames, node=NULL){
     check <- inputStates %in% nodeStateNames
-    msg <- ifelse(is.null(node), '.', paste(':', '"', node, '"'))
     if(any(check == FALSE)){
+        msg <- ifelse(is.null(node), '.', paste0(': ', '"', node, '"'))
         stop(paste('Names of states provided do not match the node states from the network: \n"', 
                    inputStates[!check], '" missing from network node', msg))
     }

@@ -1,7 +1,7 @@
 #' @name extractByMask
 #' @title Extract raster values by mask
 #' @description This function extracts the values from a given input raster based on a mask.
-#' @param rast an object of class "RasterLayer" (package \href{https://cran.r-project.org/package=raster}{raster}). The raster from which data will be extracted
+#' @param layer an object of class "RasterLayer" (package \href{https://cran.r-project.org/package=raster}{raster}). The raster from which data will be extracted
 #' @param msk an object of class "RasterLayer" or a two column matrix of coordinates. The reference raster (or coordinates) to be used as mask for extraction.
 #' @param spatial logical. Should the output be spatially explicit -i.e. a georeferenced raster? 
 #' Default is FALSE, returning a vector of extracted values from \code{rast}. 
@@ -20,25 +20,36 @@
 #' library(raster)
 #' plot( extractByMask(ConwySlope, msk=m, spatial=TRUE) )
 #' @export
-extractByMask <- function(rast, msk, spatial=FALSE){
-    if(!any(c('RasterLayer', 'sf') %in% class(rast))){
-        stop('"rast" argument must be an object of class "RasterLayer".')
+extractByMask <- function(layer, msk, spatial=FALSE, rast=layer){
+    if (!missing('rast')) {
+        warning('argument "rast" is deprecated; please use "layer" instead.', call. = FALSE)
+        layer <- rast
     }
-    if('RasterLayer' %in% class(msk)){
-        id <- .whichValidCells(msk)
-        xy <- raster::xyFromCell(msk, id)
-        cells <- raster::cellFromXY(rast, xy[, 1:2])
-    } else if ('sf' %in% class(msk)){
-        
-    } else if (is.matrix(msk)){
+    if(!any(c('RasterLayer', 'sf') %in% class(layer))){
+        stop('"layer" argument must be an object of class "RasterLayer" or "sf".')
+    }
+    if('RasterLayer' %in% class(msk) | is.matrix(msk)){
+        .extRaster(msk, layer, spatial)
+    } else if ('sf' %in% class(msk) | is.integer(msk)){
+        .extVector(msk, layer, spatial)
+    } else {
+        stop('"msk" argument must be either an object of class "RasterLayer", "sf", ',
+             'or a two column matrix of x and y coordinates, or of features ID (FID)')
+    }
+}
+
+###
+.extRaster <- function(msk, rast, spatial){
+    if(is.matrix(msk)){
         cells <- id <- raster::cellFromXY(rast, msk[, 1:2])
         msk <- rast
         msk[] <- NA
     } else {
-        stop('"msk" argument must be either an object of class RasterLayer ',
-             'or a two column matrix of x and y coordinates')
+        id <- .whichValidCells(msk)
+        xy <- raster::xyFromCell(msk, id)
+        cells <- raster::cellFromXY(rast, xy[, 1:2])
     }
-    vals <- raster::getValues(rast)[cells]
+    vals <- raster::getValues(layer)[lst$cells]
     if(spatial == TRUE){
         msk[id] <- vals
         return(msk)
@@ -46,7 +57,19 @@ extractByMask <- function(rast, msk, spatial=FALSE){
         return(vals)
     }
 }
-
+###
+.extVector <- function(msk, vct, spatial){
+    if(is.integer(msk)){
+        vct <- vct[msk, ]
+    } else {
+        vct <- sf::st_intersection(vct, msk)
+    }
+    if(spatial != TRUE){
+        vct <- as.data.frame(vct)[ ,-grep('geometry', names(vct))]
+    }
+    return(vct)
+}
+###
 .whichValidCells <- function(r){
     v <- raster::getValues(r)
     id <- seq_along(v)

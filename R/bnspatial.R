@@ -46,7 +46,7 @@ bnspatial <- function(network, target, spatialData, lookup, msk=NULL, what=c("cl
     
     ## Load input spatial data and corresponding nodes and states into a list
     spatialDataList <- linkMultiple(spatialData=spatialData, network=network, 
-                                    field=field, lookup=lookup, verbose=verbose)
+                                    lookup=lookup, field=field, verbose=verbose)
     
     ## Remove spatial data that was set as evidence in the ellipsis (...) or is the target
     spatialDataList <- .removeEllipsis(spatialDataList, network, target, ...)

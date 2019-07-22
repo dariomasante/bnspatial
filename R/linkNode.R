@@ -68,7 +68,7 @@ linkNode <- function(layer, network, node, intervals, categorical=NULL, field=NU
         stop('"intervals" must be sorted from lowest to highest.')
     }
     layer <- .loadSpatial(layer, field)
-    nm <- setdiff(colnames(layer), 'geometry') 
+    nm <- ifelse('RasterLayer' %in% class(layer), names(layer), setdiff(colnames(layer), 'geometry') )
     if(categorical) {
         if('RasterLayer' %in% class(layer)){
             uni <- raster::unique(layer)
@@ -105,10 +105,11 @@ linkNode <- function(layer, network, node, intervals, categorical=NULL, field=NU
                 vals <- uni[!uni %in% intervals]
                 warning('Some values in the spatial data do not have an associated state in the network node.\n',
                         'The following values of "',field,'" will be masked out: ', paste(vals,collapse=', '))
-                layer[[field]][v %in% vals] <- NA
-                # uni <- uni[!uni %in% vals]
+                # layer[[field]][v %in% vals] <- NA
+                v[v %in% vals] <- NA
             }
-            layer <- layer[field]
+            # layer <- layer[field]
+            layer <- v
         }
         # if(is.null(intervals)){
         #     intervals <- as.numeric(levels(v))
@@ -122,18 +123,7 @@ linkNode <- function(layer, network, node, intervals, categorical=NULL, field=NU
                      SpatialData = layer)
                 ) 
     names(lst) <- node
-    if(verbose == TRUE){
-        writeLines(c(paste('\n"', node, '"', ' points to:', sep=''), 
-                     paste(' -> ', nm, '\n'), 
-                     'With states:', 
-                     paste(states, collapse='    '), 
-                     ifelse(is.null(categorical), '', ifelse(categorical == TRUE, 
-                                                             '\nRepresented by integer values:', 
-                                                             '\nDiscretized by intervals:')), 
-                     paste(intervals, collapse= ' <-> '))
-        )
-        writeLines('----------------------------------')
-    }
+    if(verbose == TRUE) .verbose(node, nm, states, categorical, intervals)
     return(lst)
 }
 
@@ -144,12 +134,6 @@ linkMultiple <- function(spatialData, network, lookup, field=NULL, verbose=TRUE)
     # test
     if(is.character(spatialData)){
         spatialData <- .loadSpatial(spatialData, field)
-    }
-    if('sf' %in% class(spatialData)){
-        nms <- names(lookup)
-        lookup$SpatialData <- spatialData[ ,field]
-        names(lookup$SpatialData) <- c(nms, 'geometry')
-        return(lookup)
     }
     ## changed
     # if('RasterLayer' %in% class(spatialData[[1]])){
@@ -208,19 +192,41 @@ linkMultiple <- function(spatialData, network, lookup, field=NULL, verbose=TRUE)
         } else {
             ClassBoundaries <- lookup[[nm]]$ClassBoundaries
         }
-        if(all(namedVars > 0)){ 
-            spd <- spatialData[[ namedVars[nm] ]]
-        } else {
-            if(is.null(lookup[[nm]]$layer) ){
-                n <- which(names(lookup) == nm)
-                spd <- spatialData[[n]] # associate by simple order of list
+        if('sf' %in% class(spatialData)){
+            if(all(namedVars > 0)){ 
+                spd <- spatialData[ namedVars[nm] ]
             } else {
-                spd <- lookup[[nm]]$layer
+                if(is.null(lookup[[nm]]$layer) ){
+                    n <- which(names(lookup) == nm)
+                    spd <- spatialData[n] # associate by simple order of list
+                } else {
+                    spd <- lookup[[nm]]$layer
+                }
             }
+            lst[nm] <- linkNode(spd, network=network, node=nm, 
+                                intervals=ClassBoundaries, categorical=Categorical, 
+                                field=names(spd)[1], verbose=verbose)
+        } else {
+            if(all(namedVars > 0)){ 
+                spd <- spatialData[[ namedVars[nm] ]]
+            } else {
+                if(is.null(lookup[[nm]]$layer) ){
+                    n <- which(names(lookup) == nm)
+                    spd <- spatialData[[n]] # associate by simple order of list
+                } else {
+                    spd <- lookup[[nm]]$layer
+                }
+            }
+            lst[nm] <- linkNode(spd, network=network, node=nm, intervals=ClassBoundaries, 
+                                categorical=Categorical, verbose=verbose)
+
         }
-        lst[nm] <- linkNode(spd, network=network, node=nm, 
-                            intervals=ClassBoundaries, categorical=Categorical, 
-                            field=names(spd)[1], verbose=verbose)
+    }
+    if('sf' %in% class(spatialData)){
+        # nms <- names(lookup)
+        lst$SpatialData <- spatialData['geometry']
+        # if(verbose == TRUE) .verbose(node, nm, states, categorical, intervals)
+        # return(lookup)
     }
     return(lst)
 }
@@ -246,7 +252,7 @@ linkMultiple <- function(spatialData, network, lookup, field=NULL, verbose=TRUE)
 .loadSpatial <- function(item, field=NULL, checkfld=TRUE){
     ck <- c('SpatialPolygonsDataFrame','SpatialPointsDataFrame','sf','sfc') # vector objects
     stopstring <- paste('"field" argument missing. Using vectorial data (e.g. shapefiles) one field/column',
-    'from the attribute table must be specified for each corresponding node, sorted.')
+    'from the attribute table must be specified for each corresponding node.')
     if(!checkfld) field <- 1 # this is for "aoi" function
     if(any(ck %in% class(item))){
         if(checkfld){
@@ -307,4 +313,17 @@ linkMultiple <- function(spatialData, network, lookup, field=NULL, verbose=TRUE)
             }
         })
     }
+}
+####
+.verbose <- function(node, nm, states, categorical, intervals){
+    writeLines(c(paste('\n"', node, '"', ' points to:', sep=''), 
+                 paste(' -> ', nm, '\n'), 
+                 'With states:', 
+                 paste(states, collapse='    '), 
+                 ifelse(is.null(categorical), '', ifelse(categorical == TRUE, 
+                                                         '\nRepresented by integer values:', 
+                                                         '\nDiscretized by intervals:')), 
+                 paste(intervals, collapse= ' <-> '))
+    )
+    writeLines('----------------------------------')
 }

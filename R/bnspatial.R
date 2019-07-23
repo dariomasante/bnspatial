@@ -50,11 +50,16 @@ bnspatial <- function(network, target, spatialData, lookup, msk=NULL, what=c("cl
     
     ## Remove spatial data that was set as evidence in the ellipsis (...) or is the target
     spatialDataList <- .removeEllipsis(spatialDataList, network, target, ...)
-    lookup <- lapply(spatialDataList, function(x) x[!names(x) %in% "SpatialData"])
+    # lookup <- lapply(spatialDataList, function(x) x[!names(x) %in% "SpatialData"])
     
     ## Load or create mask
+    is.sf <- 'sf' %in% class(spatialDataList$SpatialData)
     if(is.null(msk)){
-        msk <- aoi( lapply(spatialDataList,'[[',4) ) 
+        if(is.sf){
+            msk <- aoi(spatialDataList$SpatialData) 
+        } else {
+            msk <- aoi( lapply(spatialDataList,'[[',4) ) 
+        }
     } else {
         msk <- aoi(msk)
     }
@@ -70,11 +75,20 @@ bnspatial <- function(network, target, spatialData, lookup, msk=NULL, what=c("cl
         probs <- queryNetParallel(network=network, target=target, evidence=tab, inparallel=inparallel, ...)
         parallel::stopCluster(clst)
     } else {
-        tab <- matrix(nrow=nrow(xyMsk), ncol=length(spatialDataList))
+        if(is.sf){
+            spatialDataList['SpatialData'] <- NULL
+            tab <- matrix(nrow=length(xyMask), ncol=length(spatialDataList))
+        } else {
+            tab <- matrix(nrow=nrow(xyMsk), ncol=length(spatialDataList))   
+        }
         colnames(tab) <- names(spatialDataList)
         for(nm in colnames(tab)) {
-            layer <- spatialDataList[[nm]]$SpatialData
-            ex <- extractByMask(layer, msk=xyMsk)
+            if(is.sf){
+                ex <- spatialDataList[[nm]]$SpatialData[xyMsk]
+            } else {
+                layer <- spatialDataList[[nm]]$SpatialData
+                ex <- extractByMask(layer, msk=xyMsk)
+            }
             if(spatialDataList[[nm]]$Categorical == TRUE){
                 tab[, nm] <- spatialDataList[[nm]]$States[match(ex, spatialDataList[[nm]]$ClassBoundaries)]
             } else {

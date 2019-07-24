@@ -75,7 +75,7 @@ linkNode <- function(layer, network, node, intervals, categorical=NULL, field=NU
             if(!all(uni %in% intervals) ) {
                 vals <- uni[!uni %in% intervals]
                 warning('Some values in the spatial data do not have an associated state in the network node. ',
-                        'The following values will be masked out: ', paste(head(vals, 20),collapse=', '))
+                        'The following values will be treated as NA: ', paste(head(vals, 20),collapse=', '))
                 rcl <- cbind(from=vals, to=NA)
                 layer <- raster::reclassify(layer, rcl)
                 uni <- raster::unique(layer)
@@ -109,7 +109,7 @@ linkNode <- function(layer, network, node, intervals, categorical=NULL, field=NU
             uni <- !is.element(v, intervals)
             if(any(uni) ) {
                 warning('Some values in the spatial data do not have an associated state in the network node.\n',
-                        'The following values of "',field,'" will be masked out: ', paste(unique(v[uni]),collapse=', '))
+                        'The following values of "',field,'" will be treated as NA: ', paste(unique(v[uni]),collapse=', '))
                 v[uni] <- NA
             }
         } else {
@@ -117,7 +117,7 @@ linkNode <- function(layer, network, node, intervals, categorical=NULL, field=NU
             if(any(uni) ) {
                 warning('Some values in the spatial data do not have an associated state in the network node.\n',
                         'Values of "',field,'" lower than ',intervals[1],' and higher than ',
-                        intervals[length(intervals)],' will be masked out.')
+                        intervals[length(intervals)],' will be treated as NA.')
                 v[uni] <- NA
             }
         }
@@ -150,6 +150,15 @@ linkMultiple <- function(spatialData, network, lookup, field=NULL, verbose=TRUE)
     if(is.character(spatialData)){
         spatialData <- .loadSpatial(spatialData, field)
     }
+    if('sf' %in% class(spatialData)){
+        if(length(lookup) != length(field)) {
+            stop('Look up list has ',length(lookup),' elements, while field has ', length(field),' elements. They must be of same length.')
+        }
+    } else {
+        if(length(lookup) != length(as.list(spatialData))) {
+            stop('Look up list has ',length(lookup),' elements, while spatial data has ', length(as.list(spatialData)),' elements. They must be of same length.')
+        }
+    }
     lst <- list()
     namedVars <- sapply(names(lookup), function(nm){
         n <- which(names(spatialData) == nm)
@@ -174,7 +183,7 @@ linkMultiple <- function(spatialData, network, lookup, field=NULL, verbose=TRUE)
             } else {
                 if(is.null(lookup[[nm]]$layer) ){
                     n <- which(names(lookup) == nm)
-                    spd <- spatialData[n] # associate by simple order of list
+                    spd <- spatialData[field[n]] # associate by simple order of list
                 } else {
                     spd <- lookup[[nm]]$layer
                 }

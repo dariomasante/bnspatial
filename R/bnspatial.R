@@ -62,9 +62,16 @@ bnspatial <- function(network, target, spatialData, lookup, msk=NULL, what=c("cl
         }
     } else {
         msk <- aoi(msk)
+        if(is.sf){
+            its <- sf::st_intersection(spatialDataList$SpatialData, msk) 
+            its <- sf::st_collection_extract(its, type = "POLYGON")
+            spatialDataList['SpatialData'] <- NULL
+            for(nm in names(spatialDataList)){
+                spatialDataList[[nm]]$SpatialData <- spatialDataList[[nm]]$SpatialData[its$FID]
+            }
+        }
     }
     xyMsk <- aoi(msk, xy=TRUE)
-    
     ## Extract data from locations, discretize and query Bayesian network
     if(inparallel != FALSE){ ## Leave != FALSE to avoid confusion between '== 1' and '== TRUE'
         inparallel <- .inParallel(inparallel)
@@ -76,8 +83,8 @@ bnspatial <- function(network, target, spatialData, lookup, msk=NULL, what=c("cl
         parallel::stopCluster(clst)
     } else {
         if(is.sf){
-            spatialDataList['SpatialData'] <- NULL
-            tab <- matrix(nrow=length(xyMask), ncol=length(spatialDataList))
+            # spatialDataList['SpatialData'] <- NULL
+            tab <- matrix(nrow=length(xyMsk), ncol=length(spatialDataList))
         } else {
             tab <- matrix(nrow=nrow(xyMsk), ncol=length(spatialDataList))   
         }
@@ -97,8 +104,24 @@ bnspatial <- function(network, target, spatialData, lookup, msk=NULL, what=c("cl
         }
         probs <- queryNet(network=network, target=target, evidence=tab, ...)
     }
-    mapTarget(target=target, statesProb=probs, what=what, msk=msk, midvals=midvals, 
+    m <- mapTarget(target=target, statesProb=probs, what=what, msk=msk, midvals=midvals, 
               spatial=spatial, targetState=targetState, export=exportRaster, path=path)
+    if(!is.null(m$classLegend) & target %in% names(lookup)) { # remap values of classes, if in lookup
+        itm <- lookup[[target]]
+        if(itm$Categorical){
+            m$classLegend$remap <- itm$ClassBoundaries[match(itm$States, m$classLegend[[target]])]
+            if(is.sf){
+                # vals <- m$Class
+                # m$Class <- m$classLegend$remap[match(vals, m$classLegend$cell_ID)]
+            } else {
+                vals <- raster::getValues(m$Class)
+                m$Class <- raster::setValues(m$Class, m$classLegend$remap[match(vals, m$classLegend$cell_ID)])
+            }
+            m$classLegend$cell_ID <- m$classLegend$remap
+            m$classLegend <- m$classLegend[,1:2]
+        }
+    }
+    return(m)
 }
 
 ##

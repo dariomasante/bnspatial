@@ -177,7 +177,7 @@ mapTarget <- function(target, statesProb, what=c("class", "entropy"), msk, midva
             } else {
                 writeLines(paste0('Lookup table to interpret "', target, '" values:'))
                 message(paste0(capture.output(keyLegend), collapse = "\n"))
-                whatList$classLegend <- keyLegend
+                # whatList$classLegend <- keyLegend
             }
             Class <- msk
         }
@@ -240,11 +240,11 @@ mapTarget <- function(target, statesProb, what=c("class", "entropy"), msk, midva
         if(spatial & exportRaster){
             lapply(seq_along(Probability), function(x) {
                 raster::writeRaster(Probability[[x]], paste0(path, '/', target, '_Probability_', 
-                                                            targetState[x], rFormat), 
-                                    datatype='FLT4S', overwrite=TRUE)
+                                    targetState[x], rFormat), datatype='FLT4S', overwrite=TRUE)
             })
         }
     }
+    if(exists('keyLegend')) whatList$classLegend <- keyLegend
     if(!spatial){
         xy <- raster::xyFromCell(msk, msk_cells_ID)
         whatList <- cbind(msk_cells_ID, xy, as.data.frame(whatList))
@@ -295,13 +295,12 @@ mapTarget <- function(target, statesProb, what=c("class", "entropy"), msk, midva
     }
     rFormat <- "ESRI Shapefile" 
     if(spatial){
-        tab <- cbind(msk, tab) 
+        tab <- sf::st_sf(data.frame(tab, msk)) 
         if(exportShape) {
-            rgdal::writeOGR(tab, dsn=paste0(path, '/', target, rFormat), driver=rFormat)
+            sf::write_sf(tab, dsn=paste0(path, '/', target, rFormat), driver=rFormat)
         }
     } else {
-        tab <- as.data.frame(tab)
-        tab <- tab[ , setdiff(colnames(tab), 'geometry')]
+        tab <- cbind(data.frame(FID=msk$FID), tab)
     }
     return(tab)
 }

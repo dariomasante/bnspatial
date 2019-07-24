@@ -23,6 +23,7 @@
 #' ## Load data into global environment
 #' data(ConwyData)
 #' list2env(ConwyData, environment())
+#' lookup <- LUclasses
 #' 
 #' network <- LandUseChange
 #' ln <- linkNode(layer=ConwyLU, network, node='CurrentLULC', intervals=c(2, 3, 1))
@@ -30,7 +31,6 @@
 #'
 #' ## Link the Bayesian network to multiple spatial data at once, using a lookup list
 #' spatialData <- c(ConwyLU, ConwySlope, ConwyStatus)
-#' lookup <- LUclasses
 #' linkMultiple(spatialData, network, lookup, verbose = FALSE)
 #' 
 #' ## Method for vectorial data (i.e. class 'sf' or 'SpatialPolygon')
@@ -39,7 +39,7 @@
 #' lst
 #' 
 #' @export
-linkNode <- function(layer, network, node, intervals, categorical=NULL, field=NULL, verbose=TRUE){
+linkNode <- function(layer, network, node, intervals, categorical=NULL, field=NULL, verbose=TRUE, spatial=TRUE){
     if(length(field) > 1) stop('Argument "field" must be a single item.')
     if(length(node) > 1) stop('Argument "node" must be a single item.')
     # Check correspondence of number of states and intervals
@@ -68,14 +68,14 @@ linkNode <- function(layer, network, node, intervals, categorical=NULL, field=NU
         stop('"intervals" must be sorted from lowest to highest.')
     }
     layer <- .loadSpatial(layer, field)
-    nm <- setdiff(colnames(layer), 'geometry') 
-    if(categorical) {
-        if('RasterLayer' %in% class(layer)){
+    if('RasterLayer' %in% class(layer)){
+        nm <- names(layer)
+        if(categorical) {
             uni <- raster::unique(layer)
             if(!all(uni %in% intervals) ) {
                 vals <- uni[!uni %in% intervals]
                 warning('Some values in the spatial data do not have an associated state in the network node. ',
-                        'The following values will be masked out: ', paste(vals,collapse=', '))
+                        'The following values will be treated as NA: ', paste(head(vals, 20),collapse=', '))
                 rcl <- cbind(from=vals, to=NA)
                 layer <- raster::reclassify(layer, rcl)
                 uni <- raster::unique(layer)
@@ -98,17 +98,34 @@ linkNode <- function(layer, network, node, intervals, categorical=NULL, field=NU
                 df$VALUE <- states[match(df$ID, intervals)]
                 levels(layer) <- df
             }
-        } else {
-            v <- layer[[field]]
-            uni <- unique(v[!is.na(v)])
-            if(!all(uni %in% intervals) ) {
-                vals <- uni[!uni %in% intervals]
+        }
+        if(!spatial){
+            layer <- getValues(layer)
+        }
+    } else {
+        v <- layer[[field]]
+        nm <- field
+        if(categorical){
+            uni <- !is.element(v, intervals)
+            if(any(uni) ) {
                 warning('Some values in the spatial data do not have an associated state in the network node.\n',
-                        'The following values of "',field,'" will be masked out: ', paste(vals,collapse=', '))
-                layer[[field]][v %in% vals] <- NA
-                # uni <- uni[!uni %in% vals]
+                        'The following values of "',field,'" will be treated as NA: ', paste(unique(v[uni]),collapse=', '))
+                v[uni] <- NA
             }
-            layer <- layer[field]
+        } else {
+            uni <- (v < intervals[1] | v > intervals[length(intervals)])
+            if(any(uni) ) {
+                warning('Some values in the spatial data do not have an associated state in the network node.\n',
+                        'Values of "',field,'" lower than ',intervals[1],' and higher than ',
+                        intervals[length(intervals)],' will be treated as NA.')
+                v[uni] <- NA
+            }
+        }
+        if(spatial){
+            layer <- layer[field] 
+            layer[,1] <- v
+        } else {
+            layer <- v
         }
         # if(is.null(intervals)){
         #     intervals <- as.numeric(levels(v))
@@ -120,20 +137,9 @@ linkNode <- function(layer, network, node, intervals, categorical=NULL, field=NU
                      Categorical = categorical, 
                      ClassBoundaries = intervals, 
                      SpatialData = layer)
-                ) 
+                )
     names(lst) <- node
-    if(verbose == TRUE){
-        writeLines(c(paste('\n"', node, '"', ' points to:', sep=''), 
-                     paste(' -> ', nm, '\n'), 
-                     'With states:', 
-                     paste(states, collapse='    '), 
-                     ifelse(is.null(categorical), '', ifelse(categorical == TRUE, 
-                                                             '\nRepresented by integer values:', 
-                                                             '\nDiscretized by intervals:')), 
-                     paste(intervals, collapse= ' <-> '))
-        )
-        writeLines('----------------------------------')
-    }
+    if(verbose == TRUE) .verbose(node, nm, states, categorical, intervals)
     return(lst)
 }
 
@@ -141,55 +147,18 @@ linkNode <- function(layer, network, node, intervals, categorical=NULL, field=NU
 #' @export
 linkMultiple <- function(spatialData, network, lookup, field=NULL, verbose=TRUE){
     lookup <- .loadLookup(lookup)
-    # test
     if(is.character(spatialData)){
         spatialData <- .loadSpatial(spatialData, field)
     }
     if('sf' %in% class(spatialData)){
-        nms <- names(lookup)
-        lookup$SpatialData <- spatialData[ ,field]
-        names(lookup$SpatialData) <- c(nms, 'geometry')
-        return(lookup)
+        if(length(lookup) != length(field)) {
+            stop('Look up list has ',length(lookup),' elements, while field has ', length(field),' elements. They must be of same length.')
+        }
+    } else {
+        if(length(lookup) != length(as.list(spatialData))) {
+            stop('Look up list has ',length(lookup),' elements, while spatial data has ', length(as.list(spatialData)),' elements. They must be of same length.')
+        }
     }
-    ## changed
-    # if('RasterLayer' %in% class(spatialData[[1]])){
-    #     if((is.list(spatialData) & length(spatialData) != length(lookup)) | (!is.list(spatialData) & length(lookup) > 1)){
-    #         stop('Raster provided as input spatialData do not match the number of nodes listed in the look up list.\n')
-    #     }
-    # }
-    # if(length(spatialData) == 1 & !'RasterLayer' %in% class(spatialData)){
-    #     spatialData <- lapply(field, function(x){
-    #         .loadSpatial(spatialData, x)
-    #     })
-    # }
-    # if('sf' %in% class(spatialData)){
-    #     str <- spatialData
-    #     spatialData <- lapply(field, function(x){
-    #         .loadSpatial(str[x], x)
-    #     })
-    # }
-    ## original
-    # if(length(spatialData) != length(lookup)){
-    #     if(is.null(field) | length(field) != length(lookup)) {
-    #         stop('Spatial data do not match the number of nodes listed in the look up list.\n',
-    #              'Argument "spatialData" may be a vector of file paths to raster files, or a list of "RasterLayer", ',
-    #              'or a path to a single spatial vector file (e.g. shapefile), or one single object of class "sf" or "SpatialPolygonsDataFrame.\n',
-    #              'For vectorial data (e.g. shapefile) you must provide the "field" argument, sorted according to the look up list.')
-    #     }
-    # }
-    # if(length(spatialData) == 1 & !'RasterLayer' %in% class(spatialData)){
-    #     spatialData <- lapply(field, function(x){
-    #         .loadSpatial(spatialData, x)
-    #     })
-    # }
-    # if('sf' %in% class(spatialData)){
-    #     str <- spatialData
-    #     spatialData <- lapply(field, function(x){
-    #         .loadSpatial(str[x], x)
-    #     })
-    # }
-    # Check correspondence of node and states names between lookup list and network
-    # then iterate through the nodes and append to summary list
     lst <- list()
     namedVars <- sapply(names(lookup), function(nm){
         n <- which(names(spatialData) == nm)
@@ -208,22 +177,41 @@ linkMultiple <- function(spatialData, network, lookup, field=NULL, verbose=TRUE)
         } else {
             ClassBoundaries <- lookup[[nm]]$ClassBoundaries
         }
-        if(all(namedVars > 0)){ 
-            spd <- spatialData[[ namedVars[nm] ]]
-        } else {
-            if(is.null(lookup[[nm]]$layer) ){
-                n <- which(names(lookup) == nm)
-                spd <- spatialData[[n]] # associate by simple order of list
+        if('sf' %in% class(spatialData)){
+            if(all(namedVars > 0)){ 
+                spd <- spatialData[ namedVars[nm] ]
             } else {
-                spd <- lookup[[nm]]$layer
+                if(is.null(lookup[[nm]]$layer) ){
+                    n <- which(names(lookup) == nm)
+                    spd <- spatialData[field[n]] # associate by simple order of list
+                } else {
+                    spd <- lookup[[nm]]$layer
+                }
             }
+            lst[nm] <- linkNode(spd, network=network, node=nm, 
+                                intervals=ClassBoundaries, categorical=Categorical, 
+                                field=names(spd)[1], verbose=verbose, spatial=FALSE)
+        } else {
+            if(all(namedVars > 0)){ 
+                spd <- spatialData[[ namedVars[nm] ]]
+            } else {
+                if(is.null(lookup[[nm]]$layer) ){
+                    n <- which(names(lookup) == nm)
+                    spd <- spatialData[[n]] # associate by simple order of list
+                } else {
+                    spd <- lookup[[nm]]$layer
+                }
+            }
+            lst[nm] <- linkNode(spd, network=network, node=nm, intervals=ClassBoundaries, verbose=verbose,
+                                categorical=Categorical, field=setdiff(colnames(spd), 'geometry'))
         }
-        lst[nm] <- linkNode(spd, network=network, node=nm, 
-                            intervals=ClassBoundaries, categorical=Categorical, 
-                            field=names(spd)[1], verbose=verbose)
+    }
+    if('sf' %in% class(spatialData)){
+        lst$SpatialData <- .aoiVector(spatialData['geometry'])
     }
     return(lst)
 }
+
 ####
 .checkNames <- function(network, nodes){
     for(node in nodes){
@@ -246,7 +234,7 @@ linkMultiple <- function(spatialData, network, lookup, field=NULL, verbose=TRUE)
 .loadSpatial <- function(item, field=NULL, checkfld=TRUE){
     ck <- c('SpatialPolygonsDataFrame','SpatialPointsDataFrame','sf','sfc') # vector objects
     stopstring <- paste('"field" argument missing. Using vectorial data (e.g. shapefiles) one field/column',
-    'from the attribute table must be specified for each corresponding node, sorted.')
+    'from the attribute table must be specified for each corresponding node.')
     if(!checkfld) field <- 1 # this is for "aoi" function
     if(any(ck %in% class(item))){
         if(checkfld){
@@ -307,4 +295,17 @@ linkMultiple <- function(spatialData, network, lookup, field=NULL, verbose=TRUE)
             }
         })
     }
+}
+####
+.verbose <- function(node, nm, states, categorical, intervals){
+    writeLines(c(paste('\n"', node, '"', ' points to:', sep=''), 
+                 paste(' -> ', nm, '\n'), 
+                 'With states:', 
+                 paste(states, collapse='    '), 
+                 ifelse(is.null(categorical), '', ifelse(categorical == TRUE, 
+                                                         '\nRepresented by integer values:', 
+                                                         '\nDiscretized by intervals:')), 
+                 paste(intervals, collapse= ' <-> '))
+    )
+    writeLines('----------------------------------')
 }

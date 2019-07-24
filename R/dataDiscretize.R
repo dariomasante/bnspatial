@@ -151,10 +151,16 @@ dataDiscretize <- function(data, classBoundaries=NULL, classStates=NULL, method=
 #' @export
 bulkDiscretize <- function(formattedLst, xy, inparallel=FALSE){
     inparallel <- .inParallel(inparallel)
+    is.sf <- 'sf' %in% class(spatialDataList$SpatialData)
+    if(is.sf) formattedLst['SpatialData'] <- NULL
     if(inparallel == 1){
         lst <- lapply(names(formattedLst), function(x){
-            layer <- formattedLst[[x]]$SpatialData
-            ex <- extractByMask(layer, msk=xy)
+            if(is.sf){
+                ex <- formattedLst[[x]]$SpatialData[xy]
+            } else {
+                layer <- formattedLst[[x]]$SpatialData
+                ex <- extractByMask(layer, msk=xy)
+            }
             if(formattedLst[[x]]$Categorical == TRUE){
                 formattedLst[[x]]$States[match(ex, formattedLst[[x]]$ClassBoundaries)]
             } else {
@@ -163,7 +169,11 @@ bulkDiscretize <- function(formattedLst, xy, inparallel=FALSE){
         })
         df <- matrix(unlist(lst), ncol=length(lst))
     } else {
-        splittedData <- split(as.data.frame(xy), (seq(nrow(xy))-1) %/% (nrow(xy) / inparallel ) )
+        if(is.sf){
+            splittedData <- split(xy, ceiling(seq_along(xy)/inparallel))
+        } else {
+            splittedData <- split(as.data.frame(xy), (seq(nrow(xy))-1) %/% (nrow(xy) / inparallel ) )
+        }
         if(exists('tokenToHaltChildrenFromParallelProc', envir=parent.frame()) == FALSE){
             clst <- parallel::makeCluster(inparallel)
             doParallel::registerDoParallel(clst)
@@ -172,8 +182,12 @@ bulkDiscretize <- function(formattedLst, xy, inparallel=FALSE){
         o <- foreach::foreach(i = seq_along(splittedData), .combine=rbind, .packages="raster")
         df <- foreach::"%dopar%"(o, {
             lst <- lapply(names(formattedLst), function(x){
-                layer <- formattedLst[[x]]$SpatialData
-                ex <- extractByMask(layer, msk=as.matrix(splittedData[[i]]))
+                if(is.sf){
+                    ex <- formattedLst[[x]]$SpatialData[splittedData[[i]] ]
+                } else {
+                    layer <- formattedLst[[x]]$SpatialData
+                    ex <- extractByMask(layer, msk=as.matrix(splittedData[[i]]))
+                }
                 if(formattedLst[[x]]$Categorical == TRUE){
                     formattedLst[[x]]$States[match(ex, formattedLst[[x]]$ClassBoundaries)]
                 } else {
@@ -190,6 +204,7 @@ bulkDiscretize <- function(formattedLst, xy, inparallel=FALSE){
     return(df)
 }
 
+###
 .inParallel <- function(inparallel){
     if(is.logical(inparallel)){
         nc <- ifelse(inparallel == TRUE, parallel::detectCores()-1, 1)

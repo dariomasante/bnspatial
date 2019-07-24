@@ -46,20 +46,32 @@ bnspatial <- function(network, target, spatialData, lookup, msk=NULL, what=c("cl
     
     ## Load input spatial data and corresponding nodes and states into a list
     spatialDataList <- linkMultiple(spatialData=spatialData, network=network, 
-                                    field=field, lookup=lookup, verbose=verbose)
+                                    lookup=lookup, field=field, verbose=verbose)
     
     ## Remove spatial data that was set as evidence in the ellipsis (...) or is the target
     spatialDataList <- .removeEllipsis(spatialDataList, network, target, ...)
-    lookup <- lapply(spatialDataList, function(x) x[!names(x) %in% "SpatialData"])
+    # lookup <- lapply(spatialDataList, function(x) x[!names(x) %in% "SpatialData"])
     
     ## Load or create mask
+    is.sf <- 'sf' %in% class(spatialDataList$SpatialData)
     if(is.null(msk)){
-        msk <- aoi( lapply(spatialDataList,'[[',4) ) 
+        if(is.sf){
+            msk <- aoi(spatialDataList$SpatialData) 
+        } else {
+            msk <- aoi( lapply(spatialDataList,'[[',4) ) 
+        }
     } else {
         msk <- aoi(msk)
+        if(is.sf){
+            its <- sf::st_intersection(spatialDataList$SpatialData, msk) 
+            its <- sf::st_collection_extract(its, type = "POLYGON")
+            spatialDataList['SpatialData'] <- NULL
+            for(nm in names(spatialDataList)){
+                spatialDataList[[nm]]$SpatialData <- spatialDataList[[nm]]$SpatialData[its$FID]
+            }
+        }
     }
     xyMsk <- aoi(msk, xy=TRUE)
-    
     ## Extract data from locations, discretize and query Bayesian network
     if(inparallel != FALSE){ ## Leave != FALSE to avoid confusion between '== 1' and '== TRUE'
         inparallel <- .inParallel(inparallel)
@@ -70,11 +82,20 @@ bnspatial <- function(network, target, spatialData, lookup, msk=NULL, what=c("cl
         probs <- queryNetParallel(network=network, target=target, evidence=tab, inparallel=inparallel, ...)
         parallel::stopCluster(clst)
     } else {
-        tab <- matrix(nrow=nrow(xyMsk), ncol=length(spatialDataList))
+        if(is.sf){
+            # spatialDataList['SpatialData'] <- NULL
+            tab <- matrix(nrow=length(xyMsk), ncol=length(spatialDataList))
+        } else {
+            tab <- matrix(nrow=nrow(xyMsk), ncol=length(spatialDataList))   
+        }
         colnames(tab) <- names(spatialDataList)
         for(nm in colnames(tab)) {
-            layer <- spatialDataList[[nm]]$SpatialData
-            ex <- extractByMask(layer, msk=xyMsk)
+            if(is.sf){
+                ex <- spatialDataList[[nm]]$SpatialData[xyMsk]
+            } else {
+                layer <- spatialDataList[[nm]]$SpatialData
+                ex <- extractByMask(layer, msk=xyMsk)
+            }
             if(spatialDataList[[nm]]$Categorical == TRUE){
                 tab[, nm] <- spatialDataList[[nm]]$States[match(ex, spatialDataList[[nm]]$ClassBoundaries)]
             } else {
@@ -83,8 +104,24 @@ bnspatial <- function(network, target, spatialData, lookup, msk=NULL, what=c("cl
         }
         probs <- queryNet(network=network, target=target, evidence=tab, ...)
     }
-    mapTarget(target=target, statesProb=probs, what=what, msk=msk, midvals=midvals, 
+    m <- mapTarget(target=target, statesProb=probs, what=what, msk=msk, midvals=midvals, 
               spatial=spatial, targetState=targetState, export=exportRaster, path=path)
+    if(!is.null(m$classLegend) & target %in% names(lookup)) { # remap values of classes, if in lookup
+        itm <- lookup[[target]]
+        if(itm$Categorical){
+            m$classLegend$remap <- itm$ClassBoundaries[match(itm$States, m$classLegend[[target]])]
+            if(is.sf){
+                # vals <- m$Class
+                # m$Class <- m$classLegend$remap[match(vals, m$classLegend$cell_ID)]
+            } else {
+                vals <- raster::getValues(m$Class)
+                m$Class <- raster::setValues(m$Class, m$classLegend$remap[match(vals, m$classLegend$cell_ID)])
+            }
+            m$classLegend$cell_ID <- m$classLegend$remap
+            m$classLegend <- m$classLegend[,1:2]
+        }
+    }
+    return(m)
 }
 
 ##

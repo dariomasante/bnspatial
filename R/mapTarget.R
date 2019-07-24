@@ -3,21 +3,25 @@
 #'
 #' @description This function creates the required spatial outputs for the target node.
 #' @param target character. The node of interest to be modelled and mapped.
-#' @param statesProb matrix. The probability matrix as returned by \code{\link{queryNet}} and \code{queryNetParallel}. Named columns required, accordingly to states.
+#' @param statesProb matrix. The probability matrix as returned by \code{\link{queryNet}} and \code{queryNetParallel}. 
+#' Columns must be named accordingly to states of the target node.
 #' Columns are the \code{target} node states and rows each location considered from the area of interest.
-#' @param what character. The required output, one or more of these values are valid:
+#' @param what character. The required output, one or more of these are valid:
 #' \itemize{
-#' \item{\code{"class"}} returns the relatively  most likely states.
-#' \item{\code{"entropy"}} calculates the Shannon index and returns the entropy given the state probabilities.
-#' \item{\code{"probability"}} returns an object for each state of the target node, with associated probability.
-#' \item{\code{"expected"}} gives the expected value for the target node (see Details). Only valid for continuous target nodes. \code{midValues} argument must be provided.
-#' \item{\code{"variation"}} returns the coefficient of variation, as a measure of uncertainty.
+#' \item{\code{"class"}} returns the relatively  most likely state.
+#' \item{\code{"entropy"}} calculates the Shannon index and returns the entropy, given the node probabilities.
+#' \item{\code{"probability"}} returns an object for each state of the target node, with its probability.
+#' \item{\code{"expected"}} gives the expected value for the target node (see Details). Only valid for 
+#' target nodes of continuous values. \code{midValues} argument must be provided.
+#' \item{\code{"variation"}} returns the coefficient of variation, as a measure of uncertainty. 
+#' Only valid for target nodes of continuous values.
 #' }
-#' @param msk an raster object of class "RasterLayer" or a spatial vector of class "sf". The reference spatial data to be used as mask. 
-#' All model outputs will have the same resolution and same extent as this raster, or the same outline for vectors. 
-#' All locations with no data (i.e. NA) in this raster will be ignored as well.
-#' @param midvals vector of length equal to the number of states of the target node. Applies only if the target node is a continuous 
-#' variable, in which case \code{midvals} must contain the mid values for each of the intervals 
+#' @param msk an object of class "RasterLayer" (raster) or a spatial vector of class "sf" (polygons). 
+#' The reference spatial boundaries to be used as mask. All model outputs will have the same extent 
+#' and outline as this object. All locations with no data (i.e. NA) will be ignored.
+#' @param midvals vector of length equal to the number of states of the target node. 
+#' Applies only if the target node is a continuous variable, in which case \code{midvals} must 
+#' contain the mid values for each of the intervals 
 #' @param targetState character. One or more states of interest from the target node. Applies only 
 #' when argument \code{what} includes \code{'probability'}. Default is set to all states of the node.
 #' @param spatial logical. Should the output be spatially explicit -i.e. a georeferenced raster? 
@@ -25,7 +29,8 @@
 #' with one row for each non NA cell in \code{msk} raster and in columns the output required by \code{mask} argument.
 #' @param exportRaster Logical or character. Should the spatial output be exported to file? 
 #' Applies only if argument \code{spatial=TRUE}. When \code{exportRaster=TRUE}, output will be 
-#' exported in .tif (raster) or .shp (vector) format. For rasters, a character specifying another extension can be provided, in which case the 
+#' exported in .tif (raster) or .shp (vector) format. For rasters, a character specifying another 
+#' extension can be provided, in which case the 
 #' raster will be exported in that format. Only formats listed by \link[raster]{writeFormats} are valid. 
 #' @param path The directory to store the output files, when \code{exportRaster} is not FALSE. 
 #' Default is the working directory (\code{getwd()}). File names are set by a default naming convention, see Details.

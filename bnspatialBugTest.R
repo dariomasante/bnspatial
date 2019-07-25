@@ -1,5 +1,4 @@
 library(bnspatial)
-library(testthat)
 ##################### GENERAL features #######################
 # Make PDF vignettes
 # Add example in risk analysis (see balbi 2016 on flood risk)
@@ -14,15 +13,13 @@ network <- LandUseChange
 lookup <- LUclasses
 spatialData <- c(ConwyLU, ConwySlope, ConwyStatus)
 Conwy = sf::st_read(system.file("extdata", "Conwy.shp", package = "bnspatial"))
-spatialData <- Conwy
 
 # GOOD
-bnspatial(network, 'FinalLULC', spatialData, lookup, what='probability', field=c('LU','Slope','Status'))
 bnspatial(network, 'FinalLULC', spatialData, lookup, what=c('probability','entropy','class','expected'), msk=ConwySlope)
 head(bnspatial(network, 'FinalLULC', spatialData, lookup, what=c('probability','entropy','class','expected'), msk=ConwySlope, spatial=FALSE) )
-head(bnspatial(network, 'FinalLULC', spatialData, lookup, what=c('probability','entropy','class','expected'), msk=ConwySlope, spatial=FALSE, inparallel=TRUE) )
+!!head(bnspatial(network, 'FinalLULC', spatialData, lookup, what=c('probability','entropy','class','expected'), msk=ConwySlope, spatial=FALSE, inparallel=TRUE) )
 !!bnspatial(network, 'FinalLULC', spatialData, lookup, what=c('probability','entropy','class','expected'), msk=ConwySlope, inparallel=TRUE)
-bnspatial(network, 'FinalLULC', spatialData, lookup, what=c('probability','entropy','variation','class','expected'), msk=list(ConwySlope,ConwyLU), inparallel=TRUE)
+!!bnspatial(network, 'FinalLULC', spatialData, lookup, what=c('probability','entropy','variation','class','expected'), msk=list(ConwySlope,ConwyLU), inparallel=TRUE)
 bnspatial(network, 'CarbonStock', spatialData, lookup, what=c('probability','variation','entropy','class','expected'), msk=list(ConwySlope,ConwyLU))
 bnspatial(network, 'CarbonStock', spatialData, lookup, what=c('probability','entropy','class','expected'), msk=list(ConwySlope,ConwyLU))
 bnspatial(network, 'Scenarios', spatialData, lookup, what=c('probability','entropy','class','expected'), msk=list(ConwySlope,ConwyLU))
@@ -30,6 +27,9 @@ bnspatial(network, 'Scenarios', spatialData, lookup, what=c('probability','varia
 bnspatial(network, 'CarbonStock', spatialData, lookup, what=c('probability','variation','entropy','class','expected'), msk=list(ConwySlope,ConwyLU))
 bnspatial(network, 'CarbonStock', spatialData, lookup, what=c('probability','variation','entropy','class','expected'), msk=list(ConwySlope,ConwyLU), midvals = c(0,1,4))
 bnspatial(network, 'CarbonStock', spatialData, lookup, what=c('probability','variation','entropy','class','expected'), msk=list(ConwySlope,ConwyLU), midvals = c(0,1,4), Scenarios='intensification')
+#
+spatialData <- Conwy
+!!bnspatial(network, 'FinalLULC', spatialData, lookup, what='probability', field=c('LU','Slope','Status'))
 
 # BAD
 bnspatial(network,  target=NA, spatialData, lookup, what='probability', msk=ConwySlope)
@@ -68,10 +68,10 @@ head(queryNet(network, 'FinalLULC', evidence, Stakeholders = 'farmers', Scrios='
 # % ADD AN EXAMPLE USING MIDVALUES
 # % ADD Output algoritms now hidden (e.g. expected value) to exportable functions
 data("ConwyData")
+list2env(ConwyData, environment())
 network <- LandUseChange
 target <- 'FinalLULC'
 statesProb <- queryNet(network, target, evidence)
-list2env(ConwyData, environment())
 Conwy = sf::st_read(system.file("extdata", "Conwy.shp", package = "bnspatial"))
 
 ## Good
@@ -81,7 +81,6 @@ mapTarget(target, statesProb, msk=ConwyLU, what = c("class", "entropy", "probabi
 head(mapTarget(target, statesProb, msk=ConwyLU, spatial=FALSE))
 mapTarget(target, statesProb, msk=ConwyLU, what = c("clss", "entropy"))
 mp <- mapTarget('FinalLULC', statesProb, what='probability', targetState='forest', msk=ConwyLU); plot(mp$Probability$forest)
-mp <- mapTarget('FinalLULC', statesProb, targetState='forest'); plot(mp$Probability$forest)
 mapTarget('FinalLULC', statesProb, what='probability', targetState=c('forest','other'), msk=ConwyLU)
 s = statesProb[,1:2]; mapTarget('FinalLULC', s, what='probability', targetState='forest', msk=ConwyLU)
 mapTarget('FinalLULC', statesProb, targetState='forest', msk=ConwyLU)
@@ -117,6 +116,7 @@ mapTarget('FinalLULC', statesProb, targetState='forest', msk=ConwyLU)
 
 
 ## Bad
+mp <- mapTarget('FinalLULC', statesProb, targetState='forest')
 mp <- mapTarget('FinalLULC', statesProb, what='pbabity', targetState='forest', msk=ConwyLU); plot(mp$Probability$forest)
 mp <- mapTarget('FinalLULC', statesProb, what='probability', targetState='fest', msk=ConwyLU); plot(mp$Probability$forest)
 mapTarget('FinalLULC', statesProb, what='probability', targetState=c('forest','xy'), msk=ConwyLU)
@@ -166,10 +166,10 @@ linkNode(system.file("extdata", "Conwy.shp", package = "bnspatial"), network, fi
 linkNode(Conwy, network, field='LU', node='CurrentLULC', intervals=c(2, 3, 1))
 
 linkMultiple(c(ConwyLU,ConwySlope,ConwyStatus), network, LUclasses) # list of rasters
-linkMultiple(ConwyLU, network, LUclasses[1]) # single raster
+!!linkMultiple(ConwyLU, network, LUclasses[1]) # single raster
 linkMultiple(c(system.file("extdata", "ConwySlope.tif", package = "bnspatial"), # vector of raster path files 
                system.file("extdata", "ConwyLU.tif", package = "bnspatial")), network, LUclasses[c(2,1)])
-linkMultiple( system.file("extdata", "ConwyLU.tif", package = "bnspatial"), network, LUclasses[1]) # single path to raster file
+!!linkMultiple( system.file("extdata", "ConwyLU.tif", package = "bnspatial"), network, LUclasses[1]) # single path to raster file
 linkMultiple(c(ConwyLU,ConwySlope,ConwyStatus), network, LUclasses, field=c('LU','Slope','Status')) # ignores field arg
 
 linkMultiple(system.file("extdata", "Conwy.shp", package = "bnspatial"), network, LUclasses, field=c('LU','Slope','Status')) # path to vect file
@@ -254,20 +254,9 @@ aoi(Conwy, NULL, bbox = c(263850,300000,335000,361000))
 
 ## Bad
 aoi(list(raster(res=1, xmn=0, xmx=10, vals=1, crs=NA), raster(res=1,xmn=0, xmx=10, ymn=0, ymx=10, vals=1)), NULL, FALSE)
-aoi(Conwy, 3 )
+!!aoi(Conwy, 3 )
 
 ####
-### Use testthat ----
-
-expect_error(dataDiscretize(s, classBoundaries=c(0.5, 0.2)) ) 
-expect_error(dataDiscretize(s, classBoundaries=c(0.5, 0.8, 0.2)) )
-expect_error(dataDiscretize(s, classBoundaries=c(0.8, 0.5, 0.2)) )
-expect_error(dataDiscretize(s, classBoundaries=0.2) )
-expect_error(dataDiscretize(s, classBoundaries=0) )
-expect_error(dataDiscretize(s, classBoundaries=1) )
-expect_error(dataDiscretize(s, classBoundaries=2.1) )
-expect_error(dataDiscretize(s, classBoundaries=3, method = 'quanle') )
-
 
 ####
 ## setClasses ----
@@ -299,7 +288,7 @@ setClasses(c('CurrentLULC', 'LegalStatus'),
 setClasses(c('CurrentLULC', 'LegalStatus'), 
     list(c('forest', 'arable', 'other'), c('public', 'private', 'protected')),
     list(c(3, 1), (c(4, 3, 1))), wr='delTest.txt')
-setClasses(c('CurrentLULC', 'LegalStatus'), 
+!!setClasses(c('CurrentLULC', 'LegalStatus'), 
     list(c('forest', 'arable', 'other'), c('public', 'private', 'protected')),
     list(c(0.5, 4, 3, 1), (c(4, 3, 1))), wr='delTest.txt')
 setClasses(c('ConwyLU', 'ConwyStatus'), 
@@ -310,8 +299,8 @@ setClasses(c('ConwySlope', 'ConwyLU', 'ConwyStatus'), list(c('flat', 'moderate',
            list(c(-Inf, 0, 5, Inf), c(2, 3, 1), (c(4, 3, 1))), layer=c('a.tif','b.shp'))
 
 
-########## BIGGER DATA (below data evidence is provided for only few nodes, as query 
-########## time start growing afterwards)
+####BIGGER DATA ---- 
+########## (below data evidence is provided for only few nodes, as query time start growing afterwards)
 library(raster); library(bnspatial)
 
 #net = loadNetwork('N:\\A.net')

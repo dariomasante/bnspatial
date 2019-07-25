@@ -185,8 +185,8 @@ mapTarget <- function(target, statesProb, what=c("class", "entropy"), msk, midva
     }
     if('expected' %in% what | 'variation' %in% what){
         if(is.null(midvals)){
-            warning('Could not calculate the expected value (nor coefficient of variation) as either target ',
-                    'node seems to be categorical or mid-values for each states of target node were not provided.')
+            warning('Could not calculate the expected value (and coefficient of variation) as either target ',
+                    'node is categorical or mid-values for each states of target node were not provided.')
         } else {
             Expected <- .expectedValue(statesProb, midvals)
             if('variation' %in% what){

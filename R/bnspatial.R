@@ -65,7 +65,6 @@ bnspatial <- function(network, target, spatialData, lookup, msk=NULL, what=c("cl
         if(is.sf){
             its <- sf::st_intersection(spatialDataList$SpatialData, msk) 
             its <- sf::st_collection_extract(its, type = "POLYGON")
-            spatialDataList['SpatialData'] <- NULL
             for(nm in names(spatialDataList)){
                 spatialDataList[[nm]]$SpatialData <- spatialDataList[[nm]]$SpatialData[its$FID]
             }
@@ -83,7 +82,7 @@ bnspatial <- function(network, target, spatialData, lookup, msk=NULL, what=c("cl
         parallel::stopCluster(clst)
     } else {
         if(is.sf){
-            # spatialDataList['SpatialData'] <- NULL
+            spatialDataList['SpatialData'] <- NULL
             tab <- matrix(nrow=length(xyMsk), ncol=length(spatialDataList))
         } else {
             tab <- matrix(nrow=nrow(xyMsk), ncol=length(spatialDataList))   

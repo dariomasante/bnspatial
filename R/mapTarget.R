@@ -27,11 +27,12 @@
 #' @param spatial logical. Should the output be spatially explicit -i.e. a georeferenced raster? 
 #' Default is TRUE, returning an object of class "RasterLayer". If FALSE, returns a data.frame 
 #' with one row for each non NA cell in \code{msk} raster and in columns the output required by \code{mask} argument.
-#' @param exportRaster Logical or character. Should the spatial output be exported to file? 
-#' Applies only if argument \code{spatial=TRUE}. When \code{exportRaster=TRUE}, output will be 
+#' @param export Logical or character. Should the spatial output be exported to file? 
+#' Applies only if argument \code{spatial=TRUE}. When \code{export=TRUE}, output will be 
 #' exported in .tif (raster) or .shp (vector) format. For rasters, a character specifying another 
 #' extension can be provided, in which case the 
 #' raster will be exported in that format. Only formats listed by \link[raster]{writeFormats} are valid. 
+#' Function \code{exportRaster} is deprecated.
 #' @param path The directory to store the output files, when \code{exportRaster} is not FALSE. 
 #' Default is the working directory (\code{getwd()}). File names are set by a default naming convention, see Details.
 #' @return A list of objects, one for each item required in \code{what} argument. If \code{spatial = TRUE} 

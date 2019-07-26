@@ -17,9 +17,9 @@ Conwy = sf::st_read(system.file("extdata", "Conwy.shp", package = "bnspatial"))
 # GOOD
 bnspatial(network, 'FinalLULC', spatialData, lookup, what=c('probability','entropy','class','expected'), msk=ConwySlope)
 head(bnspatial(network, 'FinalLULC', spatialData, lookup, what=c('probability','entropy','class','expected'), msk=ConwySlope, spatial=FALSE) )
-!!head(bnspatial(network, 'FinalLULC', spatialData, lookup, what=c('probability','entropy','class','expected'), msk=ConwySlope, spatial=FALSE, inparallel=TRUE) )
-!!bnspatial(network, 'FinalLULC', spatialData, lookup, what=c('probability','entropy','class','expected'), msk=ConwySlope, inparallel=TRUE)
-!!bnspatial(network, 'FinalLULC', spatialData, lookup, what=c('probability','entropy','variation','class','expected'), msk=list(ConwySlope,ConwyLU), inparallel=TRUE)
+head(bnspatial(network, 'FinalLULC', spatialData, lookup, what=c('probability','entropy','class','expected'), msk=ConwySlope, spatial=FALSE, inparallel=TRUE) )
+bnspatial(network, 'FinalLULC', spatialData, lookup, what=c('probability','entropy','class','expected'), msk=ConwySlope, inparallel=TRUE)
+bnspatial(network, 'FinalLULC', spatialData, lookup, what=c('probability','entropy','variation','class','expected'), msk=list(ConwySlope,ConwyLU), inparallel=TRUE)
 bnspatial(network, 'CarbonStock', spatialData, lookup, what=c('probability','variation','entropy','class','expected'), msk=list(ConwySlope,ConwyLU))
 bnspatial(network, 'CarbonStock', spatialData, lookup, what=c('probability','entropy','class','expected'), msk=list(ConwySlope,ConwyLU))
 bnspatial(network, 'Scenarios', spatialData, lookup, what=c('probability','entropy','class','expected'), msk=list(ConwySlope,ConwyLU))
@@ -29,7 +29,7 @@ bnspatial(network, 'CarbonStock', spatialData, lookup, what=c('probability','var
 bnspatial(network, 'CarbonStock', spatialData, lookup, what=c('probability','variation','entropy','class','expected'), msk=list(ConwySlope,ConwyLU), midvals = c(0,1,4), Scenarios='intensification')
 #
 spatialData <- Conwy
-!!bnspatial(network, 'FinalLULC', spatialData, lookup, what='probability', field=c('LU','Slope','Status'))
+bnspatial(network, 'FinalLULC', spatialData, lookup, what='probability', field=c('LU','Slope','Status'))
 
 # BAD
 bnspatial(network,  target=NA, spatialData, lookup, what='probability', msk=ConwySlope)
@@ -70,7 +70,7 @@ head(queryNet(network, 'FinalLULC', evidence, Stakeholders = 'farmers', Scrios='
 data("ConwyData")
 list2env(ConwyData, environment())
 network <- LandUseChange
-target <- 'FinalLULC'
+target <- 'FinalLULC'; lookup <- LUclasses
 statesProb <- queryNet(network, target, evidence)
 Conwy = sf::st_read(system.file("extdata", "Conwy.shp", package = "bnspatial"))
 
@@ -84,7 +84,8 @@ mp <- mapTarget('FinalLULC', statesProb, what='probability', targetState='forest
 mapTarget('FinalLULC', statesProb, what='probability', targetState=c('forest','other'), msk=ConwyLU)
 s = statesProb[,1:2]; mapTarget('FinalLULC', s, what='probability', targetState='forest', msk=ConwyLU)
 mapTarget('FinalLULC', statesProb, targetState='forest', msk=ConwyLU)
-mapTarget('FinalLULC', statesProb, what=c("class", "entropy", "probability",'variation','expected'),midvals=c(0,1,4), colnames(statesProb))
+mapTarget('FinalLULC', statesProb, what=c("class", "entropy", "probability",'variation','expected'),
+          midvals=c(0,1,4), colnames(statesProb),msk=ConwyLU)
 #
 spatialDataList <- linkMultiple(Conwy, network, lookup, names(Conwy)[c(2,3,1)])
 xyMsk <- aoi(Conwy, xy=TRUE)
@@ -104,15 +105,15 @@ submsk = Conwy[10:30, ]
 mapTarget(target, statesProb, msk=Conwy)
 mapTarget(target, statesProb, msk=Conwy, what = c("class", "entropy", "probability"))
 mapTarget(target, statesProb, msk=Conwy, what = c("class", "entropy", "probability"), targetState='other')
-mapTarget('FinalLULC', statesProb, msk=Conwy, what=c("class", "entropy", "probability",'variation','expected'),midvals=c(0,1,4), colnames(statesProb))
+mapTarget('FinalLULC', statesProb, msk=Conwy, what=c("class", "entropy", "probability",'variation','expected'),
+          midvals=c(0,1,4), colnames(statesProb))
 head(mapTarget(target, statesProb, msk=Conwy, spatial=FALSE))
-mapTarget(target, statesProb, msk=submsk)
 mapTarget(target, statesProb, msk=Conwy, what = c("clss", "entropy"))
-mp <- mapTarget('FinalLULC', statesProb, what='probability', targetState='forest', msk=ConwyLU); plot(mp$Probability$forest)
-mp <- mapTarget('FinalLULC', statesProb, msk=Conwy, targetState='forest'); plot(mp$Probability$forest)
-mapTarget('FinalLULC', statesProb, what='probability', targetState=c('forest','other'), msk=ConwyLU)
-s = statesProb[,1:2]; mapTarget('FinalLULC', s, what='probability', targetState='forest', msk=ConwyLU)
-mapTarget('FinalLULC', statesProb, targetState='forest', msk=ConwyLU)
+!!mp <- mapTarget('FinalLULC', statesProb, what='probability', targetState='forest', msk=ConwyLU); plot(mp$Probability$forest)
+!!mp <- mapTarget('FinalLULC', statesProb, msk=Conwy, targetState='forest'); plot(mp$Probability$forest)
+!!mapTarget('FinalLULC', statesProb, what='probability', targetState=c('forest','other'), msk=ConwyLU)
+!!s = statesProb[,1:2]; mapTarget('FinalLULC', s, what='probability', targetState='forest', msk=ConwyLU)
+!!mapTarget('FinalLULC', statesProb, targetState='forest', msk=ConwyLU)
 
 
 ## Bad

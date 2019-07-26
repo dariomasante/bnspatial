@@ -151,7 +151,7 @@ dataDiscretize <- function(data, classBoundaries=NULL, classStates=NULL, method=
 #' @export
 bulkDiscretize <- function(formattedLst, xy, inparallel=FALSE){
     inparallel <- .inParallel(inparallel)
-    is.sf <- 'sf' %in% class(spatialDataList$SpatialData)
+    is.sf <- 'sf' %in% class(formattedLst$SpatialData)
     if(is.sf) formattedLst['SpatialData'] <- NULL
     if(inparallel == 1){
         lst <- lapply(names(formattedLst), function(x){

@@ -138,11 +138,12 @@ dataDiscretize <- function(data, classBoundaries=NULL, classStates=NULL, method=
     }
     cb <- classBoundaries[-c(1, length(classBoundaries))]
     if(any(cb < mn | cb > mx)){
-        cb <- cb[which(cb < mn | cb > mx)]
-        warning('One or more classes fall entirely out of data range. Check "classBoundaries".')
+        cb <- classStates[which(cb < mn | cb > mx)]
+        warning('One or more classes (i.e. node states) fall entirely out of input data range. Check "classBoundaries" if in doubt:  \n', 
+                paste(cb, collapse=' ; '))
     }
     if(length(cb) == 0 & any(classBoundaries[2] < mn | classBoundaries[1] > mx)){
-        stop('All classes empty. Check "classBoundaries".')
+        stop('All classes (i.e. node states) fall out of input data range. Check "classBoundaries" or the input data.')
     }
     return(classBoundaries)
     }

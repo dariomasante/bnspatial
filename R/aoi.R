@@ -65,7 +65,11 @@ aoi <- function(msk, mskSub=NULL, xy=FALSE, bbox=NULL){  ## Check if aoi and ext
     if(!is.null(bbox)){
         if(!is.numeric(bbox) | length(bbox) != 4) stop('Bounding box must be a numeric vector of length 4 (i.e xmin, xmax, ymin, ymax)')
         if('RasterLayer' %in% class(msk[[1]])){
-            msk <- raster::crop(msk, bbox)
+            if(is.list(msk)){
+                msk <- lapply(msk, function(m) { raster::crop(m, bbox) })    
+            } else {
+                msk <- raster::crop(msk, bbox)
+            }
         } else {
             msk <- sf::st_crop(sf::st_buffer(msk, dist = 0), 
                                 xmin=bbox[1],xmax=bbox[2],ymin=bbox[3],ymax=bbox[4])

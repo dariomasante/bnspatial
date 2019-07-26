@@ -94,6 +94,7 @@ mapTarget <- function(target, statesProb, what=c("class", "entropy"), msk, midva
     if('RasterLayer' %in% class(msk)){
         return( .mapRaster(target, statesProb, what, msk, midvals, targetState, spatial, export, path) )
     } else if('sf' %in% class(msk)){
+        msk <- aoi(msk)
         return( .mapVector(target, statesProb, what, msk, midvals, targetState, spatial, export, path) )
     } else {
         stop('Please provide a valid "msk" argument (an object of class "RasterLayer" or "sf").')
@@ -301,7 +302,7 @@ mapTarget <- function(target, statesProb, what=c("class", "entropy"), msk, midva
             sf::write_sf(tab, dsn=paste0(path, '/', target, rFormat), driver=rFormat)
         }
     } else {
-        tab <- cbind(data.frame(FID=msk$FID), tab)
+        tab <- cbind(FID=msk$FID, tab)
     }
     return(tab)
 }

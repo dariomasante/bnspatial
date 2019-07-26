@@ -72,6 +72,7 @@ queryNet <- function(network, target, evidence, ...){
     uniCodes <- unique(singleCodes)
     # Query the network only once for each combination
     evidenceSingle <- as.matrix(evidence[match(uniCodes, singleCodes), ])
+    if(length(uniCodes) == 1){evidenceSingle <- t(evidenceSingle)}
     probs <- gRain::predict.grain(network, target, inputNodes, 
                            as.data.frame(evidenceSingle),'distribution')$pred[[target]]
     probs[match(singleCodes, uniCodes), ]

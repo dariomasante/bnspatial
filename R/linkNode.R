@@ -247,16 +247,19 @@ linkMultiple <- function(spatialData, network, lookup, field=NULL, verbose=TRUE)
     } else if(is.list(item)){
         ck <- sapply(item, function(x) 'RasterLayer' %in% class(x))
         if(!all(ck)) stop('Input spatial data not appropriate. When input is a list, it must contain only RasterLayer objects.')
-        if(!is.null(field) & checkfld) warning('Spatial data in raster format, "field" argument will be ignored.')
+        if(!is.null(field) & checkfld) message('Spatial data in raster format, "field" argument will be ignored.')
         .checkSR(item)
     } else if('RasterLayer' %in% class(item)){
-        # do nothing, but avoids final else statement
+        # do nothing for now, but at least avoid final else statement
     } else if(is.character(item)){
         tc <- tryCatch( # if not raster returns NULL
-            lapply(1:length(item), function(x){
-                suppressWarnings(rgdal::GDALinfo(item[x]))
-                raster::raster(item[x])
-            }), error=function(e){})
+            lapply(item, function(x){
+                suppressWarnings(rgdal::GDALinfo(x))
+                raster::raster(x)
+            }), error=function(e){
+                s <- ifelse(file.exists(item), FALSE, TRUE)
+                if(any(s)) stop(paste(item[s], collapse=' ; '), '  \n File not found!')
+        })
         .checkSR(tc)
         if(is.null(tc)){
             if(length(item) != 1) stop('For vectorial spatial data, a single data object is required, with all the necessary attributes.')

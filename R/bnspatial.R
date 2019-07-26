@@ -54,6 +54,12 @@ bnspatial <- function(network, target, spatialData, lookup, msk=NULL, what=c("cl
     
     ## Load or create mask
     is.sf <- 'sf' %in% class(spatialDataList$SpatialData)
+    if(is.numeric(msk)) {
+        bbox <- msk
+        msk <- NULL
+    } else {
+        bbox <- NULL
+    }
     if(is.null(msk)){
         if(is.sf){
             msk <- aoi(spatialDataList$SpatialData) 
@@ -61,7 +67,7 @@ bnspatial <- function(network, target, spatialData, lookup, msk=NULL, what=c("cl
             msk <- aoi( lapply(spatialDataList,'[[',4) ) 
         }
     } else {
-        msk <- aoi(msk)
+        msk <- aoi(msk, bbox=bbox)
         if(is.sf){
             its <- sf::st_intersection(spatialDataList$SpatialData, msk) 
             its <- sf::st_collection_extract(its, type = "POLYGON")

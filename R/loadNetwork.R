@@ -3,7 +3,7 @@
 #' @description This function loads the Bayesian network from a native gRain object of class \code{grain} or an external 
 #' file with extension \emph{.net} (as provided by external softwares \href{http://www.hugin.com/}{Hugin} or \href{http://www.bayesfusion.com/}{GeNIe}), 
 #' optionally compiling the network.
-#' @param network The Bayesian network. An object of class \code{grain}, or a character (the path to the \emph{.net} file to be imported)
+#' @param network The Bayesian network. An object of class \code{grain}, or a character (the path to the \emph{.net} file to be loaded)
 #' @param target character. The node of interest to be modelled and mapped.
 #' @note Under current release, this function wraps a set of hidden functions copied in block from the \href{https://cran.r-project.org/package=gRain}{gRain} package, as current CRAN policy
 #' discourages accessing hidden functions with the ":::" operator. These functions will be progressively substituted by bnspatial native ones.

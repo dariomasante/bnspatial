@@ -16,7 +16,7 @@
 #' character; both node and state names must be typed accordingly to their names in the network.
 #' @param inparallel logical or integer. Number of cores/processors to be used by \code{queryNetParallel}. 
 #' Default is TRUE, so the maximum number available minus one is set.
-#' @return A matrix of probabilities: columns are the target node states and rows are the probabilities associated to each record from argument \code{evidence} (e.g. spatial locations).
+#' @return A matrix of probabilities: columns are the states of the target node and rows are the probabilities associated to each record (i.e. spatial locations) from \code{evidence}.
 #' @examples
 #' data(ConwyData)
 #' list2env(ConwyData, environment())
@@ -30,7 +30,7 @@
 #' q <- queryNet(network, 'FinalLULC', evidence, Stakeholders = 'farmers')
 #' head(q)
 #' 
-#' ## Fix two nodes, including one of the spatial inputs that gets overriden by fixed state
+#' ## Fix evidence for two nodes, including one of the spatial inputs (it gets overriden by evidence set)
 #' q <- queryNet(network, 'FinalLULC', evidence, Stakeholders = 'farmers', CurrentLULC = 'forest')
 #' head(q)
 #' ## For a programmatic approach, the arguments could be passed as named list:

@@ -177,6 +177,10 @@ linkMultiple(Conwy, network, LUclasses[1], field='LU') # single layer sf
 linkMultiple(Conwy, network, LUclasses, field=c('LU','Slope','Status')) # multi layer sf
 linkNode(system.file("extdata", "Conwy.shp", package = "bnspatial"), network, field='Slope', node='Slope', c('-Inf', 1, 7, 'Inf'))
 
+l = linkMultiple(spatialData, network, lookup, verbose = FALSE)
+lookup$CurrentLULC$layer = l$CurrentLULC$SpatialData$ConwyLU
+linkMultiple(c(ConwyLU,ConwySlope,ConwyStatus), network, lookup) # ignores field arg
+
 ## Bad
 linkNode(system.file("extdata", "Conwy.shp", package = "bnspatial"), network, node='CurrentLULC', intervals=c(2, 3, 1))
 linkNode(layer=ConwySlope, network, node='Slope', intervals=c('-Inf', 2, 7), categorical=FALSE)

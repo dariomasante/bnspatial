@@ -133,11 +133,16 @@ bnspatial <- function(network, target, spatialData, lookup, msk=NULL, what=c("cl
 .loadLookup <- function(lookup){
     if(is.character(lookup) & length(lookup) == 1){
         return( importClasses(classFile=lookup) )
-    } else if (is.list(lookup) & length(lookup[[1]]) == 3 & is.list(lookup[[1]])){
-        return( lookup )
-    } else {
-        stop('Check "lookup": must be a text file or a formatted list as output from "setClasses" and "importClasses" functions')
+    } 
+    if (is.list(lookup) & is.list(lookup[[1]])){
+        s <- sapply(lookup, length) == 3
+        if(all(s)) return( lookup )
+        s <- sapply(lookup[!s], function(x) {
+            length(x) == 4 & class(x$layer) == 'RasterLayer'
+        })
+        if(all(s)) return( lookup )
     }
+    stop('Check "lookup": must be a text file or a formatted list as output from "setClasses" and "importClasses" functions')
 }
 
 ##

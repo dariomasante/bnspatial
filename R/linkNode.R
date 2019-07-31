@@ -1,19 +1,27 @@
 #' @name linkNode
 #' @title Link nodes to spatial data
 #' 
-#' @description \code{linkNode} links a node of the Bayesian network to its corresponding spatial data, returning a list of objects, including the spatial data and relevant information about the node.\cr
-#' \code{linkMultiple} operates on multiple spatial layers and nodes.
+#' @description \code{linkNode} links a node of the Bayesian network to the corresponding spatial data, returning a list of objects, 
+#' including the spatial data and relevant info about the node.\cr
+#' \code{linkMultiple} operates on multiple nodes and related spatial data.
 #' @aliases linkMultiple
-#' @param layer	path to spatial data file as character, or an object of class "RasterLayer", "sf" or "SpatialPolygonsDataFrame". The spatial data corresponding to the network node in argument \code{node}.
+#' @param layer	character (path to file) or an object of class "RasterLayer", 
+#' "sf" or "SpatialPolygonsDataFrame". The spatial data corresponding to the network node as by argument \code{node}.
 #' @inheritParams loadNetwork
-#' @param node character. A network node associated to the file in \code{layer} argument
-#' @param intervals A list of numeric vectors. For categorical variables the spatial data values associated to each state of the node, for continuous variables the boundary values dividing into the corresponding states.
-#' @param categorical logical. Is the node a categorical variable? Default is NULL and the program will attempt to assign a logical value automatically.
+#' @param node character. The network node to be coupled with the file/object indicated by \code{layer} argument
+#' @param intervals A list of numeric vectors. For categorical variables the spatial data values associated to each state of the node, 
+#' for continuous variables the boundary values dividing into the corresponding states, including upper and lower boundaries.
+#' @param categorical logical, or NULL. Is the node a categorical variable? If NULL the function will attempt to assign the 
+#' logical value by looking at \code{intervals} argument.
 #' @param field character. Only for vectorial data, the field/column name in the attribute table corresponding to the node, ordered accordingly.
-#' @param verbose logical. If \code{verbose = TRUE} a summary of class boundaries and associated nodes and data will be printed to screen for quick checks.
-#' @param spatialData character with path to one or more raster files or to a single vectorial file, or a list of objects of class 'RasterLayer', or a single object of class 'sf' or 'SpatialPolygonsDataFrame' (vectorial data). 
-#' The spatial data associated to some network node, provided as file paths or as (list of) spatial object of said classes. Must be ordered accordingly to the corresponding nodes in \code{lookup}, 
-#' or provided as named list, where names correspond exactly to the corresponding node names. In case it is not a named list, but \code{lookup} contains already the optional 'layer' item, the latter will be passed to the loader function for each node.
+#' @param verbose logical. If \code{verbose = TRUE} a summary of class boundaries and associated nodes and data will be printed 
+#' to screen for checks.
+#' @param spatialData character with path to one or more raster files or to a single spatial vector file, or a list of objects of 
+#' class 'RasterLayer' (for raster), or a single object of class 'sf' or 'SpatialPolygonsDataFrame' (for spatial vector). 
+#' The spatial data associated to given network nodes, provided as file paths or as (list of) spatial objects. Items must be ordered 
+#' accordingly to the corresponding nodes in \code{lookup}, 
+#' or provided as named list, where names correspond exactly to the corresponding network nodes name. In case it is not a named list, 
+#' but \code{lookup} contains already the optional 'layer' item with spatial data, the latter will be passed to the loader function.
 #' @param lookup character (path to file) or a formatted list. This argument can be provided as path to a comma separated file or a formatted list (see \code{\link{setClasses}} )
 #' @return \code{linkNode} returns a list of objects, including the spatial data and the related node information. \cr
 #' \code{linkMultiple} returns a list of lists. Each element of the list includes the spatial data and summary information for each of the input nodes.

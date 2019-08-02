@@ -1,14 +1,12 @@
-bnspatial v1.1 (Release date: ...........................)
+bnspatial v1.1 (Release date: 2019-08-02)
 -----------------------------------------------
 CHANGES:
 
-* Vectorial spatial data now allowed from packages sf and sp (all functions changed accordingly)
-* Removed some redundancy in internal code, plus some cosmetics and minor edits in flow control, thanks to new hidden internal functions
+* Vectorial spatial data now allowed, using package "sf" (all functions changed accordingly)
+* Removed some redundancy in internal code, plus some cosmetics and minor edits in flow control inside hidden internal functions
 * Added a shapefile to the example dataset, and changed some features in example rasters
-* Slight performance improvements
+* Performance improvements
 * Some function arguments deprecated, but still back-compatible
-[TODO] Updated vignette to include example with vectorial data
-
 
 bnspatial v1.0.5 (Release date: 2019-03-21)
 -----------------------------------------------

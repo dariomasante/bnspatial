@@ -10,13 +10,14 @@
 #' @inheritParams loadNetwork
 #' @param target character. The node of interest to be modelled and mapped.
 #' @param evidence matrix or data.frame. Named columns are the known input variables; rows are the discrete states associated to them for each record (NA allowed).
-#' @param ... Additional arguments to force one or more nodes to a state (i.e. fixing evidence), 
-#' or rather, setting a node spatially equal everywhere. If the node is associated to input spatial data, the latter is ignored.
-#' Node name is provided as argument and the associated fixed state as 
-#' character; both node and state names must be typed accordingly to their names in the network.
-#' @param inparallel logical or integer. Number of cores/processors to be used by \code{queryNetParallel}. 
+#' @param ... Additional arguments to force one or more nodes to a state (i.e. fixing evidence). If the node is 
+#' associated to any input spatial data, the latter will be ignored, thus resulting spatially equal everywhere.
+#' Node name must be provided as argument and the associated fixed state as 
+#' character; both node and state names must be typed exactly as their names in the network.
+#' @param inparallel logical or integer. Number of cores to be used by \code{queryNetParallel}. 
 #' Default is TRUE, so the maximum number available minus one is set.
-#' @return A matrix of probabilities: columns are the states of the target node and rows are the probabilities associated to each record (i.e. spatial locations) from \code{evidence}.
+#' @return A matrix of probabilities: columns are the states of the target node and rows are the probabilities 
+#' associated to each record (i.e. spatial locations) from \code{evidence}.
 #' @examples
 #' data(ConwyData)
 #' list2env(ConwyData, environment())
@@ -30,7 +31,7 @@
 #' q <- queryNet(network, 'FinalLULC', evidence, Stakeholders = 'farmers')
 #' head(q)
 #' 
-#' ## Fix evidence for two nodes, including one of the spatial inputs (it gets overriden by evidence set)
+#' ## Fix evidence for two nodes, including one of the spatial inputs (i.e. overriden by evidence)
 #' q <- queryNet(network, 'FinalLULC', evidence, Stakeholders = 'farmers', CurrentLULC = 'forest')
 #' head(q)
 #' ## For a programmatic approach, the arguments could be passed as named list:

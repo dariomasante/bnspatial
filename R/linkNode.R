@@ -13,16 +13,19 @@
 #' for continuous variables the boundary values dividing into the corresponding states, including upper and lower boundaries.
 #' @param categorical logical, or NULL. Is the node a categorical variable? If NULL the function will attempt to assign the 
 #' logical value by looking at \code{intervals} argument.
-#' @param field character. Only for vectorial data, the field/column name in the attribute table corresponding to the node, ordered accordingly.
+#' @param field character. Only for spatial vector data (e.g. shapefile), the field/column names in 
+#' the attribute table corresponding to the nodes, ordered accordingly.
 #' @param verbose logical. If \code{verbose = TRUE} a summary of class boundaries and associated nodes and data will be printed 
 #' to screen for checks.
 #' @param spatialData character with path to one or more raster files or to a single spatial vector file, or a list of objects of 
 #' class 'RasterLayer' (for raster), or a single object of class 'sf' or 'SpatialPolygonsDataFrame' (for spatial vector). 
 #' The spatial data associated to given network nodes, provided as file paths or as (list of) spatial objects. Items must be ordered 
-#' accordingly to the corresponding nodes in \code{lookup}, 
-#' or provided as named list, where names correspond exactly to the corresponding network nodes name. In case it is not a named list, 
-#' but \code{lookup} contains already the optional 'layer' item with spatial data, the latter will be passed to the loader function.
+#' accordingly to the corresponding nodes listed in \code{lookup}, 
+#' or provided as named list, where names match exactly to the corresponding nodes name. 
 #' @param lookup character (path to file) or a formatted list. This argument can be provided as path to a comma separated file or a formatted list (see \code{\link{setClasses}} )
+#' @param spatial logical. Should the output list include the input as raster or spatial vector? 
+#' Default is TRUE, returning the list with an object of class "RasterLayer" or "sf" for each node associated. 
+#' If FALSE, returns only the values.
 #' @return \code{linkNode} returns a list of objects, including the spatial data and the related node information. \cr
 #' \code{linkMultiple} returns a list of lists. Each element of the list includes the spatial data and summary information for each of the input nodes.
 #' @details In future releases, this function may be rewritten to provide an S4/S3 object.
@@ -83,7 +86,8 @@ linkNode <- function(layer, network, node, intervals, categorical=NULL, field=NU
             if(!all(uni %in% intervals) ) {
                 vals <- uni[!uni %in% intervals]
                 warning('Some values in the spatial data do not have an associated state in the network node. ',
-                        'The following values will be treated as NA: ', paste(head(vals, 20),collapse=', '))
+                        'The following values will be treated as NA: ', 
+                        paste(utils::head(vals, 20),collapse=', '))
                 rcl <- cbind(from=vals, to=NA)
                 layer <- raster::reclassify(layer, rcl)
                 uni <- raster::unique(layer)
@@ -108,7 +112,7 @@ linkNode <- function(layer, network, node, intervals, categorical=NULL, field=NU
             }
         }
         if(!spatial){
-            layer <- getValues(layer)
+            layer <- raster::getValues(layer)
         }
     } else {
         v <- layer[[field]]
@@ -163,8 +167,11 @@ linkMultiple <- function(spatialData, network, lookup, field=NULL, verbose=TRUE)
             stop('Look up list has ',length(lookup),' elements, while field has ', length(field),' elements. They must be of same length.')
         }
     } else {
-        if(length(lookup) != length(as.list(spatialData))) {
-            stop('Look up list has ',length(lookup),' elements, while spatial data has ', length(as.list(spatialData)),' elements. They must be of same length.')
+        if(is.list(spatialData) & length(lookup) != length(spatialData) ) {
+            stop('Look up list has ',length(lookup),' elements, while spatial data list has ', length(spatialData),' elements. They must be of same length.')
+        }
+        if('RasterLayer' %in% class(spatialData) & length(lookup) != 1){
+            stop('Look up list has ',length(lookup),' elements, while spatial data list is one element only. They must be of same length.')
         }
     }
     lst <- list()
@@ -189,12 +196,12 @@ linkMultiple <- function(spatialData, network, lookup, field=NULL, verbose=TRUE)
             if(all(namedVars > 0)){ 
                 spd <- spatialData[ namedVars[nm] ]
             } else {
-                if(is.null(lookup[[nm]]$layer) ){
+                # if(is.null(lookup[[nm]]$layer) ){
                     n <- which(names(lookup) == nm)
                     spd <- spatialData[field[n]] # associate by simple order of list
-                } else {
-                    spd <- lookup[[nm]]$layer
-                }
+                # } else {
+                #     spd <- lookup[[nm]]$layer # disabled
+                # }
             }
             lst[nm] <- linkNode(spd, network=network, node=nm, 
                                 intervals=ClassBoundaries, categorical=Categorical, 
@@ -203,12 +210,12 @@ linkMultiple <- function(spatialData, network, lookup, field=NULL, verbose=TRUE)
             if(all(namedVars > 0)){ 
                 spd <- spatialData[[ namedVars[nm] ]]
             } else {
-                if(is.null(lookup[[nm]]$layer) ){
+                # if(is.null(lookup[[nm]]$layer) ){
                     n <- which(names(lookup) == nm)
                     spd <- spatialData[[n]] # associate by simple order of list
-                } else {
-                    spd <- lookup[[nm]]$layer
-                }
+                # } else {
+                #     spd <- lookup[[nm]]$layer # disabled
+                # }
             }
             lst[nm] <- linkNode(spd, network=network, node=nm, intervals=ClassBoundaries, verbose=verbose,
                                 categorical=Categorical, field=setdiff(colnames(spd), 'geometry'))

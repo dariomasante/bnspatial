@@ -5,7 +5,7 @@
 \alias{importClasses}
 \title{Set classes or intervals}
 \usage{
-setClasses(nodes, states, classBoundaries, wr = NULL)
+setClasses(nodes, states, classBoundaries, wr = NULL, layer = NULL)
 
 importClasses(classFile)
 }
@@ -16,7 +16,9 @@ importClasses(classFile)
 
 \item{classBoundaries}{A list of numeric. The boundary values splitting the nodes into their corresponding states. They must be sorted in ascending order. For nominal categorical variables, \code{classBoundaries} must be the unique raster values associated to node states.}
 
-\item{wr}{The full path to the file to be written. Default is set to NULL, otherwise it writes the formatted list returned by \code{setClasses} to the specified path. Suggested file format is .txt, albeit not mandatory.}
+\item{wr}{character. Optional, the full path to the file to be written. Default is set to NULL, otherwise it writes the formatted list returned by \code{setClasses} to the specified path. Suggested file format is .txt, albeit not mandatory.}
+
+\item{layer}{character. Optional argument to indicate the path to files with input spatial data. If not NULL, then all nodes must have a corresponding file path, stored in the 'layer' element of output list.}
 
 \item{classFile}{character. A text file where for each input variable associated to a node (see Details) three lines are specified as follows: 
 the first one indicates the node name, as in the Bayesian network; the second indicates the states associated with such node, as they are in the Bayesian network (note that underscores are not allowed);

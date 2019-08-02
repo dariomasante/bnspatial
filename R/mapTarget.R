@@ -32,9 +32,10 @@
 #' exported in .tif (raster) or .shp (vector) format. For rasters, a character specifying another 
 #' extension can be provided, in which case the 
 #' raster will be exported in that format. Only formats listed by \link[raster]{writeFormats} are valid. 
-#' Function \code{exportRaster} is deprecated.
+#' Argument \code{exportRaster} is deprecated.
 #' @param path The directory to store the output files, when \code{export} is not FALSE. 
-#' Default is the working directory (\code{getwd()}). File names are set by a default naming convention, see Details.
+#' Default is the working directory as from \code{getwd()}. File names are set by a default naming convention, see Details.
+#' @param exportRaster deprecated, use \code{export} instead.
 #' @return A list of objects, one for each item required in \code{what} argument. If \code{spatial = TRUE} 
 #' a list of rasters of class "RasterLayer" are returned, or a single spatial vector of class "sf" with one column 
 #' for each output requested. If FALSE, for raster data it returns a list of vectors with the values 
@@ -179,7 +180,7 @@ mapTarget <- function(target, statesProb, what=c("class", "entropy"), msk, midva
                 utils::write.csv(keyLegend, paste0(path, target, '_ClassKey.csv'), row.names = FALSE)
             } else {
                 writeLines(paste0('Lookup table to interpret "', target, '" values:'))
-                message(paste0(capture.output(keyLegend), collapse = "\n"))
+                message(paste0(utils::capture.output(keyLegend), collapse = "\n"))
                 # whatList$classLegend <- keyLegend
             }
             Class <- msk

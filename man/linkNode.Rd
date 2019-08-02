@@ -6,34 +6,51 @@
 \title{Link nodes to spatial data}
 \usage{
 linkNode(layer, network, node, intervals, categorical = NULL,
-  verbose = TRUE)
+  field = NULL, verbose = TRUE, spatial = TRUE)
 
-linkMultiple(spatialData, network, lookup, verbose = TRUE)
+linkMultiple(spatialData, network, lookup, field = NULL,
+  verbose = TRUE)
 }
 \arguments{
-\item{layer}{character (path to raster file) or an object of class "RasterLayer". The spatial data corresponding to the network node in argument \code{node}.}
+\item{layer}{character (path to file) or an object of class "RasterLayer", 
+"sf" or "SpatialPolygonsDataFrame". The spatial data corresponding to the network node as by argument \code{node}.}
 
-\item{network}{The Bayesian network. An object of class \code{grain} (from package \href{https://cran.r-project.org/package=bnlearn}{bnlearn}), or a character (the path to the \emph{.net} file to be imported)}
+\item{network}{The Bayesian network. An object of class \code{grain}, or a character (the path to the \emph{.net} file to be loaded)}
 
-\item{node}{character. A network node associated to the file in \code{layer} argument}
+\item{node}{character. The network node to be coupled with the file/object indicated by \code{layer} argument}
 
-\item{intervals}{A list of numeric vectors. For categorical variables the raster values associated to each state of the node, for continuous variables the boundary values dividing into the corresponding states.}
+\item{intervals}{A list of numeric vectors. For categorical variables the spatial data values associated to each state of the node, 
+for continuous variables the boundary values dividing into the corresponding states, including upper and lower boundaries.}
 
-\item{categorical}{logical. Is the node a categorical variable? Default is NULL.}
+\item{categorical}{logical, or NULL. Is the node a categorical variable? If NULL the function will attempt to assign the 
+logical value by looking at \code{intervals} argument.}
 
-\item{verbose}{logical. If \code{verbose = TRUE} a summary of class boundaries and associated nodes and data will be printed to screen for quick checks.}
+\item{field}{character. Only for spatial vector data (e.g. shapefile), the field/column names in 
+the attribute table corresponding to the nodes, ordered accordingly.}
 
-\item{spatialData}{character or list of objects of class 'RasterLayer'. The raster files corresponding to nodes, as vector of full file paths or as list of rasters (objects of class 'RasterLayer').}
+\item{verbose}{logical. If \code{verbose = TRUE} a summary of class boundaries and associated nodes and data will be printed 
+to screen for checks.}
 
-\item{lookup}{character or a formatted list. This argument can be provided as path to a comma separated file or a formatted list (see \code{\link{setClasses}} )}
+\item{spatial}{logical. Should the output list include the input as raster or spatial vector? 
+Default is TRUE, returning the list with an object of class "RasterLayer" or "sf" for each node associated. 
+If FALSE, returns only the values.}
+
+\item{spatialData}{character with path to one or more raster files or to a single spatial vector file, or a list of objects of 
+class 'RasterLayer' (for raster), or a single object of class 'sf' or 'SpatialPolygonsDataFrame' (for spatial vector). 
+The spatial data associated to given network nodes, provided as file paths or as (list of) spatial objects. Items must be ordered 
+accordingly to the corresponding nodes listed in \code{lookup}, 
+or provided as named list, where names match exactly to the corresponding nodes name.}
+
+\item{lookup}{character (path to file) or a formatted list. This argument can be provided as path to a comma separated file or a formatted list (see \code{\link{setClasses}} )}
 }
 \value{
-\code{linkNode} returns a list of objects, including the spatial data and summary information about each node.\cr
+\code{linkNode} returns a list of objects, including the spatial data and the related node information. \cr
 \code{linkMultiple} returns a list of lists. Each element of the list includes the spatial data and summary information for each of the input nodes.
 }
 \description{
-\code{linkNode} links a node of the Bayesian network to its corresponding spatial dataset (in raster format), returning a list of objects, including the spatial data and relevant information about the node.\cr
-\code{linkMultiple} operates on multiple rasters and nodes.
+\code{linkNode} links a node of the Bayesian network to the corresponding spatial data, returning a list of objects, 
+including the spatial data and relevant info about the node.\cr
+\code{linkMultiple} operates on multiple nodes and related spatial data.
 }
 \details{
 In future releases, this function may be rewritten to provide an S4/S3 object.
@@ -42,15 +59,21 @@ In future releases, this function may be rewritten to provide an S4/S3 object.
 ## Load data into global environment
 data(ConwyData)
 list2env(ConwyData, environment())
+lookup <- LUclasses
 
 network <- LandUseChange
-lst <- linkNode(layer=ConwyLU, network, node='CurrentLULC', intervals=c(2, 3, 1))
-lst
+ln <- linkNode(layer=ConwyLU, network, node='CurrentLULC', intervals=c(2, 3, 1))
+ln
 
 ## Link the Bayesian network to multiple spatial data at once, using a lookup list
 spatialData <- c(ConwyLU, ConwySlope, ConwyStatus)
-lookup <- LUclasses
 linkMultiple(spatialData, network, lookup, verbose = FALSE)
+
+## Method for vectorial data (i.e. class 'sf' or 'SpatialPolygon')
+spatialData <- system.file("extdata", "Conwy.shp", package = "bnspatial")
+lst <- linkMultiple(spatialData, network, lookup, field= c('LU', 'Slope', 'Status'))
+lst
+
 }
 \seealso{
 \code{\link{dataDiscretize}}; \code{\link{setClasses}}

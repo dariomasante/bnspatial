@@ -40,11 +40,15 @@ LandUseChange$universe$levels
 LUclasses
 
 ## Table of evidence extracted from input spatial data
-head(evidence)
+head(evidence, 12)
 
-## The input spatial data
+## The input spatial data (raster format)
 par(mfrow=c(2,2))
 raster::plot(ConwyLU)
 raster::plot(ConwySlope)
 raster::plot(ConwyStatus)
+
+## The input spatial data (vector format)
+Conwy <- sf::st_read(system.file("extdata", "Conwy.shp", package = "bnspatial"), quiet = TRUE)
+# plot(Conwy) # May be slow to show up
 }

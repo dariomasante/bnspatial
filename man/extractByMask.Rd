@@ -4,16 +4,18 @@
 \alias{extractByMask}
 \title{Extract raster values by mask}
 \usage{
-extractByMask(rast, msk, spatial = FALSE)
+extractByMask(layer, msk, spatial = FALSE, rast = NULL)
 }
 \arguments{
-\item{rast}{an object of class "RasterLayer" (package \href{https://cran.r-project.org/package=raster}{raster}). The raster from which data will be extracted}
+\item{layer}{an object of class "RasterLayer" (package \href{https://cran.r-project.org/package=raster}{raster}). The raster from which data will be extracted}
 
 \item{msk}{an object of class "RasterLayer" or a two column matrix of coordinates. The reference raster (or coordinates) to be used as mask for extraction.}
 
 \item{spatial}{logical. Should the output be spatially explicit -i.e. a georeferenced raster? 
 Default is FALSE, returning a vector of extracted values from \code{rast}. 
 If TRUE an object of class "RasterLayer" is returned.}
+
+\item{rast}{deprecated, use \code{layer} instead.}
 }
 \value{
 a vector, or an object of class "RasterLayer". The values from the input raster (\code{rast} argument) at coordinates provided as matrix, or those overlapping with non NA cells in the mask raster. If \code{spatial == TRUE} an object of class "RasterLayer" is returned.

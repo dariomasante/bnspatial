@@ -1,7 +1,7 @@
 Package: bnspatial
 Title: Spatial Implementation of Bayesian Networks and Mapping 
-Version: 1.0.5
-Date: 2019-03-21
+Version: 1.1
+Date: 2019-08-02
 Authors@R: c(person(given = "Dario", family = "Masante", role = c("aut", "cre"), email = "dario.masante@gmail.com"))
 Maintainer: Dario Masante <dario.masante@gmail.com>
 Copyright: Natural Environment Research Council (NERC) and Centre for Ecology and Hydrology (CEH)
@@ -14,7 +14,8 @@ Imports:
     gRbase, 
     gRain,
     doParallel, 
-    foreach
+    foreach,
+    utils
 Suggests:
     knitr,
     rmarkdown

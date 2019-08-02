@@ -5,14 +5,16 @@
 #' a spatial object, or unioning the input spatial objects if more than one are provided.
 #' When \code{msk} is a list of rasters, extent is set equal to their combined extent (union) and resolution 
 #' to the finest resolution among them. 
-#' @param msk a character (path to raster/vector file), or the bounding box as numeric (xmin xmax ymin ymax), 
-#' or one or more (a list of) rasters of class "RasterLayer", or a single object of class "sf" or "SpatialPolygonsDataFrame". 
+#' @param msk a character (path to raster or vector file), or a bounding box as numeric (xmin,xmax,ymin,ymax), 
+#' or one or more (as list of) rasters of class "RasterLayer", or a single object of class "sf" or "SpatialPolygonsDataFrame". 
 #' The reference data (raster or vector) to be used as mask. All model outputs will have the same extent (outline) as this object. 
 #' All locations with no data (i.e. NA) cells in \code{msk} input will be ignored as well.
 #' @param mskSub vector of values, for raster data only. The subset values from \code{msk} which should be considered to build the area 
 #' of interest. All other values will be ignored and masked out during modelling.
 #' @param xy logical. Should return a two column matrix of x and y coordinates of cells centre (raster data) or
 #' the IDs of features? Defaults to FALSE, returning an object of class RasterLayer or sf.
+#' @param bbox numeric of four elements, the coordinates defining a rectangle (bounding box) to limit the area of interest. 
+#' Must be ordered as xmin, xmax, ymin, ymax. Coordinates must be in the same reference system as spatial data.
 #' @details If rasters are used, all model outputs will have the same resolution and same extent as inherited from \code{msk}. 
 #' All locations with no data (i.e. NA) cells from \code{msk} will be ignored as well.
 #' @return An object of class RasterLayer  or sf, or a matrix of coordinates of mask cells (raster only). In the former case, valid cells 

@@ -4,28 +4,36 @@
 \alias{aoi}
 \title{Build area of interest (A.O.I.)}
 \usage{
-aoi(msk, mskSub = NULL, xy = FALSE)
+aoi(msk, mskSub = NULL, xy = FALSE, bbox = NULL)
 }
 \arguments{
-\item{msk}{a character (path to raster file), a raster (object of class "RasterLayer"), or a list of rasters. 
-The reference raster(s) to be used as mask. All model outputs will have the same resolution and same extent as this raster(s). 
-All locations with no data (i.e. NA) cells in \code{msk} will be ignored as well.}
+\item{msk}{a character (path to raster or vector file), or a bounding box as numeric (xmin,xmax,ymin,ymax), 
+or one or more (as list of) rasters of class "RasterLayer", or a single object of class "sf" or "SpatialPolygonsDataFrame". 
+The reference data (raster or vector) to be used as mask. All model outputs will have the same extent (outline) as this object. 
+All locations with no data (i.e. NA) cells in \code{msk} input will be ignored as well.}
 
-\item{mskSub}{vector. The subset values from \code{msk} which should be considered to build the area of interest. All other values will be ignored and returned as NA.}
+\item{mskSub}{vector of values, for raster data only. The subset values from \code{msk} which should be considered to build the area 
+of interest. All other values will be ignored and masked out during modelling.}
 
-\item{xy}{logical. Should return a two column matrix of coordinates? If FALSE an object of class RasterLayer is returned.}
+\item{xy}{logical. Should return a two column matrix of x and y coordinates of cells centre (raster data) or
+the IDs of features? Defaults to FALSE, returning an object of class RasterLayer or sf.}
+
+\item{bbox}{numeric of four elements, the coordinates defining a rectangle (bounding box) to limit the area of interest. 
+Must be ordered as xmin, xmax, ymin, ymax. Coordinates must be in the same reference system as spatial data.}
 }
 \value{
-An object of class RasterLayer (default), or a matrix of coordinates of mask cells. In the former case, valid cells (i.e. the area of interest) will have value 1, \code{NA} otherwise.
+An object of class RasterLayer  or sf, or a matrix of coordinates of mask cells (raster only). In the former case, valid cells 
+(i.e. the area of interest) will have value 1, \code{NA} otherwise.
 }
 \description{
-This function creates a raster defining the area of interest, by unioning the input rasters or using a user defined mask.
-When \code{msk} is specified, resolution and extent are set equal to it, otherwise
-to the finest resolution among input spatial data and unioning the extents of input spatial data.
+This function creates a spatial object (raster or vector) defining the area of interest, by taking a bounding box or 
+a spatial object, or unioning the input spatial objects if more than one are provided.
+When \code{msk} is a list of rasters, extent is set equal to their combined extent (union) and resolution 
+to the finest resolution among them.
 }
 \details{
-All model outputs will have the same resolution and same extent as inherited from \code{msk}. All locations with no data (i.e. NA) cells 
-from \code{msk} will be ignored as well.
+If rasters are used, all model outputs will have the same resolution and same extent as inherited from \code{msk}. 
+All locations with no data (i.e. NA) cells from \code{msk} will be ignored as well.
 }
 \examples{
 ## Make a mask from a group of input layers:
@@ -49,6 +57,14 @@ plot(m)
 ## Return coordinates of valid mask locations
 coord <- aoi(ConwyLU, xy=TRUE)
 head(coord)
+
+## Using a bounding box
+aoi(ConwyLU, bbox=c(270000, 284950, 347000, 365000))
+
+## For vectorial spatial data. Note xy=TRUE shall return the features IDs
+Conwy = sf::st_read(system.file("extdata", "Conwy.shp", package = "bnspatial"))
+aoi(Conwy, bbox=c(270000, 284950, 347000, 365000))
+
 }
 \seealso{
 \code{\link{extractByMask}}

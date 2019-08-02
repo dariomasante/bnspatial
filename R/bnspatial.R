@@ -1,7 +1,8 @@
 #' bnspatial
 #' @title Spatialize the Bayesian network
 #' 
-#' @description This function wraps most bnspatial package functions to ease the spatial implementation of Bayesian networks with minimal user interaction.
+#' @description This function wraps most package functions, to ease the spatial 
+#' implementation of Bayesian networks with minimal coding.
 #' @inheritParams loadNetwork
 #' @inheritParams aoi
 #' @inheritParams mapTarget

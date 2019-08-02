@@ -10,22 +10,23 @@ queryNet(network, target, evidence, ...)
 queryNetParallel(network, target, evidence, inparallel = TRUE, ...)
 }
 \arguments{
-\item{network}{The Bayesian network. An object of class \code{grain}, or a character (the path to the \emph{.net} file to be imported)}
+\item{network}{The Bayesian network. An object of class \code{grain}, or a character (the path to the \emph{.net} file to be loaded)}
 
 \item{target}{character. The node of interest to be modelled and mapped.}
 
 \item{evidence}{matrix or data.frame. Named columns are the known input variables; rows are the discrete states associated to them for each record (NA allowed).}
 
-\item{...}{Additional arguments to fix a state (i.e. setting evidence) to one or more nodes, 
-as known and independent from any spatial data (e.g. the case of non-spatial variables 
-which are equal everywhere). Node name is provided as argument and the associated fixed state as 
-character; both node and state names must be typed accordingly to their names in the network.}
+\item{...}{Additional arguments to force one or more nodes to a state (i.e. fixing evidence). If the node is 
+associated to any input spatial data, the latter will be ignored, thus resulting spatially equal everywhere.
+Node name must be provided as argument and the associated fixed state as 
+character; both node and state names must be typed exactly as their names in the network.}
 
-\item{inparallel}{logical or integer. Number of cores/processors to be used by \code{queryNetParallel}. 
+\item{inparallel}{logical or integer. Number of cores to be used by \code{queryNetParallel}. 
 Default is TRUE, so the maximum number available minus one is set.}
 }
 \value{
-A matrix of probabilities: columns are the target node states and rows are the probabilities associated to each record from argument \code{evidence} (e.g. spatial locations).
+A matrix of probabilities: columns are the states of the target node and rows are the probabilities 
+associated to each record (i.e. spatial locations) from \code{evidence}.
 }
 \description{
 This function queries the Bayesian network and returns the probabilities for each 
@@ -45,6 +46,13 @@ head(q)
 ## Fix a given node on a state (i.e. fixed evidence) by providing an additional argument
 q <- queryNet(network, 'FinalLULC', evidence, Stakeholders = 'farmers')
 head(q)
+
+## Fix evidence for two nodes, including one of the spatial inputs (i.e. overriden by evidence)
+q <- queryNet(network, 'FinalLULC', evidence, Stakeholders = 'farmers', CurrentLULC = 'forest')
+head(q)
+## For a programmatic approach, the arguments could be passed as named list:
+# lst <- list(Stakeholders = 'farmers', CurrentLULC = 'forest')
+# queryNet(network, 'FinalLULC', evidence, lst)
 
 ## Use parallel processing
 q <- queryNetParallel(network, 'FinalLULC', evidence, inparallel=2)

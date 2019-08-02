@@ -6,50 +6,59 @@
 \usage{
 mapTarget(target, statesProb, what = c("class", "entropy"), msk,
   midvals = NULL, targetState = NULL, spatial = TRUE,
-  exportRaster = FALSE, path = getwd())
+  export = FALSE, path = getwd(), exportRaster = export)
 }
 \arguments{
 \item{target}{character. The node of interest to be modelled and mapped.}
 
-\item{statesProb}{matrix. The probability matrix as returned by \code{\link{queryNet}} and \code{queryNetParallel}. Named columns required, accordingly to states.
+\item{statesProb}{matrix. The probability matrix as returned by \code{\link{queryNet}} and \code{queryNetParallel}. 
+Columns must be named accordingly to states of the target node.
 Columns are the \code{target} node states and rows each location considered from the area of interest.}
 
-\item{what}{character. The required output, one or more of these values are valid:
+\item{what}{character. The required output, one or more of these are valid:
 \itemize{
-\item{\code{"class"}} returns the relatively  most likely states.
-\item{\code{"entropy"}} calculates the Shannon index and returns the entropy given the state probabilities.
-\item{\code{"probability"}} returns an object for each state of the target node, with associated probability.
-\item{\code{"expected"}} gives the expected value for the target node (see Details). Only valid for continuous target nodes. \code{midValues} argument must be provided.
-\item{\code{"variation"}} returns the coefficient of variation, as a measure of uncertainty.
+\item{\code{"class"}} returns the relatively  most likely state.
+\item{\code{"entropy"}} calculates the Shannon index and returns the entropy, given the node probabilities.
+\item{\code{"probability"}} returns an object for each state of the target node, with its probability.
+\item{\code{"expected"}} gives the expected value for the target node (see Details). Only valid for 
+target nodes of continuous values. \code{midValues} argument must be provided.
+\item{\code{"variation"}} returns the coefficient of variation, as a measure of uncertainty. 
+Only valid for target nodes of continuous values.
 }}
 
-\item{msk}{an object of class "RasterLayer". The reference raster to be used as mask. 
-All model outputs will have the same resolution and same extent as this raster. All locations with no data (i.e. NA) cells 
-in this raster will be ignored as well.}
+\item{msk}{an object of class "RasterLayer" (raster) or a spatial vector of class "sf" (vector spatial polygons). 
+The reference spatial boundaries to be used as mask. All model outputs will have the same extent/outline as this object. 
+All locations with no data (i.e. NA) will be ignored.}
 
-\item{midvals}{vector of length equal to the number of states of the target node. Applies only if the target node is a continuous 
-variable, in which case \code{midvals} must contain the mid values for each of the intervals}
+\item{midvals}{vector of length equal to the number of states of the target node. 
+Applies only if the target node is a continuous variable, in which case \code{midvals} must 
+contain the mid values for each of the intervals}
 
 \item{targetState}{character. One or more states of interest from the target node. Applies only 
 when argument \code{what} includes \code{'probability'}. Default is set to all states of the node.}
 
-\item{spatial}{logical. Should the output be spatially explicit -i.e. a georeferenced raster? 
-Default is TRUE, returning an object of class "RasterLayer". If FALSE, returns a data.frame 
-with one row for each non NA cell in \code{msk} raster and in columns the output required by \code{mask} argument.}
+\item{spatial}{logical. Should the output be spatially explicit -i.e. a georeferenced raster or spatial vector? 
+Default is TRUE, returning an object of class "RasterLayer" or "sf" for polygons. If FALSE, returns a data frame 
+with one row for each valid cell/feature from \code{msk} and in columns the output required by \code{what} argument.}
 
-\item{exportRaster}{Logical or character. Should the spatial output be exported to a raster file? 
-Applies only if argument \code{spatial=TRUE}. When \code{exportRaster=TRUE}, rasters will be 
-exported in .tif format. A character specifying another extension can be provided, in which case the 
-raster will be exported in that format. Only formats listed by \link[raster]{writeFormats} are valid.}
+\item{export}{Logical or character. Should the spatial output be exported to file? 
+Applies only if argument \code{spatial=TRUE}. When \code{export=TRUE}, output will be 
+exported in .tif (raster) or .shp (vector) format. For rasters, a character specifying another 
+extension can be provided, in which case the 
+raster will be exported in that format. Only formats listed by \link[raster]{writeFormats} are valid. 
+Argument \code{exportRaster} is deprecated.}
 
-\item{path}{The directory to store the output files, when \code{exportRaster} is not FALSE. 
-Default is the working directory (\code{getwd()}). File names are set by a default naming convention, see Details.}
+\item{path}{The directory to store the output files, when \code{export} is not FALSE. 
+Default is the working directory as from \code{getwd()}. File names are set by a default naming convention, see Details.}
+
+\item{exportRaster}{deprecated, use \code{export} instead.}
 }
 \value{
 A list of objects, one for each item required in \code{what} argument. If \code{spatial = TRUE} 
-a list of rasters of class "RasterLayer" are returned, if FALSE a list of vectors with values 
-associated to each non NA cell in msk raster (i.e. the vectorised raster). If argument \code{exportRaster} 
-is specified, outputs are exported to files to the directory specified in \code{path}.
+a list of rasters of class "RasterLayer" are returned, or a single spatial vector of class "sf" with one column 
+for each output requested. If FALSE, for raster data it returns a list of vectors with the values 
+associated to each non NA cell in msk raster (i.e. the vectorised raster). For vector data it returns a data frame. 
+If argument \code{export} is specified, outputs are exported to files to the directory specified in \code{path}.
 }
 \description{
 This function creates the required spatial outputs for the target node.
@@ -59,7 +68,7 @@ mapTarget
 
 The expected value is calculated by summing the mid values of target node states weighted by their probability: 
 \code{p1 * midVal_1 + p2 * midval_2 + ... + pn * midval_n}\cr
-When a RasterLayer is exported to a file, the file name is set by default, accordingly to the following naming convention:
+When exporting to a file, the file name is set by default, according to the following naming convention:
 \itemize{
 \item{\code{"class"}} \emph{<target node name>}_Class.\emph{<file format  -default .tif>}
 \item{\code{"entropy"}} \emph{<target node name>}_ShanEntropy.\emph{<file format  -default .tif>}
@@ -68,7 +77,7 @@ When a RasterLayer is exported to a file, the file name is set by default, accor
 \item{\code{"variation"}} \emph{<target node name>}_CoefVariation.\emph{<file format  -default .tif>}
 }
 An additional comma separated file (.csv) is written to the same directory when \code{"class"}, 
-providing a key to interpret the raster values and the state they refer to.
+providing a key to interpret the values and the state they refer to.
 }
 \examples{
 data(ConwyData)

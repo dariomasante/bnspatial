@@ -166,20 +166,16 @@ linkNode(system.file("extdata", "Conwy.shp", package = "bnspatial"), network, fi
 linkNode(Conwy, network, field='LU', node='CurrentLULC', intervals=c(2, 3, 1))
 
 linkMultiple(c(ConwyLU,ConwySlope,ConwyStatus), network, LUclasses) # list of rasters
-!!linkMultiple(ConwyLU, network, LUclasses[1]) # single raster
+linkMultiple(ConwyLU, network, LUclasses[1]) # single raster
 linkMultiple(c(system.file("extdata", "ConwySlope.tif", package = "bnspatial"), # vector of raster path files 
                system.file("extdata", "ConwyLU.tif", package = "bnspatial")), network, LUclasses[c(2,1)])
-!!linkMultiple( system.file("extdata", "ConwyLU.tif", package = "bnspatial"), network, LUclasses[1]) # single path to raster file
+linkMultiple( system.file("extdata", "ConwyLU.tif", package = "bnspatial"), network, LUclasses[1]) # single path to raster file
 linkMultiple(c(ConwyLU,ConwySlope,ConwyStatus), network, LUclasses, field=c('LU','Slope','Status')) # ignores field arg
 
 linkMultiple(system.file("extdata", "Conwy.shp", package = "bnspatial"), network, LUclasses, field=c('LU','Slope','Status')) # path to vect file
 linkMultiple(Conwy, network, LUclasses[1], field='LU') # single layer sf
 linkMultiple(Conwy, network, LUclasses, field=c('LU','Slope','Status')) # multi layer sf
 linkNode(system.file("extdata", "Conwy.shp", package = "bnspatial"), network, field='Slope', node='Slope', c('-Inf', 1, 7, 'Inf'))
-
-l = linkMultiple(spatialData, network, lookup, verbose = FALSE)
-lookup$CurrentLULC$layer = l$CurrentLULC$SpatialData$ConwyLU
-linkMultiple(c(ConwyLU,ConwySlope,ConwyStatus), network, lookup) # ignores field arg
 
 ## Bad
 linkNode(system.file("extdata", "Conwy.shp", package = "bnspatial"), network, node='CurrentLULC', intervals=c(2, 3, 1))

@@ -5,7 +5,7 @@
         if (length(find.package('RBGL', quiet=TRUE)) == 0){
             packageStartupMessage('NOTE: to use "bnspatial" you need first to install "RGBL" package from Bioconductor.\n',
                                   'To install it, run the following line: \n',
-                                  'install.packages("BiocManager"); BiocManager::install("RBGL")  \n',
+                                  'install.packages("BiocManager"); BiocManager::install("RBGL", version = "3.8")  \n',
                                   '\nbnspatial ', as.character(utils::packageVersion("bnspatial")),
                                   msg, domain=NA, appendLF=TRUE)
         } else {

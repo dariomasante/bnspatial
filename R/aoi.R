@@ -22,7 +22,6 @@
 #' @seealso \code{\link{extractByMask}}
 #' @examples
 #' ## Make a mask from a group of input layers:
-#' data(ConwyData)
 #' list2env(ConwyData, environment())
 #' 
 #' network <- LandUseChange

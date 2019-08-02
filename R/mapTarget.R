@@ -55,7 +55,6 @@
 #' providing a key to interpret the values and the state they refer to.
 #' @seealso \code{\link{bnspatial}}, \code{\link{aoi}}, \code{\link{queryNet}}
 #' @examples
-#' data(ConwyData)
 #' list2env(ConwyData, environment())
 #' 
 #' network <- LandUseChange
@@ -75,6 +74,16 @@
 #' ## Create a probability surface for the "forest" state of target node "FinalLULC"
 #' mp <- mapTarget('FinalLULC', statesProb, what='probability', targetState='forest', msk=ConwyLU)
 #' plot(mp$Probability$forest)
+#' 
+#' ## With spatial vector (totally made up evidence data here):
+#' library(sf)
+spVector <- st_read(system.file("extdata", "Conwy.shp", package = "bnspatial"))
+mp <- mapTarget('FinalLULC', statesProb=evidence[1:nrow(spVector), ],
+                what=c('entropy', 'probability'), targetState='forest', msk=spVector)
+#'  
+#' ## With bounding box:
+mp <- mapTarget('FinalLULC', statesProb, what='entropy',
+                 msk=c(263850,300000,335000,361000))
 #' 
 #' @export
 mapTarget <- function(target, statesProb, what=c("class", "entropy"), msk, midvals=NULL,

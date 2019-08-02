@@ -19,7 +19,6 @@
 #' @return A matrix of probabilities: columns are the states of the target node and rows are the probabilities 
 #' associated to each record (i.e. spatial locations) from \code{evidence}.
 #' @examples
-#' data(ConwyData)
 #' list2env(ConwyData, environment())
 #' 
 #' network <- LandUseChange

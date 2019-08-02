@@ -113,7 +113,7 @@ mapTarget('FinalLULC', statesProb, msk=Conwy, what=c("class", "entropy", "probab
           midvals=c(0,1,4), colnames(statesProb))
 head(mapTarget(target, statesProb, msk=Conwy, spatial=FALSE))
 mapTarget(target, statesProb, msk=Conwy, what = c("clss", "entropy"))
-mp <- mapTarget('FinalLULC', statesProb, msk=Conwy, targetState='forest'); plot(mp$Probability$forest)
+mp <- mapTarget('FinalLULC', statesProb, msk=Conwy, targetState='forest')
 
 ## Bad
 mp <- mapTarget('FinalLULC', statesProb, targetState='forest')

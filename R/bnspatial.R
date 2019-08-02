@@ -26,7 +26,6 @@
 #' providing a key to interpret the spatial object values and the state they refer to.
 #' @seealso \code{\link{setClasses}}; \code{\link{mapTarget}}; \code{\link{linkNode}}; \code{\link{loadNetwork}}
 #' @examples
-#' data(ConwyData)
 #' list2env(ConwyData, environment())
 #' 
 #' network <- LandUseChange

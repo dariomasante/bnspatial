@@ -32,7 +32,6 @@
 #' @seealso \code{\link{dataDiscretize}}; \code{\link{setClasses}}
 #' @examples
 #' ## Load data into global environment
-#' data(ConwyData)
 #' list2env(ConwyData, environment())
 #' lookup <- LUclasses
 #' 
@@ -44,7 +43,7 @@
 #' spatialData <- c(ConwyLU, ConwySlope, ConwyStatus)
 #' linkMultiple(spatialData, network, lookup, verbose = FALSE)
 #' 
-#' ## Method for vectorial data (i.e. class 'sf' or 'SpatialPolygon')
+#' ## Method for spatial vectorial data (i.e. class 'sf' or 'SpatialPolygon')
 #' spatialData <- system.file("extdata", "Conwy.shp", package = "bnspatial")
 #' lst <- linkMultiple(spatialData, network, lookup, field= c('LU', 'Slope', 'Status'))
 #' lst

@@ -50,7 +50,6 @@
 #' dataDiscretize(s, classBoundaries=c(-Inf, 0.5, Inf), classStates=c("first", "second"))[c(2,3)]
 #' 
 #' ## Discretize multiple spatial data by location
-#' data(ConwyData)
 #' list2env(ConwyData, environment())
 #' 
 #' network <- LandUseChange

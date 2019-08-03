@@ -34,6 +34,7 @@
 ## ---- message=FALSE, warning=FALSE, results='hide', fig.height=4, fig.width=6----
 ## Loading package and data stored in it
 library(bnspatial)
+data(ConwyData)
 list2env(ConwyData, environment())
 
 network <- LandUseChange

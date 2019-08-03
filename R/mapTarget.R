@@ -75,15 +75,14 @@
 #' mp <- mapTarget('FinalLULC', statesProb, what='probability', targetState='forest', msk=ConwyLU)
 #' plot(mp$Probability$forest)
 #' 
-#' ## With spatial vector (totally made up evidence data here):
+#' ## With spatial vector (totally made up data here, just for demo):
 #' library(sf)
-spVector <- st_read(system.file("extdata", "Conwy.shp", package = "bnspatial"))
-mp <- mapTarget('FinalLULC', statesProb=evidence[1:nrow(spVector), ],
-                what=c('entropy', 'probability'), targetState='forest', msk=spVector)
-#'  
-#' ## With bounding box:
-mp <- mapTarget('FinalLULC', statesProb, what='entropy',
-                 msk=c(263850,300000,335000,361000))
+#' spVector <- st_read(system.file("extdata", "Conwy.shp", package = "bnspatial"))
+#' ev <- evidence[1:nrow(spVector), ]
+#' 
+#' probs <- queryNet(network, 'FinalLULC', ev)
+#' mp <- mapTarget('FinalLULC', statesProb=probs,
+#'                 what=c('entropy', 'probability'), targetState='forest', msk=spVector)
 #' 
 #' @export
 mapTarget <- function(target, statesProb, what=c("class", "entropy"), msk, midvals=NULL,

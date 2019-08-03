@@ -80,7 +80,6 @@ An additional comma separated file (.csv) is written to the same directory when 
 providing a key to interpret the values and the state they refer to.
 }
 \examples{
-data(ConwyData)
 list2env(ConwyData, environment())
 
 network <- LandUseChange
@@ -100,6 +99,15 @@ head(noMap)
 ## Create a probability surface for the "forest" state of target node "FinalLULC"
 mp <- mapTarget('FinalLULC', statesProb, what='probability', targetState='forest', msk=ConwyLU)
 plot(mp$Probability$forest)
+
+## With spatial vector (totally made up data here, just for demo):
+library(sf)
+spVector <- st_read(system.file("extdata", "Conwy.shp", package = "bnspatial"))
+ev <- evidence[1:nrow(spVector), ]
+
+probs <- queryNet(network, 'FinalLULC', ev)
+mp <- mapTarget('FinalLULC', statesProb=probs,
+                what=c('entropy', 'probability'), targetState='forest', msk=spVector)
 
 }
 \seealso{

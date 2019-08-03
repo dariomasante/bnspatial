@@ -37,7 +37,6 @@ All locations with no data (i.e. NA) cells from \code{msk} will be ignored as we
 }
 \examples{
 ## Make a mask from a group of input layers:
-data(ConwyData)
 list2env(ConwyData, environment())
 
 network <- LandUseChange

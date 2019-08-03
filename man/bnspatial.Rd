@@ -100,7 +100,6 @@ An additional comma separated file (.csv) is written to the same directory when 
 providing a key to interpret the spatial object values and the state they refer to.
 }
 \examples{
-data(ConwyData)
 list2env(ConwyData, environment())
 
 network <- LandUseChange

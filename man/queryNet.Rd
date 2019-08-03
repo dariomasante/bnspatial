@@ -35,7 +35,6 @@ state of the target node. Available input variables are set as evidence.\cr
 for big network queries, by splitting data into chunks and processing them in parallel.
 }
 \examples{
-data(ConwyData)
 list2env(ConwyData, environment())
 
 network <- LandUseChange

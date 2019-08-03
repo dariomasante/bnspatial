@@ -37,7 +37,7 @@ install.packages("gRain", repos="http://cran.uk.r-project.org/", dependencies=T,
 install.packages("raster", repos="http://cran.uk.r-project.org/", dependencies=T, clean=T)
 
 ## Install bnspatial (full path to the file, if not in the R working directory)
-install.packages("~/bnspatial_1.0.3.tar.gz", repos = NULL, type="source")
+install.packages("~/bnspatial_1.1.tar.gz", repos = NULL, type="source")
 ```
 
 Reference manual: [bnspatial.pdf](https://cran.r-project.org/package=bnspatial/bnspatial.pdf)  
@@ -53,7 +53,7 @@ This document describes the package *bnspatial*. The package is aimed at impleme
 The package is designed to facilitate the spatial implementation of Bayesian networks with minimal knowledge of the R programming language. R provides a single consistent working environment, while currently available options to make maps out of Bayesian networks do not. The package acts partly as function wrapper integrating the packages [*raster*](https://cran.r-project.org/package=raster) and [*gRain*](https://cran.r-project.org/package=gRain), but offers some additional features too, including powerful parallel processing options (via [*foreach*](https://cran.r-project.org/package=foreach) package) and data discretization routines.   Bayesian networks must be constructed beforehand, either in R, with [*gRain*](https://cran.r-project.org/package=gRain) or [*bnlearn*](https://cran.r-project.org/package=bnlearn) packages, or via an external software, such as [GeNIe](http://www.bayesfusion.com/) (free for academic use) or [Hugin](http://hugin.com/productsservices), and saved in .net file format (Hugin native format); .net files can then be imported in *bnspatial*. Currently, .net files written with [Netica](https://www.norsys.com/) are not supported, due to reading issues which are encountered by Hugin itself. A workaround is to import Netica files to GeNIe and save to .net from there.   In *bnspatial*, Bayesian networks are objects of class `grain` and therefore are queried through the functions provided by the *gRain* package. All basic GIS tasks are performed through the *raster* package and spatial data are objects of its native class `RasterLayer`. 
 
 #### Acknowledgements
-Development was partly funded by the European Union FP7 (2007-2013), under project ROBIN - Role Of Biodiversity In climate change mitigation (agreement 283093).
+Development was partly funded by the European Union FP7 (2007-2013), under project ROBIN - Role Of Biodiversity In climate change mitigation.
 
 ## A worked example
 ### Setting the scene

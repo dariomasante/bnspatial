@@ -12,7 +12,7 @@
 #' the third one contains the values associated to each state in the spatial data (for discrete variables) or the class boundaries dividing the states (for continuous variables), including minimum and maximum.
 #' @param nodes character. The nodes known and available as spatial data.
 #' @param states A list of characters. The states associated to each of the nodes (order must match \code{nodes} names). 
-#' @param classBoundaries A list of numeric. The boundary values splitting the nodes into their corresponding states. They must be sorted in ascending order. For nominal categorical variables, \code{classBoundaries} must be the unique raster values associated to node states. 
+#' @param classBoundaries A list of the boundary values splitting the nodes into their corresponding states. They must be sorted in ascending order. For nominal categorical variables of raster data, \code{classBoundaries} must be the unique raster values associated to node states. 
 #' @param wr character. Optional, the full path to the file to be written. Default is set to NULL, otherwise it writes the formatted list returned by \code{setClasses} to the specified path. Suggested file format is .txt, albeit not mandatory.
 #' @param layer character. Optional argument to indicate the path to files with input spatial data. If not NULL, then all nodes must have a corresponding file path, stored in the 'layer' element of output list.
 #' @return A formatted list, specifying states break values for continuous nodes and integer values for categorical nodes.

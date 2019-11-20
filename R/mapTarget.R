@@ -135,7 +135,15 @@ mapTarget <- function(target, statesProb, what=c("class", "entropy"), msk, midva
 }
 ####
 .entropyValue <- function(statesProb){
-    apply(statesProb, 1, function(x){-x %*% log(x)} )
+    apply(statesProb, 1, function(x){
+        if(min(x) < 0 || sum(x) <= 0){
+            out <- NA
+        } else {
+            x <- x[x>0] / sum(x)
+            out <- -sum(log2(x)*x)
+        }
+    })
+    return(out)
 }
 ####
 .probabilityValue <- function(statesProb, targetState){

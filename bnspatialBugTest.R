@@ -29,7 +29,7 @@ bnspatial(network, 'CarbonStock', spatialData, lookup, what=c('probability','var
 bnspatial(network, 'CarbonStock', spatialData, lookup, what=c('probability','variation','entropy','class','expected'), msk=list(ConwySlope,ConwyLU), midvals = c(0,1,4), Scenarios='intensification')
 #
 spatialData <- Conwy
-bnspatial(network, 'FinalLULC', spatialData, lookup, what='probability', field=c('LU','Slope','Status'))
+bnspatial(network, 'FinalLULC', spatialData, lookup, what=c('class','entropy','probability'), field=c('LU','Slope','Status'))
 
 # BAD
 bnspatial(network,  target=NA, spatialData, lookup, what='probability', msk=ConwySlope)

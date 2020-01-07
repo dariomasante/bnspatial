@@ -2,7 +2,6 @@ library(bnspatial)
 ##################### GENERAL features #######################
 # Make PDF vignettes
 # Add example in risk analysis (see balbi 2016 on flood risk)
-# Swap current example
 # Read xml files and change loading network function
 
 ####

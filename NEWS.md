@@ -2,8 +2,9 @@ bnspatial v1.1.1 (Release date: ... ... ...)
 -----------------------------------------------
 CHANGES:
 
+* Entropy calculation fixed to vase 2 log and to adjust for certain outcome (prob. = 1) and zeros
 * Minor changes in the internals to accomodate for changes in `gRain` and `gRbase` packages (mainly function `loadNetwork`)
-* Smaller and simpler example vectorial data
+* Smaller and simpler example vectorial data 
 *
 
 

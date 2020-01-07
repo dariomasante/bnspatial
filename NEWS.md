@@ -1,3 +1,12 @@
+bnspatial v1.1.1 (Release date: ... ... ...)
+-----------------------------------------------
+CHANGES:
+
+* Minor changes in the internals to accomodate for changes in `gRain` and `gRbase` packages (mainly function `loadNetwork`)
+* Smaller and simpler example vectorial data
+*
+
+
 bnspatial v1.1 (Release date: 2019-08-02)
 -----------------------------------------------
 CHANGES:
@@ -7,6 +16,7 @@ CHANGES:
 * Added a shapefile to the example dataset, and changed some features in example rasters
 * Performance improvements
 * Some function arguments deprecated, but still back-compatible
+
 
 bnspatial v1.0.5 (Release date: 2019-03-21)
 -----------------------------------------------

@@ -30,8 +30,7 @@ loadNetwork <- function(network, target=NULL){
     }
     if(!is.null(target)){
         .checkNames(network, target)
-        #network <- gRbase::compile(network, root=target, propagate=TRUE) #Compile network to speed up queries
-        network <- gRain::compile.CPTgrain(network, root=target, propagate=TRUE) #Compile network to speed up queries
+        network <- gRbase::compile(network, root=target, propagate=TRUE) # Compile network to speed up queries
     }
     return(network)
 }

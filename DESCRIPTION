@@ -1,7 +1,7 @@
 Package: bnspatial
 Title: Spatial Implementation of Bayesian Networks and Mapping 
-Version: 1.1
-Date: 2019-08-02
+Version: 1.1.1
+Date: ... ... ...
 Authors@R: c(person(given = "Dario", family = "Masante", role = c("aut", "cre"), email = "dario.masante@gmail.com"))
 Maintainer: Dario Masante <dario.masante@gmail.com>
 Copyright: Centre for Ecology and Hydrology - CEH
@@ -19,7 +19,7 @@ Imports:
 Suggests:
     knitr,
     rmarkdown
-Description: Allows spatial implementation of Bayesian networks and mapping in geographical space. It makes maps of expected value (or most likely state) given known and unknown conditions, maps of uncertainty measured as coefficient of variation or Shannon index (entropy), maps of probability associated to any states of any node of the network. Some additional features are provided as well: parallel processing options, data discretization routines and function wrappers designed for users with minimal knowledge of the R language. Outputs can be exported to any common GIS format. Development was funded by the European Union FP7 (2007-2013), under project ROBIN (<http://robinproject.info>).
+Description: Allows spatial implementation of Bayesian networks and mapping in geographical space. It makes maps of expected value (or most likely state) given known and unknown conditions, maps of uncertainty measured as coefficient of variation or Shannon index (entropy), maps of probability associated to any states of any node of the network. Some additional features are provided as well: parallel processing options, data discretization routines and function wrappers designed for users with minimal knowledge of the R language. Outputs can be exported to any common GIS format. 
 License: GPL-3
 LazyLoad: yes
 LazyData: yes

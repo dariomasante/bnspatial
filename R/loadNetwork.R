@@ -1,12 +1,10 @@
 #' @name loadNetwork
 #' @title Load a Bayesian network
 #' @description This function loads the Bayesian network from a native gRain object of class \code{grain} or an external 
-#' file with extension \emph{.net} (as provided by external softwares \href{http://www.hugin.com/}{Hugin} or \href{http://www.bayesfusion.com/}{GeNIe}), 
+#' file with extension \emph{.net} or \emph{.xdsl} (as provided by external softwares \href{http://www.hugin.com/}{Hugin} or \href{http://www.bayesfusion.com/}{GeNIe}), 
 #' optionally compiling the network.
-#' @param network The Bayesian network. An object of class \code{grain}, or a character (the path to the \emph{.net} file to be loaded)
+#' @param network The Bayesian network. An object of class \code{grain}, or a character (the path to the \emph{.net} or \emph{.xdsl} file to be loaded)
 #' @param target character. The node of interest to be modelled and mapped.
-#' @note Under current release, this function wraps a set of hidden functions copied in block from the \href{https://cran.r-project.org/package=gRain}{gRain} package, as current CRAN policy
-#' discourages accessing hidden functions with the ":::" operator. These functions will be progressively substituted by bnspatial native ones.
 #' @return An object of class \code{grain}. The Bayesian network. If \code{target} argument is provided the network is compiled for a faster querying .
 #' @details Bayesian networks built with the package \href{https://cran.r-project.org/package=bnlearn}{bnlearn} can be imported with the function \code{bnlearn::as.grain}, which converts them into \code{grain} objects.\cr
 #' \emph{.net} file format as provided from Netica 5.24 currently does not correspond to a valid Hugin .net file.\cr
@@ -21,10 +19,10 @@
 #' @export
 loadNetwork <- function(network, target=NULL){
     if (all(class(network) != "grain")){  # Check if a gRain network is loaded
-        if(class(network) == 'character' & length(network) == 1 & grepl('.net', network)){
+        if(class(network) == 'character' & length(network) == 1 & any(endsWith(network, c('.net','.xdsl')))){
             network <- .loadNet(network) # If not load Bayesian network from file path
         } else {
-            stop('Input argument "network" must be a .net file from an external software such as ', 
+            stop('Input argument "network" must be a .net or .xdsl file from an external software such as ', 
                  'Hugin or GeNIe, or an object of class "grain" from the gRain package')
         }
     }
@@ -36,21 +34,36 @@ loadNetwork <- function(network, target=NULL){
 }
 
 
+# Function to load external .xdsl file (from Genie)
+.loadXdsl <- function(xdsl){
+    x <- xml2::read_xml(xdsl)
+    nodes <- xml2::xml_attr(recs, "id")
+    recs <- xml2::xml_find_all(x, "//cpt")
+    probs <- lapply(strsplit(xml2::xml_text(xml2::xml_find_all(x, "//probabilities")), ' '), as.numeric)
+    lst <- lapply(1:length(recs), function(i){
+        states <- xml2::xml_attr(xml2::xml_find_all(recs[i], './/state'), 'id')
+        parents <- unlist(strsplit(xml2::xml_text(xml2::xml_find_all(recs[i], './/parents')), ' '))
+        gRain::cptable(c(nodes[i], rev(parents)), states, probs[[i]])
+    })
+    return(lst)
+}
+
 ## This set of functions were copied in block from the gRain package, as current CRAN policy
 ## discourages accessing hidden functions with `:::` operator. The problem is that gRain::loadHuginNetwork 
 ## does not load .net files from the GeNIE software correctly and a simple tweak in the hidden functions 
 ## is able to fix that. These functions will be progressively substituted by bnspatial native ones.
 
-.loadNet = function(file, description = rev(unlist(strsplit(file, "/")))[1], details = 0) {
-    xxx <- .readHugin(file, details)
-    
-    xxx$nodeList <- lapply(xxx$nodeList, .fixLines) ## This line fixes Genie quirk when saving .net files
-    
-    yyy <- .transformHuginNet2internal(xxx)
-    universe <- .asUniverse(yyy)
-    plist <- lapply(yyy$potentialList, .hpot2cptable, universe)
-    value <- gRain::grain(gRain::compileCPT(plist))
-    return(value)
+.loadNet <- function(file, description = rev(unlist(strsplit(file, "/")))[1], details = 0) {
+    if(endsWith(file, '.xdsl')){
+        plist <- .loadXdsl(file)
+    } else {
+        xxx <- .readHugin(file, details)
+        xxx$nodeList <- lapply(xxx$nodeList, .fixLines) ## This line fixes Genie quirk when saving .net files
+        yyy <- .transformHuginNet2internal(xxx)
+        universe <- .asUniverse(yyy)
+        plist <- lapply(yyy$potentialList, .hpot2cptable, universe)
+    }
+    return(gRain::grain(gRain::compileCPT(plist)) )
 }
 
 .fixLines <- function(nodeLines) {

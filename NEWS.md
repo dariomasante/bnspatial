@@ -4,8 +4,9 @@ CHANGES:
 
 * Entropy calculation fixed to vase 2 log and to adjust for certain outcome (prob. = 1) and zeros
 * Minor changes in the internals to accomodate for changes in `gRain` and `gRbase` packages (mainly function `loadNetwork`)
-* Smaller and simpler example vectorial data 
-*
+(*) Smaller and simpler example vectorial data 
+(*) Vignette extended with vectorial data
+(*) Can import directly GeNIe software native format .xdsl
 
 
 bnspatial v1.1 (Release date: 2019-08-02)

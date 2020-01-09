@@ -130,13 +130,13 @@ For ease of use, *bnspatial* allows the use of external files in input, which ca
 In fact, a more common case is when spatial data in typical formats are available to the user (e.g. .tif), Bayesian network was built using a stand alone software (e.g. GeNIe, Hugin or Netica) and structure, states and CPT were defined within that. `bnspatial` allows to use such inputs; if the example above resorted to external data, it would be as follows, with identical outputs:
 ```{r, message=FALSE, warning=FALSE, eval=FALSE}
 ## Loading data stored in package
-network <- 'fullPath/toPackageLibrary/bnspatial/extdata/LandUseChange.net'
+network <- system.file("extdata", "LandUseChange.net", package = "bnspatial")
 
-spatialData <- c('fullPath/toPackageLibrary/bnspatial/extdata/CurrentLULC.tif', 
-                 'fullPath/toPackageLibrary/bnspatial/extdata/degSlope.tif',
-                 'fullPath/toPackageLibrary/bnspatial/extdata/LegalStatus.tif')
+spatialData <- c(system.file("extdata", "CurrentLULC.tif", package = "bnspatial"),
+  system.file("extdata", "ConwySlope.tif", package = "bnspatial"),
+  system.file("extdata", "ConwyStatus.tif", package = "bnspatial"))
 
-lookup <- 'fullPath/toPackageLibrary/bnspatial/extdata/LUclasses.txt'
+lookup <- system.file("extdata", "LUclasses.txt", package = "bnspatial")
 
 ## Run a spatial query on the Bayesian network
 bn <- bnspatial(network, 'FinalLULC', spatialData, lookup)

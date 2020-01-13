@@ -36,9 +36,9 @@ loadNetwork <- function(network, target=NULL){
 
 # Function to load external .xdsl file (from Genie)
 .loadXdsl <- function(xdsl){
-    x <- xml2::read_xml(xdsl)
-    nodes <- xml2::xml_attr(recs, "id")
+    x <- xml2::read_xml(xdsl)    
     recs <- xml2::xml_find_all(x, "//cpt")
+    nodes <- xml2::xml_attr(recs, "id")
     probs <- lapply(strsplit(xml2::xml_text(xml2::xml_find_all(x, "//probabilities")), ' '), as.numeric)
     lst <- lapply(1:length(recs), function(i){
         states <- xml2::xml_attr(xml2::xml_find_all(recs[i], './/state'), 'id')

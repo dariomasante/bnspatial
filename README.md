@@ -8,7 +8,7 @@ To install, open a R session and enter the following commands, which will instal
 ```r
 # For R version 3.6
 if (!requireNamespace("BiocManager")) install.packages("BiocManager")
-BiocManager::install('RBGL'); BiocManager::install('Rgraphviz')
+BiocManager::install('RBGL')
 
 # Use this for R version 3.5
 if (!requireNamespace("BiocManager")) install.packages("BiocManager")

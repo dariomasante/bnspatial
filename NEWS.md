@@ -1,4 +1,4 @@
-bnspatial v1.1.1 (Release date: 2020-01-13)
+bnspatial v1.1.1 (Release date: 2020-01-15)
 -----------------------------------------------
 CHANGES:
 

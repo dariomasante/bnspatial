@@ -21,7 +21,7 @@ rawPath <- system.file("extdata/LUclasses.txt", package = "bnspatial")
 ConwyData$LUclasses <- importClasses(rawPath)
 
 rawPath <- system.file("extdata/LandUseChange.net", package = "bnspatial")
-ConwyData$LandUseChange <- loadNetwork(rawPath,'FinalLULC')
+ConwyData$LandUseChange <- loadNetwork(rawPath)
 
 spDataLst <- linkMultiple(c(ConwyData$ConwyLU, ConwyData$ConwySlope, ConwyData$ConwyStatus), 
                           ConwyData$LandUseChange, ConwyData$LUclasses, verbose = FALSE)

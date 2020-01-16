@@ -73,9 +73,24 @@ queryNet <- function(network, target, evidence, ...){
     # Query the network only once for each combination
     evidenceSingle <- as.matrix(evidence[match(uniCodes, singleCodes), ])
     if(length(uniCodes) == 1){evidenceSingle <- t(evidenceSingle)}
-    probs <- gRain::predict.grain(network, target, inputNodes, 
-                           as.data.frame(evidenceSingle),'distribution')$pred[[target]]
-    probs[match(singleCodes, uniCodes), ]
+    # probs <- gRain::predict.grain(network, target, inputNodes, 
+    #                        as.data.frame(evidenceSingle),'distribution')$pred[[target]]
+    # probs[match(singleCodes, uniCodes), ]
+    probs <- apply(evidenceSingle, 1, function(x){
+        if(all(is.na(x))){
+            out <- as.numeric(gRain::querygrain(network, target)[[1]] )
+        } else {
+            out <- as.numeric(gRain::querygrain(gRain::setEvidence(network, inputNodes, x), target)[[1]] )
+        }
+        if(any(is.nan(out) | is.infinite(out))){ # Extra check to cope with 
+            stop('Impossible values have been set in the input network, ',
+                 'e.g. zero as prior probability for an existing class.')
+        }
+        return(out)
+    })
+    probs <- t(probs)[match(singleCodes, uniCodes), ]
+    colnames(probs) <- network$universe$levels[[target]]
+    return(probs)
 }
 
 #' @rdname queryNet

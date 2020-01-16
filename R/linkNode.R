@@ -125,7 +125,7 @@ linkNode <- function(layer, network, node, intervals, categorical=NULL, field=NU
             }
         } else {
             uni <- (v < intervals[1] | v > intervals[length(intervals)])
-            if(any(uni) ) {
+            if(any(uni, na.rm=TRUE)) {
                 warning('Some values in the spatial data do not have an associated state in the network node.\n',
                         'Values of "',field,'" lower than ',intervals[1],' and higher than ',
                         intervals[length(intervals)],' will be treated as NA.')

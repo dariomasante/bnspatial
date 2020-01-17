@@ -1,5 +1,9 @@
-## ---- eval=FALSE---------------------------------------------------------
-#  # Use this for R version > 3.5.0
+## ---- eval=FALSE--------------------------------------------------------------
+#  # For R version 3.6
+#  if (!requireNamespace("BiocManager")) install.packages("BiocManager")
+#  BiocManager::install('RBGL')
+#  
+#  # Use this for R version 3.5
 #  if (!requireNamespace("BiocManager")) install.packages("BiocManager")
 #  BiocManager::install('RBGL', version = "3.8")
 #  
@@ -7,27 +11,18 @@
 #  source("http://bioconductor.org/biocLite.R")
 #  biocLite("RBGL")
 
-## ---- eval=FALSE---------------------------------------------------------
+## ---- eval=FALSE--------------------------------------------------------------
 #  install.packages("bnspatial")
 
-## ---- eval=FALSE---------------------------------------------------------
-#  ## Install the required packages
-#  # Use this for R version > 3.5.0
-#  if (!requireNamespace("BiocManager")) install.packages("BiocManager")
-#  BiocManager::install('RBGL', version = "3.8")
-#  
-#  # ...or this for older versions:
-#  source("http://bioconductor.org/biocLite.R")
-#  biocLite("RBGL")
-#  
-#  # Then:
-#  install.packages("gRain", repos="http://cran.uk.r-project.org/", dependencies=T, clean=T)
-#  install.packages("raster", repos="http://cran.uk.r-project.org/", dependencies=T, clean=T)
+## ---- eval=FALSE--------------------------------------------------------------
+#  install.packages("gRain")
+#  install.packages("raster")
+#  install.packages("sf")
 #  
 #  ## Install bnspatial (full path to the file, if not in the R working directory)
-#  install.packages("~/bnspatial_1.1.tar.gz", repos = NULL, type="source")
+#  install.packages("~/bnspatial_[LATEST_VERSION].tar.gz", repos = NULL, type="source")
 
-## ---- eval=FALSE---------------------------------------------------------
+## ---- eval=FALSE--------------------------------------------------------------
 #  help(package=bnspatial) ## opens package index
 #  ?bnspatial ## help file for the main function
 
@@ -54,18 +49,18 @@ par(mfrow=c(1,2))
 plot(bn$Class, main='Most likely class')
 plot(bn$Entropy, main='Uncertainty (Shannon index)')
 
-## ---- message=FALSE, warning=FALSE, echo=FALSE---------------------------
+## ---- message=FALSE, warning=FALSE, echo=FALSE--------------------------------
 bn <- bnspatial(network, 'FinalLULC', spatialData, lookup, verbose=FALSE)
 
-## ---- message=FALSE, warning=FALSE, eval=FALSE---------------------------
+## ---- message=FALSE, warning=FALSE, eval=FALSE--------------------------------
 #  ## Loading data stored in package
-#  network <- 'fullPath/toPackageLibrary/bnspatial/extdata/LandUseChange.net'
+#  network <- system.file("extdata", "LandUseChange.net", package = "bnspatial")
 #  
-#  spatialData <- c('fullPath/toPackageLibrary/bnspatial/extdata/CurrentLULC.tif',
-#                   'fullPath/toPackageLibrary/bnspatial/extdata/degSlope.tif',
-#                   'fullPath/toPackageLibrary/bnspatial/extdata/LegalStatus.tif')
+#  spatialData <- c(system.file("extdata", "CurrentLULC.tif", package = "bnspatial"),
+#    system.file("extdata", "ConwySlope.tif", package = "bnspatial"),
+#    system.file("extdata", "ConwyStatus.tif", package = "bnspatial"))
 #  
-#  lookup <- 'fullPath/toPackageLibrary/bnspatial/extdata/LUclasses.txt'
+#  lookup <- system.file("extdata", "LUclasses.txt", package = "bnspatial")
 #  
 #  ## Run a spatial query on the Bayesian network
 #  bn <- bnspatial(network, 'FinalLULC', spatialData, lookup)
@@ -118,44 +113,44 @@ bn <- bnspatial(network, "CarbonStock", spatialData, lookup, msk=ConwyLU,
 plot(bn$ExpectedValue, main="Expected carbon (t/ha) (sustain.)")
 plot(bn$CoeffVariation, main="Uncertainty (coeff. variation)")
 
-## ---- eval=FALSE---------------------------------------------------------
+## ---- eval=FALSE--------------------------------------------------------------
 #  bn <- bnspatial(network, 'FinalLULC', spatialData, lookup, inparallel=2)
 
-## ---- eval=FALSE---------------------------------------------------------
+## ---- eval=FALSE--------------------------------------------------------------
 #  network <- loadNetwork(LandUseChange, target='FinalLULC')
 #  network
 
-## ---- eval=FALSE---------------------------------------------------------
+## ---- eval=FALSE--------------------------------------------------------------
 #  fullpath <- system.file("extdata", "LUclasses.txt", package = "bnspatial")
 #  fullpath
 #  
 #  intervals <- importClasses(fullpath)
 #  intervals
 
-## ---- eval=FALSE---------------------------------------------------------
+## ---- eval=FALSE--------------------------------------------------------------
 #  spatialData <- c(ConwyLU, ConwySlope, ConwyStatus)
 #  spatialDataList <- linkMultiple(spatialData, network, intervals)
 
-## ---- eval=FALSE---------------------------------------------------------
+## ---- eval=FALSE--------------------------------------------------------------
 #  ## Return coordinates of valid cells inside the mask instead of a raster layer
 #  msk <- aoi(spatialData, msk=ConwyLU, xy=TRUE)
 #  head(msk)
 
-## ---- eval=FALSE---------------------------------------------------------
+## ---- eval=FALSE--------------------------------------------------------------
 #  m <- aoi(msk=ConwyLU, mskSub=c(2,3))
 #  head( extractByMask(ConwySlope, msk=m), 20)
 
-## ---- eval=FALSE---------------------------------------------------------
+## ---- eval=FALSE--------------------------------------------------------------
 #  s <- runif(30)
 #  
 #  ## Split by user defined values. Values out of boundaries are set to NA:
 #  dataDiscretize(s, classBoundaries = c(0.2, 0.5, 0.8))
 
-## ---- eval=FALSE---------------------------------------------------------
+## ---- eval=FALSE--------------------------------------------------------------
 #  q <- queryNet(network, 'FinalLULC', evidence)
 #  head(q)
 
-## ---- eval=FALSE---------------------------------------------------------
+## ---- eval=FALSE--------------------------------------------------------------
 #  target <- 'FinalLULC'
 #  statesProb <- queryNet(network, target, evidence)
 #  maps <- mapTarget(target, statesProb, msk=ConwyLU)

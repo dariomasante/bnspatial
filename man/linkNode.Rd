@@ -5,11 +5,18 @@
 \alias{linkMultiple}
 \title{Link nodes to spatial data}
 \usage{
-linkNode(layer, network, node, intervals, categorical = NULL,
-  field = NULL, verbose = TRUE, spatial = TRUE)
+linkNode(
+  layer,
+  network,
+  node,
+  intervals,
+  categorical = NULL,
+  field = NULL,
+  verbose = TRUE,
+  spatial = TRUE
+)
 
-linkMultiple(spatialData, network, lookup, field = NULL,
-  verbose = TRUE)
+linkMultiple(spatialData, network, lookup, field = NULL, verbose = TRUE)
 }
 \arguments{
 \item{layer}{character (path to file) or an object of class "RasterLayer", 

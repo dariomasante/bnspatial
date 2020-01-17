@@ -4,9 +4,18 @@
 \alias{mapTarget}
 \title{Make maps for target node}
 \usage{
-mapTarget(target, statesProb, what = c("class", "entropy"), msk,
-  midvals = NULL, targetState = NULL, spatial = TRUE,
-  export = FALSE, path = getwd(), exportRaster = export)
+mapTarget(
+  target,
+  statesProb,
+  what = c("class", "entropy"),
+  msk,
+  midvals = NULL,
+  targetState = NULL,
+  spatial = TRUE,
+  export = FALSE,
+  path = getwd(),
+  exportRaster = export
+)
 }
 \arguments{
 \item{target}{character. The node of interest to be modelled and mapped.}

@@ -5,8 +5,12 @@
 \alias{bulkDiscretize}
 \title{Discretize data}
 \usage{
-dataDiscretize(data, classBoundaries = NULL, classStates = NULL,
-  method = "quantile")
+dataDiscretize(
+  data,
+  classBoundaries = NULL,
+  classStates = NULL,
+  method = "quantile"
+)
 
 bulkDiscretize(formattedLst, xy, inparallel = FALSE)
 }

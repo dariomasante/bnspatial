@@ -26,10 +26,10 @@ loadNetwork <- function(network, target=NULL){
                  'Hugin or GeNIe, or an object of class "grain" from the gRain package')
         }
     }
-    if(!is.null(target)){
-        .checkNames(network, target)
-        network <- gRbase::compile(network, root=target, propagate=TRUE) # Compile network to speed up queries
-    }
+    # if(!is.null(target)){
+    #     .checkNames(network, target)
+    #     network <- gRbase::compile(network, root=target, propagate=TRUE) # Compile network to speed up queries
+    # }
     return(network)
 }
 

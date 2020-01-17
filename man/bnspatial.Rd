@@ -4,10 +4,24 @@
 \alias{bnspatial}
 \title{Spatialize the Bayesian network}
 \usage{
-bnspatial(network, target, spatialData, lookup, msk = NULL,
-  what = c("class", "entropy"), midvals = NULL, targetState = NULL,
-  spatial = TRUE, inparallel = FALSE, export = FALSE, path = NULL,
-  field = NULL, verbose = TRUE, ..., exportRaster = FALSE)
+bnspatial(
+  network,
+  target,
+  spatialData,
+  lookup,
+  msk = NULL,
+  what = c("class", "entropy"),
+  midvals = NULL,
+  targetState = NULL,
+  spatial = TRUE,
+  inparallel = FALSE,
+  export = FALSE,
+  path = NULL,
+  field = NULL,
+  verbose = TRUE,
+  ...,
+  exportRaster = FALSE
+)
 }
 \arguments{
 \item{network}{The Bayesian network. An object of class \code{grain}, or a character (the path to the \emph{.net} file to be loaded)}

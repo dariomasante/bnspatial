@@ -14,7 +14,7 @@ importClasses(classFile)
 
 \item{states}{A list of characters. The states associated to each of the nodes (order must match \code{nodes} names).}
 
-\item{classBoundaries}{A list of numeric. The boundary values splitting the nodes into their corresponding states. They must be sorted in ascending order. For nominal categorical variables, \code{classBoundaries} must be the unique raster values associated to node states.}
+\item{classBoundaries}{A list of the boundary values splitting the nodes into their corresponding states. They must be sorted in ascending order. For nominal categorical variables of raster data, \code{classBoundaries} must be the unique raster values associated to node states.}
 
 \item{wr}{character. Optional, the full path to the file to be written. Default is set to NULL, otherwise it writes the formatted list returned by \code{setClasses} to the specified path. Suggested file format is .txt, albeit not mandatory.}
 

@@ -4,6 +4,11 @@
 \name{ConwyData}
 \alias{ConwyData}
 \alias{ConwySlope}
+\alias{LandUseChange}
+\alias{ConwyStatus}
+\alias{evidence}
+\alias{ConwyLU}
+\alias{LUclasses}
 \title{Land use change data}
 \format{A dataset in native \code{RData} format.}
 \usage{

@@ -33,9 +33,81 @@ loadNetwork <- function(network, target=NULL){
     return(network)
 }
 
+# Function to load external .dne files (Netica)
+.extract_dne <- function(lines, pattern, nodes=FALSE){
+    presence <- grep(pattern, lines)
+    v <- rep(NA, length(lines))
+    nms <- sapply(strsplit(lines[presence], ifelse(nodes,' ','=')), '[[', 2)
+    if(nodes){
+        v <- c(rep(NA, presence[1]-1), nms[cumsum(seq_along(v) %in% presence)])
+    } else {
+        v[presence] <- gsub(';', '', trimws(gsub("[()]", "", nms)))
+    }
+    return(v)
+}
 
-# Function to load external .xdsl file (from Genie)
-.loadXdsl <- function(xdsl){
+# CHECK what happens if no decimal is provided (i.e. prob set to zero/one) 
+.read_dne <- function(dne){
+    f <- readLines(dne)
+    nodes <- .extract_dne(f, "node (.*?) \\{", TRUE)
+    sts <- .extract_dne(f, "states = (.*?);") # get all statuses
+    w_sts <- which(!is.na(sts))
+    prt <- .extract_dne(f, "parents = (.*?);")
+    chc <- .extract_dne(f, "chance = (.*?);")
+    knd <- .extract_dne(f, "kind = (.*?);")
+    dsc <- .extract_dne(f, "discrete = (.*?);")
+    tb <- data.frame(nodes=nodes[w_sts], 
+                     status=sts[w_sts], 
+                     parents=prt[!is.na(prt)][1:length(w_sts)],
+                     chance=chc[!is.na(chc)][1:length(w_sts)],
+                     kind=knd[!is.na(knd)][1:length(w_sts)],
+                     discrete=dsc[!is.na(dsc)][1:length(w_sts)],
+                     stringsAsFactors=FALSE)
+    if(any(tb$chance != 'CHANCE')) {
+        stop('Check node types of ', paste(tb$nodes[tb$chance != 'CHANCE'],collapse=','),
+             ' from Netica file: only chance node types are allowed.')
+    }
+    if(any(tb$kind != 'NATURE')) {
+        stop('Check node types of ',paste(tb$nodes[tb$kind != 'NATURE'],collapse=','),
+        ' from Netica file, only nature node types are allowed.')
+    }
+    if(any(tb$discrete != 'TRUE')) {
+        stop('Check node types of ',paste(tb$nodes[tb$discrete != 'TRUE'],collapse=','),
+        ' from Netica file, only discrete nodes are allowed.')
+        names(lst) <- tb$nodes
+    }
+    lst <- vector(mode = "list", length = nrow(tb))
+    names(lst) <- nodes[w_sts]
+    spb <- str_detect(f, "probs =") # get start of cpt
+    stt <- str_detect(f, "title =") # get end of cpt
+    ctrl <- FALSE
+    for(i in 1:length(spb)){ # isolate between the two 
+        if(stt[i]){ # Keep order of if!!
+            ctrl <- FALSE
+        }
+        if(ctrl){
+            lst[[nodes[i]]] <- c(lst[[nodes[i]]], trimws(gsub('\t\t','',f[i])))
+        }
+        if(spb[i]){
+            ctrl <- TRUE
+        }
+    }
+    states <- strsplit(tb$status, ', ')
+    parents <- strsplit(tb$parents, ', ')
+    # na.omit(as.numeric(unlist(strsplit(lst[[i]],"[^[:digit:].]"))))
+    lst <- lapply(1:length(lst), function(i){
+        # if(!is.null(lst[[i]])){ # case for node different from chance/nature
+        a <- unlist(strsplit(lst[[i]], ','))
+        probs <- as.numeric(regmatches(a,regexpr("(^|\\d+)\\.\\d+",a)))
+        gRain::cptable(c(tb$nodes[i], parents[[i]]), states[[i]], matrix(probs))
+        # }
+    })
+    names(lst) <- tb$nodes
+    return(lst)
+}
+
+# Function to load external .xdsl file (Genie)
+.read_xdsl <- function(xdsl){
     x <- xml2::read_xml(xdsl)    
     recs <- xml2::xml_find_all(x, "//cpt")
     nodes <- xml2::xml_attr(recs, "id")
@@ -45,6 +117,7 @@ loadNetwork <- function(network, target=NULL){
         parents <- unlist(strsplit(xml2::xml_text(xml2::xml_find_all(recs[i], './/parents')), ' '))
         gRain::cptable(c(nodes[i], rev(parents)), states, probs[[i]])
     })
+    names(lst) <- nodes
     return(lst)
 }
 
@@ -55,7 +128,9 @@ loadNetwork <- function(network, target=NULL){
 
 .loadNet <- function(file, description = rev(unlist(strsplit(file, "/")))[1], details = 0) {
     if(endsWith(file, '.xdsl')){
-        plist <- .loadXdsl(file)
+        plist <- .read_xdsl(file)
+    } else if (endsWith(file, '.dne')){
+        plist <- .read_dne(file)
     } else {
         xxx <- .readHugin(file, details)
         xxx$nodeList <- lapply(xxx$nodeList, .fixLines) ## This line fixes Genie quirk when saving .net files

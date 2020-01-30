@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!-- This network was created in GeNIe Academic, which can be used for educational and research purposes only -->
+<smile version="1.0" id="Sub0" numsamples="1000" discsamples="10000">
+	<nodes>
+		<cpt id="CurrentLULC">
+			<state id="forest" />
+			<state id="arable" />
+			<state id="other" />
+			<probabilities>0.3333333333333333 0.3333333333333333 0.3333333333333333</probabilities>
+		</cpt>
+		<cpt id="LegalStatus">
+			<state id="public" />
+			<state id="private" />
+			<state id="protected" />
+			<probabilities>0.2000000000000001 0.7000000000000001 0.1</probabilities>
+		</cpt>
+		<cpt id="Slope">
+			<state id="flat" />
+			<state id="moderate" />
+			<state id="steep" />
+			<probabilities>0.3333333333333333 0.3333333333333333 0.3333333333333333</probabilities>
+		</cpt>
+		<cpt id="Stakeholders">
+			<state id="farmers" />
+			<state id="localGvt" />
+			<state id="tourists" />
+			<parents>LegalStatus</parents>
+			<probabilities>0.2 0.6 0.2 0.7000000000000001 0.2000000000000001 0.1 0.1 0.4 0.5</probabilities>
+		</cpt>
+		<cpt id="Scenarios">
+			<state id="intensification" />
+			<state id="sustainable" />
+			<probabilities>0.5 0.5</probabilities>
+		</cpt>
+		<cpt id="RelativePreference">
+			<state id="forest" />
+			<state id="arable" />
+			<state id="other" />
+			<parents>Scenarios Slope Stakeholders</parents>
+			<probabilities>0.05 0.9 0.05 0.2 0.3 0.5 0.6 0.05 0.35 0.4 0.4 0.2 0.5 0.3 0.2 0.6 0.05 0.35 0.8 0 0.2 0.9 0 0.1 0.6 0.05 0.35 0.2000000000000001 0.7000000000000001 0.1 0.5 0.2 0.3 0.5 0.2 0.3 0.6 0.2 0.2 0.7 0.1 0.2 0.5 0.2 0.3 0.95 0 0.05 1 0 0 0.5 0.2 0.3</probabilities>
+		</cpt>
+		<cpt id="FinalLULC">
+			<state id="forest" />
+			<state id="arable" />
+			<state id="other" />
+			<parents>LegalStatus CurrentLULC RelativePreference</parents>
+			<probabilities>1 0 0 0.8 0.2 0 0.8 0 0.2 0.7 0.25 0.05 0.25 0.7 0.05 0.25 0.05 0.7 0.7 0.05 0.25 0.25 0.7 0.05 0.25 0.05 0.7 1 0 0 0.25 0.75 0 0.25 0 0.75 0.75 0.25 0 0 1 0 0 0.25 0.75 0.7 0.05 0.25 0.25 0.7 0.05 0 0 1 1 0 0 0.95 0.05 0 0.95 0 0.05 0.75 0.2 0.05 0.3 0.65 0.05 0.3 0.05 0.65 0.75 0.05 0.2 0.3 0.65 0.05 0.3 0.05 0.65</probabilities>
+		</cpt>
+		<cpt id="CarbonStock">
+			<state id="high" />
+			<state id="moderate" />
+			<state id="low" />
+			<parents>FinalLULC Slope</parents>
+			<probabilities>0.9 0.1 0 0.75 0.2 0.05 0.6000000000000001 0.3 0.1 0.1 0.3 0.6 0 0.15 0.85 0 0.05 0.95 0.3 0.4 0.3 0.2 0.3 0.5 0.1 0.2 0.7</probabilities>
+		</cpt>
+	</nodes>
+	<extensions>
+		<genie version="1.0" app="GeNIe 2.1.1104.0 ACADEMIC" name="Sub0" faultnameformat="nodestate">
+			<node id="CurrentLULC">
+				<name>CurrentLULC</name>
+				<interior color="e5f6f7" />
+				<outline color="0000bb" />
+				<font color="000000" name="Arial" size="8" />
+				<position>866 8 942 44</position>
+			</node>
+			<node id="LegalStatus">
+				<name>LegalStatus</name>
+				<interior color="e5f6f7" />
+				<outline color="0000bb" />
+				<font color="000000" name="Arial" size="8" />
+				<position>686 8 762 44</position>
+			</node>
+			<node id="Slope">
+				<name>Slope</name>
+				<interior color="e5f6f7" />
+				<outline color="0000bb" />
+				<font color="000000" name="Arial" size="8" />
+				<position>486 8 562 44</position>
+			</node>
+			<node id="Stakeholders">
+				<name>Stakeholders</name>
+				<interior color="e5f6f7" />
+				<outline color="0000bb" />
+				<font color="000000" name="Arial" size="8" />
+				<position>537 137 613 173</position>
+			</node>
+			<node id="Scenarios">
+				<name>Scenarios</name>
+				<interior color="e5f6f7" />
+				<outline color="0000bb" />
+				<font color="000000" name="Arial" size="8" />
+				<position>316 4 392 40</position>
+			</node>
+			<node id="RelativePreference">
+				<name>RelativePreference</name>
+				<interior color="e5f6f7" />
+				<outline color="0000bb" />
+				<font color="000000" name="Arial" size="8" />
+				<position>426 228 502 264</position>
+			</node>
+			<node id="FinalLULC">
+				<name>FinalLULC</name>
+				<interior color="e5f6f7" />
+				<outline color="0000bb" />
+				<font color="000000" name="Arial" size="8" />
+				<position>626 228 702 264</position>
+			</node>
+			<node id="CarbonStock">
+				<name>CarbonStock</name>
+				<interior color="e5f6f7" />
+				<outline color="0000bb" />
+				<font color="000000" name="Arial" size="8" />
+				<position>826 228 902 264</position>
+			</node>
+		</genie>
+	</extensions>
+</smile>

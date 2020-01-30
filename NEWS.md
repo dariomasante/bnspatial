@@ -1,3 +1,12 @@
+bnspatial v1.. (Release date: 2020--)
+-----------------------------------------------
+CHANGES:
+
+* Added .xdsl and .dne import (genie native format)
+TODO * Expanded documentation to cover spatial vector case
+TODO * Replaced block of gRain functions with native ones (includes pull request)
+
+
 bnspatial v1.1.1 (Release date: 2020-01-16)
 -----------------------------------------------
 CHANGES:

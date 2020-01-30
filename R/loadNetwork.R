@@ -22,8 +22,8 @@ loadNetwork <- function(network, target=NULL){
         if(class(network) == 'character' & length(network) == 1 & any(endsWith(network, c('.net','.xdsl')))){
             network <- .loadNet(network) # If not load Bayesian network from file path
         } else {
-            stop('Input argument "network" must be a .net or .xdsl file from an external software such as ', 
-                 'Hugin or GeNIe, or an object of class "grain" from the gRain package')
+            stop('Input argument "network" must be a .net, .xdsl or .dne file from an external software such as ', 
+                 'Hugin, GeNIe or Netica, or an object of class "grain" from the gRain package.')
         }
     }
     # if(!is.null(target)){

@@ -6,9 +6,9 @@ URL: https://cran.r-project.org/package=bnspatial
 
 To install, open a R session and enter the following commands, which will install some mandatory functions underlying *gRain*:
 ```r
-# For R version 3.6
+# For R version 3.6 and later
 if (!requireNamespace("BiocManager")) install.packages("BiocManager")
-BiocManager::install('RBGL')
+BiocManager::install('RBGL','Rgraphviz')
 
 # Use this for R version 3.5
 if (!requireNamespace("BiocManager")) install.packages("BiocManager")
